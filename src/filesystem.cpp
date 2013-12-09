@@ -25,7 +25,7 @@ void setRootPath (const std::string& relativeToExecutable)
 
 File::File (const std::string& filename)
 {
-    fileHandle = new PHYSFS_File;
+    fileHandle = nullptr;
     fileData = nullptr;
     setFile(filename);
 }
@@ -37,7 +37,7 @@ File::~File()
 {
     if (fileHandle != nullptr)
     {
-        PHYSFS_close (fileHandle);
+        PHYSFS_close(fileHandle);
     }
     if (fileData != nullptr)
     {
@@ -120,7 +120,7 @@ void File::clear()
 {
     if (fileHandle != nullptr)
     {
-        PHYSFS_close (fileHandle);
+        PHYSFS_close(fileHandle);
         fileHandle = nullptr;
     }
     filePath.clear();

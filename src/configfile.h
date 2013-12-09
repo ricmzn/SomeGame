@@ -168,7 +168,7 @@ ConfigTree ParseConfig(const std::string& file)
     temp.clear();
 
     int i = 1;
-    while (std::getline(is, line))
+    while (std::getline(is, line, ';'))
     {
         if (line[0] == '#' or line.size() <= 1) continue;
         tree.nodes.push_back(new cfg::Variable(line.substr(0, line.find_first_of('='))));

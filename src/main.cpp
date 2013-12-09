@@ -32,7 +32,12 @@ class Shader
 int main(int argc, char** argv)
 {
     PHYSFS_init(argv[0]);
-    setRootPath("../content");
+    setRootPath("../");
+    ConfigTree tree = ParseConfig("default.cfg");
+    for (auto& node : tree.nodes)
+    {
+        std::cout << node->get() << "\n";
+    }
     glfwInit();
     GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", 0, 0);
     glfwSwapInterval(1);
