@@ -16,9 +16,10 @@
 class String
 {
     private:
-        std::string data;
+        const char* data;
     public:
         String(const char* cstr) : data(cstr) {}
+        const char* str() const {return data;}
 };
 
 class Shader
@@ -39,14 +40,18 @@ int main(int argc, char** argv)
         std::cout << node->get() << "\n";
     }
     glfwInit();
-    GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", 0, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", NULL, NULL);
     glfwSwapInterval(1);
-    if (!glewInit())
+    if (!glewInit() or !Window)
     {
-        MessageBoxA(0, "Could not initialize GLEW", "Fatal error", MB_ICONERROR | MB_OK);
+        MessageBoxA(0, "Could not initialize an OpenGL context", "Fatal error", MB_ICONERROR | MB_OK);
         return -1;
     }
-    glClearColor(0, 0, 0, 1);
+    glClearColor(0, 1, 0, 1);
     glClearDepth(1);
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
