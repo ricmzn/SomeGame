@@ -3,15 +3,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <GL/glu.h>
-
-#ifdef __WIN32__
- #define WIN32_MEAN_AND_LEAN
- #include <windows.h>
-#else
- #include <Qt/QMessageBox>
-#endif
-
 #include "configfile.h"
+#include "messagebox.h"
 
 class String
 {
@@ -70,7 +63,7 @@ class TestScene
     public:
         TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag")
         {
-            glClearColor(0, 1, 0, 1);
+            glClearColor(0, 0, 0, 1);
             glClearDepth(1);
             glEnable(GL_DEPTH_TEST);
             glShadeModel(GL_SMOOTH);
@@ -118,9 +111,9 @@ int main(int argc, char** argv)
     GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", NULL, NULL);
     glfwMakeContextCurrent(Window);
     glfwSwapInterval(1);
-    if (glewInit() != GLEW_OK or !Window)
+    if (glewInit() != GLEW_OK or Window == nullptr)
     {
-        MessageBoxA(0, "Could not initialize an OpenGL context", "Fatal error", MB_ICONERROR | MB_OK);
+        MessageBoxError("Fatal Error", "Could not initialize an OpenGL context");
         return -1;
     }
     TestScene scene;
