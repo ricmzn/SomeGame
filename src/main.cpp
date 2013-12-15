@@ -98,11 +98,6 @@ int main(int argc, char** argv)
 {
     PHYSFS_init(argv[0]);
     setRootPath("../content");
-    ConfigTree tree = ParseConfig("default.cfg");
-    for (auto& node : tree.nodes)
-    {
-        std::cout << node->get() << "\n";
-    }
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
@@ -116,7 +111,6 @@ int main(int argc, char** argv)
         MessageBoxError("Fatal Error", "Could not initialize an OpenGL context");
         return -1;
     }
-    TestScene scene;
     bool runGame = true;
     while (runGame)
     {
@@ -126,7 +120,6 @@ int main(int argc, char** argv)
             runGame = false;
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        scene.draw();
         glfwSwapBuffers(Window);
     }
     glfwDestroyWindow(Window);
