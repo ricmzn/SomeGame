@@ -14,4 +14,4 @@ file(GLOB_RECURSE SOURCE_LIST "src/*.cpp" "src/*.h")
 #    add_executable(${PROJECT_NAME} ${SOURCE_LIST})
 #endif()
 
-target_link_libraries(${PROJECT_NAME} glfw3 glew32 glu32 opengl32 physfs user32 gdi32)
+target_link_libraries(${PROJECT_NAME} glfw3 opengl32 physfs user32 gdi32)

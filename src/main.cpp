@@ -1,8 +1,7 @@
 #include <iostream>
-#include <GL/glew.h>
+#include "ext/gl_core_3_3.hpp"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <GL/glu.h>
 #include "configfile.h"
 #include "messagebox.h"
 
@@ -26,26 +25,26 @@ class Shader
         {
             // Tutorial code from http://www.arcsynthesis.org/gltut
             // Copyright © 2012 Jason L. McKesson
-            // Variable names changed take custom parameters
-            GLuint shader = glCreateShader(shaderType);
-            glShaderSource(shader, 1, &source, NULL);
-            glCompileShader(shader);
+            // Variable names changed take custom parameters and work with glLoadGen func_cpp functions
+            GLuint shader = gl::CreateShader(shaderType);
+            gl::ShaderSource(shader, 1, &source, NULL);
+            gl::CompileShader(shader);
             GLint status;
-            glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-            if (status == GL_FALSE)
+            gl::GetShaderiv(shader, gl::COMPILE_STATUS, &status);
+            if (status == gl::FALSE_)
             {
                GLint infoLogLength;
-               glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+               gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &infoLogLength);
 
                GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-               glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
+               gl::GetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
 
                const char *strShaderType = NULL;
                switch(shaderType)
                {
-               case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
-               case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
-               case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
+               case gl::VERTEX_SHADER: strShaderType = "vertex"; break;
+               case gl::GEOMETRY_SHADER: strShaderType = "geometry"; break;
+               case gl::FRAGMENT_SHADER: strShaderType = "fragment"; break;
                }
 
                fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
@@ -57,14 +56,14 @@ class Shader
         Shader(const File& vert, const File& frag)
         {
             // Create both shaders
-            vertID = createShader(GL_VERTEX_SHADER, vert.string().c_str());
-            fragID = createShader(GL_FRAGMENT_SHADER, frag.string().c_str());
+            vertID = createShader(gl::VERTEX_SHADER, vert.string().c_str());
+            fragID = createShader(gl::FRAGMENT_SHADER, frag.string().c_str());
 
             // Create and link a program
-            progID = glCreateProgram();
-            glAttachShader(progID, vertID);
-            glAttachShader(progID, fragID);
-            glLinkProgram(progID);
+            progID = gl::CreateProgram();
+            gl::AttachShader(progID, vertID);
+            gl::AttachShader(progID, fragID);
+            gl::LinkProgram(progID);
         }
         const int getProgram() {return progID;}
 };
@@ -83,42 +82,38 @@ class TestScene
     public:
         TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag")
         {
-            glClearColor(0, 0, 0, 1);
-            glClearDepth(1);
-            glEnable(GL_DEPTH_TEST);
-            glShadeModel(GL_SMOOTH);
-            glMatrixMode(GL_PROJECTION);
-            gluPerspective(75, 1280/720, 1, 32768);
-            glViewport(0, 0, 1280, 720);
-            gluLookAt(0, 0, 4, 0, 0, 0, 0, 1, 0);
+            gl::ClearColor(0, 0, 0, 1);
+            gl::ClearDepth(1);
+            gl::Enable(gl::DEPTH_TEST);
+            gl::Viewport(0, 0, 1280, 720);
 
             // Generate a buffer
-            glGenBuffers(1, &VBO_id);
+            gl::GenBuffers(1, &VBO_id);
             // Bind it
-            glBindBuffer(GL_ARRAY_BUFFER, VBO_id);
+            gl::BindBuffer(gl::ARRAY_BUFFER, VBO_id);
             // Set its data
-            glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
+            gl::BufferData(gl::ARRAY_BUFFER, sizeof(triangle), triangle, gl::STATIC_DRAW);
             // And unbind it
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
         }
         void draw()
         {
             // Set the shader program
-            glUseProgram(shader.getProgram());
+            gl::UseProgram(shader.getProgram());
             // Bind the buffer
-            glBindBuffer(GL_ARRAY_BUFFER, VBO_id);
+            gl::BindBuffer(gl::ARRAY_BUFFER, VBO_id);
             // Enable the first attribute
-            glEnableVertexAttribArray(0);
+            gl::EnableVertexAttribArray(0);
             // Unknown value, 4 values per position, inform they're floats, unknown, space between values, first value
-            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+            gl::VertexAttribPointer(0, 4, gl::FLOAT, gl::FALSE_, 0, 0);
             // Draw the values
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            gl::DrawArrays(gl::TRIANGLES, 0, 3);
         }
 };
 
 void cbfun_windowResized(GLFWwindow* window, int width, int height)
 {
-    glViewport(0, 0, width, height);
+    gl::Viewport(0, 0, width, height);
     std::cout << "New window size: " << width << "x" << height << "\n";
 }
 
@@ -135,7 +130,7 @@ int main(int argc, char** argv)
     glfwSetWindowSizeCallback(Window, cbfun_windowResized);
     glfwMakeContextCurrent(Window);
     glfwSwapInterval(1);
-    if (glewInit() != GLEW_OK or Window == nullptr)
+    if (!gl::sys::LoadFunctions() or Window == nullptr)
     {
         MessageBoxError("Fatal Error", "Could not initialize an OpenGL context\nMake sure your computer supports OpenGL 3.3 and drivers are updated");
         return -1;
@@ -149,7 +144,7 @@ int main(int argc, char** argv)
         {
             runGame = false;
         }
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         scene.draw();
         glfwSwapBuffers(Window);
     }
