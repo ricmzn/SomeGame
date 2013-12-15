@@ -21,32 +21,52 @@ class String
 class Shader
 {
     private:
-        int shaderID;
-    public:
-        Shader(File vert, File frag)
+        GLuint vertID, fragID, progID;
+        GLuint createShader(GLenum shaderType, const char* source)
         {
+            // Tutorial code from http://www.arcsynthesis.org/gltut
+            // Copyright © 2012 Jason L. McKesson
+            // Variable names changed take custom parameters
+            GLuint shader = glCreateShader(shaderType);
+            glShaderSource(shader, 1, &source, NULL);
+            glCompileShader(shader);
+            GLint status;
+            glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+            if (status == GL_FALSE)
+            {
+               GLint infoLogLength;
+               glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 
-        }
-};
+               GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+               glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
 
-class VertexCluster
-{
-    private:
-        const float* vertexData;
+               const char *strShaderType = NULL;
+               switch(shaderType)
+               {
+               case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
+               case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
+               case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
+               }
+
+               fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
+               delete[] strInfoLog;
+            }
+            return shader;
+        }
     public:
-        VertexCluster() {}
-        VertexCluster(const float* data)
+        Shader(const File& vert, const File& frag)
         {
-            setData(data);
+            // Create both shaders
+            vertID = createShader(GL_VERTEX_SHADER, vert.string().c_str());
+            fragID = createShader(GL_FRAGMENT_SHADER, frag.string().c_str());
+
+            // Create and link a program
+            progID = glCreateProgram();
+            glAttachShader(progID, vertID);
+            glAttachShader(progID, fragID);
+            glLinkProgram(progID);
         }
-        void setData(const float* data)
-        {
-            vertexData = data;
-        }
-        const float* getData() const
-        {
-            return vertexData;
-        }
+        const int getProgram() {return progID;}
 };
 
 const float triangle[] = {
@@ -83,6 +103,8 @@ class TestScene
         }
         void draw()
         {
+            // Set the shader program
+            glUseProgram(shader.getProgram());
             // Bind the buffer
             glBindBuffer(GL_ARRAY_BUFFER, VBO_id);
             // Enable the first attribute
@@ -94,23 +116,31 @@ class TestScene
         }
 };
 
+void cbfun_windowResized(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+    std::cout << "New window size: " << width << "x" << height << "\n";
+}
+
 int main(int argc, char** argv)
 {
     PHYSFS_init(argv[0]);
-    setRootPath("../content");
+    setRootPath("../Data");
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", NULL, NULL);
+    glfwSetWindowSizeCallback(Window, cbfun_windowResized);
     glfwMakeContextCurrent(Window);
     glfwSwapInterval(1);
     if (glewInit() != GLEW_OK or Window == nullptr)
     {
-        MessageBoxError("Fatal Error", "Could not initialize an OpenGL context");
+        MessageBoxError("Fatal Error", "Could not initialize an OpenGL context\nMake sure your computer supports OpenGL 3.3 and drivers are updated");
         return -1;
     }
+    TestScene scene;
     bool runGame = true;
     while (runGame)
     {
@@ -120,6 +150,7 @@ int main(int argc, char** argv)
             runGame = false;
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        scene.draw();
         glfwSwapBuffers(Window);
     }
     glfwDestroyWindow(Window);
