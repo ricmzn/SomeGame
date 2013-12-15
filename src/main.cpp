@@ -93,16 +93,22 @@ class TestScene
             gl::ClearDepth(1);
             gl::Enable(gl::DEPTH_TEST);
             gl::Viewport(0, 0, 1280, 720);
-            // Generate a vertex array
-            gl::GenVertexArrays(1, &VAO_id);
-            // Generate a buffer
+
+            // Generate a VBO and VAO
             gl::GenBuffers(1, &VBO_id);
-            // Bind it
+            gl::GenVertexArrays(1, &VAO_id);
+            // Bind them
             gl::BindBuffer(gl::ARRAY_BUFFER, VBO_id);
-            // Set its data
+            gl::BindVertexArray(VAO_id);
+            // Set the buffer data
             gl::BufferData(gl::ARRAY_BUFFER, sizeof(vertexPositions), triangle, gl::STATIC_DRAW);
-            // And unbind it
+            // Enable the first vertex attribute
+            gl::EnableVertexAttribArray(0);
+            // Unknown value, 4 values per position, inform they're floats, unknown, space between values, first value
+            gl::VertexAttribPointer(0, 4, gl::FLOAT, gl::FALSE_, 0, 0);
+            // And unbind both objects
             gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+            gl::BindVertexArray(0);
         }
         void draw()
         {
@@ -110,21 +116,16 @@ class TestScene
             gl::UseProgram(shader.getProgram());
             // Bind the vertex array
             gl::BindVertexArray(VAO_id);
-            // Bind the buffer
-            gl::BindBuffer(gl::ARRAY_BUFFER, VBO_id);
-            // Enable the first attribute
-            gl::EnableVertexAttribArray(0);
-            // Unknown value, 4 values per position, inform they're floats, unknown, space between values, first value
-            gl::VertexAttribPointer(0, 4, gl::FLOAT, gl::FALSE_, 0, 0);
             // Draw the values
             gl::DrawArrays(gl::TRIANGLES, 0, 3);
+            // And unbind the vertex array
+            gl::BindVertexArray(0);
         }
 };
 
 void cbfun_windowResized(GLFWwindow* window, int width, int height)
 {
     gl::Viewport(0, 0, width, height);
-    std::cout << "New window size: " << width << "x" << height << "\n";
 }
 
 int main(int argc, char** argv)
