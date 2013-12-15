@@ -69,9 +69,15 @@ class Shader
 };
 
 const float triangle[] = {
-    0.0, 0.0, 0.0, 1.f,
-    1.0, 0.0, 0.0, 1.f,
-    0.5, 1.0, 0.5, 1.f
+    -1.0, -1.0,  0.0, 1.0,
+     1.0, -1.0,  0.0, 1.0,
+     0.0,  1.0,  0.0, 1.0
+};
+
+const float vertexPositions[] = {
+    0.75f, 0.75f, 0.0f, 1.0f,
+    0.75f, -0.75f, 0.0f, 1.0f,
+    -0.75f, -0.75f, 0.0f, 1.0f,
 };
 
 class TestScene
@@ -79,6 +85,7 @@ class TestScene
     private:
         Shader shader;
         GLuint VBO_id;
+        GLuint VAO_id;
     public:
         TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag")
         {
@@ -86,13 +93,14 @@ class TestScene
             gl::ClearDepth(1);
             gl::Enable(gl::DEPTH_TEST);
             gl::Viewport(0, 0, 1280, 720);
-
+            // Generate a vertex array
+            gl::GenVertexArrays(1, &VAO_id);
             // Generate a buffer
             gl::GenBuffers(1, &VBO_id);
             // Bind it
             gl::BindBuffer(gl::ARRAY_BUFFER, VBO_id);
             // Set its data
-            gl::BufferData(gl::ARRAY_BUFFER, sizeof(triangle), triangle, gl::STATIC_DRAW);
+            gl::BufferData(gl::ARRAY_BUFFER, sizeof(vertexPositions), triangle, gl::STATIC_DRAW);
             // And unbind it
             gl::BindBuffer(gl::ARRAY_BUFFER, 0);
         }
@@ -100,6 +108,8 @@ class TestScene
         {
             // Set the shader program
             gl::UseProgram(shader.getProgram());
+            // Bind the vertex array
+            gl::BindVertexArray(VAO_id);
             // Bind the buffer
             gl::BindBuffer(gl::ARRAY_BUFFER, VBO_id);
             // Enable the first attribute
@@ -124,8 +134,8 @@ int main(int argc, char** argv)
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
     GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", NULL, NULL);
     glfwSetWindowSizeCallback(Window, cbfun_windowResized);
     glfwMakeContextCurrent(Window);
