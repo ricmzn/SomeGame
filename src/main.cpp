@@ -1,8 +1,7 @@
 #include <iostream>
-#include <GL/glew.h>
+#include "ext/gl_core_3_3.hpp"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <GL/glu.h>
 #include "configfile.h"
 #include "messagebox.h"
 
@@ -21,38 +20,64 @@ class String
 class Shader
 {
     private:
-        int shaderID;
-    public:
-        Shader(File vert, File frag)
+        GLuint vertID, fragID, progID;
+        GLuint createShader(GLenum shaderType, const char* source)
         {
+            // Tutorial code from http://www.arcsynthesis.org/gltut
+            // Copyright © 2012 Jason L. McKesson
+            // Variable names changed take custom parameters and work with glLoadGen func_cpp functions
+            GLuint shader = gl::CreateShader(shaderType);
+            gl::ShaderSource(shader, 1, &source, NULL);
+            gl::CompileShader(shader);
+            GLint status;
+            gl::GetShaderiv(shader, gl::COMPILE_STATUS, &status);
+            if (status == gl::FALSE_)
+            {
+               GLint infoLogLength;
+               gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &infoLogLength);
 
-        }
-};
+               GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+               gl::GetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
 
-class VertexCluster
-{
-    private:
-        const float* vertexData;
+               const char *strShaderType = NULL;
+               switch(shaderType)
+               {
+               case gl::VERTEX_SHADER: strShaderType = "vertex"; break;
+               case gl::GEOMETRY_SHADER: strShaderType = "geometry"; break;
+               case gl::FRAGMENT_SHADER: strShaderType = "fragment"; break;
+               }
+
+               fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
+               delete[] strInfoLog;
+            }
+            return shader;
+        }
     public:
-        VertexCluster() {}
-        VertexCluster(const float* data)
+        Shader(const File& vert, const File& frag)
         {
-            setData(data);
+            // Create both shaders
+            vertID = createShader(gl::VERTEX_SHADER, vert.string().c_str());
+            fragID = createShader(gl::FRAGMENT_SHADER, frag.string().c_str());
+
+            // Create and link a program
+            progID = gl::CreateProgram();
+            gl::AttachShader(progID, vertID);
+            gl::AttachShader(progID, fragID);
+            gl::LinkProgram(progID);
         }
-        void setData(const float* data)
-        {
-            vertexData = data;
-        }
-        const float* getData() const
-        {
-            return vertexData;
-        }
+        const int getProgram() {return progID;}
 };
 
 const float triangle[] = {
-    0.0, 0.0, 0.0, 1.f,
-    1.0, 0.0, 0.0, 1.f,
-    0.5, 1.0, 0.5, 1.f
+    -1.0, -1.0,  0.0, 1.0,
+     1.0, -1.0,  0.0, 1.0,
+     0.0,  1.0,  0.0, 1.0
+};
+
+const float vertexPositions[] = {
+    0.75f, 0.75f, 0.0f, 1.0f,
+    0.75f, -0.75f, 0.0f, 1.0f,
+    -0.75f, -0.75f, 0.0f, 1.0f,
 };
 
 class TestScene
@@ -60,57 +85,68 @@ class TestScene
     private:
         Shader shader;
         GLuint VBO_id;
+        GLuint VAO_id;
     public:
         TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag")
         {
-            glClearColor(0, 0, 0, 1);
-            glClearDepth(1);
-            glEnable(GL_DEPTH_TEST);
-            glShadeModel(GL_SMOOTH);
-            glMatrixMode(GL_PROJECTION);
-            gluPerspective(75, 1280/720, 1, 32768);
-            glViewport(0, 0, 1280, 720);
-            gluLookAt(0, 0, 4, 0, 0, 0, 0, 1, 0);
+            gl::ClearColor(0, 0, 0, 1);
+            gl::ClearDepth(1);
+            gl::Enable(gl::DEPTH_TEST);
+            gl::Viewport(0, 0, 1280, 720);
 
-            // Generate a buffer
-            glGenBuffers(1, &VBO_id);
-            // Bind it
-            glBindBuffer(GL_ARRAY_BUFFER, VBO_id);
-            // Set its data
-            glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
-            // And unbind it
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            // Generate a VBO and VAO
+            gl::GenBuffers(1, &VBO_id);
+            gl::GenVertexArrays(1, &VAO_id);
+            // Bind them
+            gl::BindBuffer(gl::ARRAY_BUFFER, VBO_id);
+            gl::BindVertexArray(VAO_id);
+            // Set the buffer data
+            gl::BufferData(gl::ARRAY_BUFFER, sizeof(vertexPositions), triangle, gl::STATIC_DRAW);
+            // Enable the first vertex attribute
+            gl::EnableVertexAttribArray(0);
+            // Unknown value, 4 values per position, inform they're floats, unknown, space between values, first value
+            gl::VertexAttribPointer(0, 4, gl::FLOAT, gl::FALSE_, 0, 0);
+            // And unbind both objects
+            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+            gl::BindVertexArray(0);
         }
         void draw()
         {
-            // Bind the buffer
-            glBindBuffer(GL_ARRAY_BUFFER, VBO_id);
-            // Enable the first attribute
-            glEnableVertexAttribArray(0);
-            // Unknown value, 4 values per position, inform they're floats, unknown, space between values, first value
-            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+            // Set the shader program
+            gl::UseProgram(shader.getProgram());
+            // Bind the vertex array
+            gl::BindVertexArray(VAO_id);
             // Draw the values
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            gl::DrawArrays(gl::TRIANGLES, 0, 3);
+            // And unbind the vertex array
+            gl::BindVertexArray(0);
         }
 };
+
+void cbfun_windowResized(GLFWwindow* window, int width, int height)
+{
+    gl::Viewport(0, 0, width, height);
+}
 
 int main(int argc, char** argv)
 {
     PHYSFS_init(argv[0]);
-    setRootPath("../content");
+    setRootPath("../Data");
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
     GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", NULL, NULL);
+    glfwSetWindowSizeCallback(Window, cbfun_windowResized);
     glfwMakeContextCurrent(Window);
     glfwSwapInterval(1);
-    if (glewInit() != GLEW_OK or Window == nullptr)
+    if (!gl::sys::LoadFunctions() or Window == nullptr)
     {
-        MessageBoxError("Fatal Error", "Could not initialize an OpenGL context");
+        MessageBoxError("Fatal Error", "Could not initialize an OpenGL context\nMake sure your computer supports OpenGL 3.3 and drivers are updated");
         return -1;
     }
+    TestScene scene;
     bool runGame = true;
     while (runGame)
     {
@@ -119,7 +155,8 @@ int main(int argc, char** argv)
         {
             runGame = false;
         }
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
+        scene.draw();
         glfwSwapBuffers(Window);
     }
     glfwDestroyWindow(Window);

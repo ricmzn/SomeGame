@@ -9,4 +9,4 @@ message(STATUS "Including non-source files in build. This should not cause any s
 file(GLOB_RECURSE MISC_LIST "*.cfg" "*.vert" "*.frag")
 
 add_executable(${PROJECT_NAME} ${SOURCE_LIST} ${MISC_LIST})
-target_link_libraries(${PROJECT_NAME} glfw3 glew32 glu32 opengl32 physfs user32 gdi32)
+target_link_libraries(${PROJECT_NAME} glfw3 opengl32 physfs user32 gdi32)
