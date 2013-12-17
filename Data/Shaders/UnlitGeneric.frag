@@ -1,7 +1,8 @@
 #version 330 core
 
-out vec4 outputColor;
+smooth in vec4 vertexColor;
+layout(location = 0) out vec4 diffuseColor;
 void main()
 {
-    outputColor = vec4(1.f, 1.f, 1.f, 1.f);
+    diffuseColor = vertexColor;
 }

@@ -64,20 +64,21 @@ class Shader
             gl::AttachShader(progID, vertID);
             gl::AttachShader(progID, fragID);
             gl::LinkProgram(progID);
+            gl::DetachShader(progID, vertID);
+            gl::DetachShader(progID, fragID);
         }
         const int getProgram() {return progID;}
 };
 
 const float triangle[] = {
-    -1.0, -1.0,  0.0, 1.0,
-     1.0, -1.0,  0.0, 1.0,
-     0.0,  1.0,  0.0, 1.0
-};
-
-const float vertexPositions[] = {
-    0.75f, 0.75f, 0.0f, 1.0f,
-    0.75f, -0.75f, 0.0f, 1.0f,
-    -0.75f, -0.75f, 0.0f, 1.0f,
+    // Positions
+    -1.0, -1.0,  0.0,  1.0,
+     1.0, -1.0,  0.0,  1.0,
+     0.0,  1.0,  0.0,  1.0,
+    // Colors
+     1.0,  0.0,  0.0,  1.0,
+     0.0,  1.0,  0.0,  1.0,
+     0.0,  0.0,  1.0,  1.0
 };
 
 class TestScene
@@ -101,12 +102,16 @@ class TestScene
             gl::BindBuffer(gl::ARRAY_BUFFER, VBO_id);
             gl::BindVertexArray(VAO_id);
             // Set the buffer data
-            gl::BufferData(gl::ARRAY_BUFFER, sizeof(vertexPositions), triangle, gl::STATIC_DRAW);
-            // Enable the first vertex attribute
+            gl::BufferData(gl::ARRAY_BUFFER, sizeof(triangle), triangle, gl::STATIC_DRAW);
+            // Enable the first two vertex attributes
             gl::EnableVertexAttribArray(0);
-            // Unknown value, 4 values per position, inform they're floats, unknown, space between values, first value
+            gl::EnableVertexAttribArray(1);
+            // Attribute index, 4 values per position, inform they're floats, unknown, space between values, first value
             gl::VertexAttribPointer(0, 4, gl::FLOAT, gl::FALSE_, 0, 0);
-            // And unbind both objects
+            gl::VertexAttribPointer(1, 4, gl::FLOAT, gl::FALSE_, 0, (void*) 48);
+            // And clean up
+            gl::DisableVertexAttribArray(0);
+            gl::DisableVertexAttribArray(1);
             gl::BindBuffer(gl::ARRAY_BUFFER, 0);
             gl::BindVertexArray(0);
         }
@@ -116,6 +121,8 @@ class TestScene
             gl::UseProgram(shader.getProgram());
             // Bind the vertex array
             gl::BindVertexArray(VAO_id);
+            gl::EnableVertexAttribArray(0);
+            gl::EnableVertexAttribArray(1);
             // Draw the values
             gl::DrawArrays(gl::TRIANGLES, 0, 3);
             // And unbind the vertex array
@@ -137,6 +144,7 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, TRUE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
     GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", NULL, NULL);
     glfwMakeContextCurrent(Window);
     glfwSwapInterval(1);
@@ -146,6 +154,7 @@ int main(int argc, char** argv)
         return -1;
     }
     glfwSetWindowSizeCallback(Window, cbfun_windowResized);
+    fprintf(stdout, "OpenGL version: %s\nDisplay device: %s\nVendor: %s\n", gl::GetString(gl::VERSION), gl::GetString(gl::RENDERER), gl::GetString(gl::VENDOR));
 
     TestScene scene;
     bool runGame = true;
