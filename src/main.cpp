@@ -136,16 +136,17 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, TRUE);
     GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", NULL, NULL);
-    glfwSetWindowSizeCallback(Window, cbfun_windowResized);
     glfwMakeContextCurrent(Window);
     glfwSwapInterval(1);
-    if (!gl::sys::LoadFunctions() or Window == nullptr)
+    if (Window == nullptr || !gl::sys::LoadFunctions())
     {
         MessageBoxError("Fatal Error", "Could not initialize an OpenGL context\nMake sure your computer supports OpenGL 3.3 and drivers are updated");
         return -1;
     }
+    glfwSetWindowSizeCallback(Window, cbfun_windowResized);
+
     TestScene scene;
     bool runGame = true;
     while (runGame)
