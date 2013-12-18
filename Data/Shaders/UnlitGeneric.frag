@@ -2,6 +2,7 @@
 
 smooth in vec4 vertexColor;
 layout(location = 0) out vec4 diffuseColor;
+
 void main()
 {
     diffuseColor = vertexColor;

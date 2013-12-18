@@ -87,13 +87,21 @@ class TestScene
         Shader shader;
         GLuint VBO_id;
         GLuint VAO_id;
+        glm::vec2 offset;
+        GLuint offsetLocation;
+        double deltaTime;
+        double currentFrame;
+        double lastFrame;
     public:
-        TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag")
+        TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag"), offset(-2, 0), lastFrame(glfwGetTime())
         {
             gl::ClearColor(0, 0, 0, 1);
             gl::ClearDepth(1);
             gl::Enable(gl::DEPTH_TEST);
             gl::Viewport(0, 0, 1280, 720);
+
+            // Set up an offset uniform for the shader
+            offsetLocation = gl::GetUniformLocation(shader.getProgram(), "offset");
 
             // Generate a VBO and VAO
             gl::GenBuffers(1, &VBO_id);
@@ -117,8 +125,18 @@ class TestScene
         }
         void draw()
         {
+            currentFrame = glfwGetTime();
+            deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
+
             // Set the shader program
             gl::UseProgram(shader.getProgram());
+            // Give it the offset value
+            if (offset.x > 2)
+            {
+                offset.x = -2;
+            }
+            gl::Uniform2f(offsetLocation, offset.x += (0.5 * deltaTime), offset.y);
             // Bind the vertex array
             gl::BindVertexArray(VAO_id);
             gl::EnableVertexAttribArray(0);
