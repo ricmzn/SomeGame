@@ -6,8 +6,8 @@
     #include <windows.h>
     #define MessageBoxError(title, message) {MessageBoxA(0, message, title, MB_ICONERROR | MB_OK);}
 #else
-    #include <Qt/QMessageBox>
-    #define MessageBoxError(title, message) {QMessageBox::MessageBoxError();} // TODO
+    #include <stdio.h>
+    #define MessageBoxError(title, message) {fprintf(stderr, "%s: %s\n", title, message);}
 #endif
 
 #endif // MESSAGEBOX_H

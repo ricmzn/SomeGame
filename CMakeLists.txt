@@ -8,5 +8,11 @@ file(GLOB_RECURSE SOURCE_LIST "src/*.cpp" "src/*.h")
 message(STATUS "Including non-source files in build. This should not cause any side effects.")
 file(GLOB_RECURSE MISC_LIST "*.cfg" "*.vert" "*.frag")
 
+if(WIN32)
+    set(LIBS glfw3 opengl32 physfs user32 gdi32)
+else()
+    set(LIBS glfw X11 GL physfs)
+endif()
+
 add_executable(${PROJECT_NAME} ${SOURCE_LIST} ${MISC_LIST})
-target_link_libraries(${PROJECT_NAME} glfw3 opengl32 physfs user32 gdi32)
+target_link_libraries(${PROJECT_NAME} ${LIBS})

@@ -2,6 +2,7 @@
 #include "ext/gl_core_3_3.hpp"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "configfile.h"
 #include "messagebox.h"
 
@@ -72,14 +73,16 @@ class Shader
 
 const float triangle[] = {
     // Positions
-    -1.0, -1.0,  0.0,  1.0,
-     1.0, -1.0,  0.0,  1.0,
-     0.0,  1.0,  0.0,  1.0,
+    -1, -1,  0,  1,
+     1, -1,  0,  1,
+     0,  1,  0,  1,
     // Colors
-     1.0,  0.0,  0.0,  1.0,
-     0.0,  1.0,  0.0,  1.0,
-     0.0,  0.0,  1.0,  1.0
+     1,  0,  0,  1,
+     0,  1,  0,  1,
+     0,  0,  1,  1
 };
+
+#include "cube.cpp"
 
 class TestScene
 {
@@ -98,7 +101,10 @@ class TestScene
             gl::ClearColor(0, 0, 0, 1);
             gl::ClearDepth(1);
             gl::Enable(gl::DEPTH_TEST);
-            gl::Viewport(0, 0, 1280, 720);
+            gl::Enable(gl::CULL_FACE);
+            gl::CullFace(gl::BACK);
+            gl::FrontFace(gl::CW);
+            gl::Viewport(0, 0, 512, 512);
 
             // Set up an offset uniform for the shader
             offsetLocation = gl::GetUniformLocation(shader.getProgram(), "offset");
@@ -110,13 +116,13 @@ class TestScene
             gl::BindBuffer(gl::ARRAY_BUFFER, VBO_id);
             gl::BindVertexArray(VAO_id);
             // Set the buffer data
-            gl::BufferData(gl::ARRAY_BUFFER, sizeof(triangle), triangle, gl::STATIC_DRAW);
+            gl::BufferData(gl::ARRAY_BUFFER, sizeof(vertexData), vertexData, gl::STATIC_DRAW);
             // Enable the first two vertex attributes
             gl::EnableVertexAttribArray(0);
             gl::EnableVertexAttribArray(1);
             // Attribute index, 4 values per position, inform they're floats, unknown, space between values, first value
             gl::VertexAttribPointer(0, 4, gl::FLOAT, gl::FALSE_, 0, 0);
-            gl::VertexAttribPointer(1, 4, gl::FLOAT, gl::FALSE_, 0, (void*) 48);
+            gl::VertexAttribPointer(1, 4, gl::FLOAT, gl::FALSE_, 0, (void*) (sizeof(vertexData) / 2));
             // And clean up
             gl::DisableVertexAttribArray(0);
             gl::DisableVertexAttribArray(1);
@@ -125,25 +131,28 @@ class TestScene
         }
         void draw()
         {
+            static float totalTime = 0;
             currentFrame = glfwGetTime();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
 
+            totalTime += deltaTime;
+
             // Set the shader program
             gl::UseProgram(shader.getProgram());
             // Give it the offset value
-            if (offset.x > 2)
-            {
-                offset.x = -2;
-            }
-            gl::Uniform2f(offsetLocation, offset.x += (0.5 * deltaTime), offset.y);
+            offset.x = sin(totalTime)/1.5;
+            offset.y = sin(totalTime*2)/2;
+            gl::Uniform2f(offsetLocation, offset.x, offset.y);
             // Bind the vertex array
             gl::BindVertexArray(VAO_id);
             gl::EnableVertexAttribArray(0);
             gl::EnableVertexAttribArray(1);
             // Draw the values
-            gl::DrawArrays(gl::TRIANGLES, 0, 3);
+            gl::DrawArrays(gl::TRIANGLES, 0, 36);
             // And unbind the vertex array
+            gl::DisableVertexAttribArray(0);
+            gl::DisableVertexAttribArray(1);
             gl::BindVertexArray(0);
         }
 };
@@ -161,9 +170,9 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, TRUE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
     glfwWindowHint(GLFW_SAMPLES, 4);
-    GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", NULL, NULL);
+    GLFWwindow* Window = glfwCreateWindow(512, 512, "GL App", NULL, NULL);
     glfwMakeContextCurrent(Window);
     glfwSwapInterval(1);
     if (Window == nullptr || !gl::sys::LoadFunctions())
@@ -188,5 +197,6 @@ int main(int argc, char** argv)
         glfwSwapBuffers(Window);
     }
     glfwDestroyWindow(Window);
+    glfwTerminate();
     return 0;
 }
