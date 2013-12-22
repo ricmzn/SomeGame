@@ -90,13 +90,16 @@ class TestScene
         Shader shader;
         GLuint VBO_id;
         GLuint VAO_id;
-        glm::vec2 offset;
-        GLuint offsetLocation;
+        GLuint mvpLocation, offsetLocation;
         double deltaTime;
         double currentFrame;
         double lastFrame;
+
+        glm::mat4 model, view, projection;
+        glm::vec4 offset;
+
     public:
-        TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag"), offset(-2, 0), lastFrame(glfwGetTime())
+        TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag"), lastFrame(glfwGetTime())
         {
             gl::ClearColor(0, 0, 0, 1);
             gl::ClearDepth(1);
@@ -104,9 +107,10 @@ class TestScene
             gl::Enable(gl::CULL_FACE);
             gl::CullFace(gl::BACK);
             gl::FrontFace(gl::CW);
-            gl::Viewport(0, 0, 512, 512);
+            gl::Viewport(0, 0, 1280, 720);
 
-            // Set up an offset uniform for the shader
+            // Set up uniforms for the shader
+            mvpLocation = gl::GetUniformLocation(shader.getProgram(), "MVP");
             offsetLocation = gl::GetUniformLocation(shader.getProgram(), "offset");
 
             // Generate a VBO and VAO
@@ -129,7 +133,7 @@ class TestScene
             gl::BindBuffer(gl::ARRAY_BUFFER, 0);
             gl::BindVertexArray(0);
         }
-        void draw()
+        void draw(GLFWwindow* _window)
         {
             static float totalTime = 0;
             currentFrame = glfwGetTime();
@@ -138,12 +142,51 @@ class TestScene
 
             totalTime += deltaTime;
 
+            // Matrices
+            model = glm::mat4(1, 0, 0, 0,
+                              0, 1, 0, 0,
+                              0, 0, 1, 0,
+                              0, 0, 0, 1);
+
+            view = glm::lookAt(glm::vec3(0, 0, 2),
+                               glm::vec3(0, 0, 0),
+                               glm::vec3(0, 1, 0));
+
+            int sizeX, sizeY;
+            glfwGetWindowSize(_window, &sizeX, &sizeY);
+
+            projection = glm::perspective(90.0, (double)sizeX/(double)sizeY, 0.01, 100.0);
+
+            glm::mat4 modelViewProjection = projection * view * model;
+
+            static float modelX = 0, modelY = 0;
+            if (glfwGetKey(_window, GLFW_KEY_LEFT))
+            {
+                modelX -= deltaTime;
+            }
+            if(glfwGetKey(_window, GLFW_KEY_RIGHT))
+            {
+                modelX += deltaTime;
+            }
+            if (glfwGetKey(_window, GLFW_KEY_UP))
+            {
+                modelY += deltaTime;
+            }
+            if (glfwGetKey(_window, GLFW_KEY_DOWN))
+            {
+                modelY -= deltaTime;
+            }
+
+            // Offset
+            offset.x = modelX;
+            offset.y = modelY;
+            offset.z = 0;
+            offset.w = 1;
+
             // Set the shader program
             gl::UseProgram(shader.getProgram());
-            // Give it the offset value
-            offset.x = sin(totalTime)/1.5;
-            offset.y = sin(totalTime*2)/2;
-            gl::Uniform2f(offsetLocation, offset.x, offset.y);
+            gl::UniformMatrix4fv(mvpLocation, 1, gl::FALSE_, &modelViewProjection[0][0]);
+            gl::Uniform4fv(offsetLocation, 1, &offset[0]);
             // Bind the vertex array
             gl::BindVertexArray(VAO_id);
             gl::EnableVertexAttribArray(0);
@@ -172,7 +215,7 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
     glfwWindowHint(GLFW_SAMPLES, 4);
-    GLFWwindow* Window = glfwCreateWindow(512, 512, "GL App", NULL, NULL);
+    GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", NULL, NULL);
     glfwMakeContextCurrent(Window);
     glfwSwapInterval(1);
     if (Window == nullptr || !gl::sys::LoadFunctions())
@@ -193,7 +236,7 @@ int main(int argc, char** argv)
             runGame = false;
         }
         gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
-        scene.draw();
+        scene.draw(Window);
         glfwSwapBuffers(Window);
     }
     glfwDestroyWindow(Window);
