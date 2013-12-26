@@ -143,10 +143,7 @@ class TestScene
             totalTime += deltaTime;
 
             // Matrices
-            model = glm::mat4(1, 0, 0, 0,
-                              0, 1, 0, 0,
-                              0, 0, 1, 0,
-                              0, 0, 0, 1);
+            model = glm::mat4(1);
 
             view = glm::lookAt(glm::vec3(0, 0, 2),
                                glm::vec3(0, 0, 0),
@@ -155,7 +152,7 @@ class TestScene
             int sizeX, sizeY;
             glfwGetWindowSize(_window, &sizeX, &sizeY);
 
-            projection = glm::perspective(90.0, (double)sizeX/(double)sizeY, 0.01, 100.0);
+            projection = glm::perspective(60.0, (double)sizeX/(double)sizeY, 0.01, 10000.0);
 
             glm::mat4 modelViewProjection = projection * view * model;
 
