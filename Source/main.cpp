@@ -1,10 +1,11 @@
 #include <iostream>
-#include "ext/gl_core_3_3.hpp"
+#include <External/gl_core_3_3.hpp>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "configfile.h"
+#include <Base/Filesystem/File.h>
 #include "messagebox.h"
+using namespace gl;
 
 class String
 {
@@ -22,30 +23,30 @@ class Shader
 {
     private:
         GLuint vertID, fragID, progID;
-        GLuint createShader(GLenum shaderType, const char* source)
+        GLuint newShader(GLenum shaderType, const char* source)
         {
             // Tutorial code from http://www.arcsynthesis.org/gltut
             // Copyright © 2012 Jason L. McKesson
             // Variable names changed take custom parameters and work with glLoadGen func_cpp functions
-            GLuint shader = gl::CreateShader(shaderType);
-            gl::ShaderSource(shader, 1, &source, NULL);
-            gl::CompileShader(shader);
+            GLuint shader = CreateShader(shaderType);
+            ShaderSource(shader, 1, &source, NULL);
+            CompileShader(shader);
             GLint status;
-            gl::GetShaderiv(shader, gl::COMPILE_STATUS, &status);
-            if (status == gl::FALSE_)
+            GetShaderiv(shader, COMPILE_STATUS, &status);
+            if (status == FALSE_)
             {
                GLint infoLogLength;
-               gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &infoLogLength);
+               GetShaderiv(shader, INFO_LOG_LENGTH, &infoLogLength);
 
                GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-               gl::GetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
+               GetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
 
                const char *strShaderType = NULL;
                switch(shaderType)
                {
-               case gl::VERTEX_SHADER: strShaderType = "vertex"; break;
-               case gl::GEOMETRY_SHADER: strShaderType = "geometry"; break;
-               case gl::FRAGMENT_SHADER: strShaderType = "fragment"; break;
+               case VERTEX_SHADER: strShaderType = "vertex"; break;
+               case GEOMETRY_SHADER: strShaderType = "geometry"; break;
+               case FRAGMENT_SHADER: strShaderType = "fragment"; break;
                }
 
                fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
@@ -57,16 +58,16 @@ class Shader
         Shader(const File& vert, const File& frag)
         {
             // Create both shaders
-            vertID = createShader(gl::VERTEX_SHADER, vert.string().c_str());
-            fragID = createShader(gl::FRAGMENT_SHADER, frag.string().c_str());
+            vertID = newShader(VERTEX_SHADER, vert.string().c_str());
+            fragID = newShader(FRAGMENT_SHADER, frag.string().c_str());
 
             // Create and link a program
-            progID = gl::CreateProgram();
-            gl::AttachShader(progID, vertID);
-            gl::AttachShader(progID, fragID);
-            gl::LinkProgram(progID);
-            gl::DetachShader(progID, vertID);
-            gl::DetachShader(progID, fragID);
+            progID = CreateProgram();
+            AttachShader(progID, vertID);
+            AttachShader(progID, fragID);
+            LinkProgram(progID);
+            DetachShader(progID, vertID);
+            DetachShader(progID, fragID);
         }
         const int getProgram() {return progID;}
 };
@@ -101,37 +102,37 @@ class TestScene
     public:
         TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag"), lastFrame(glfwGetTime())
         {
-            gl::ClearColor(0, 0, 0, 1);
-            gl::ClearDepth(1);
-            gl::Enable(gl::DEPTH_TEST);
-            gl::Enable(gl::CULL_FACE);
-            gl::CullFace(gl::BACK);
-            gl::FrontFace(gl::CW);
-            gl::Viewport(0, 0, 1280, 720);
+            ClearColor(0, 0, 0, 1);
+            ClearDepth(1);
+            Enable(DEPTH_TEST);
+            Enable(CULL_FACE);
+            CullFace(BACK);
+            FrontFace(CW);
+            Viewport(0, 0, 1280, 720);
 
             // Set up uniforms for the shader
-            mvpLocation = gl::GetUniformLocation(shader.getProgram(), "MVP");
-            offsetLocation = gl::GetUniformLocation(shader.getProgram(), "offset");
+            mvpLocation = GetUniformLocation(shader.getProgram(), "MVP");
+            offsetLocation = GetUniformLocation(shader.getProgram(), "offset");
 
             // Generate a VBO and VAO
-            gl::GenBuffers(1, &VBO_id);
-            gl::GenVertexArrays(1, &VAO_id);
+            GenBuffers(1, &VBO_id);
+            GenVertexArrays(1, &VAO_id);
             // Bind them
-            gl::BindBuffer(gl::ARRAY_BUFFER, VBO_id);
-            gl::BindVertexArray(VAO_id);
+            BindBuffer(ARRAY_BUFFER, VBO_id);
+            BindVertexArray(VAO_id);
             // Set the buffer data
-            gl::BufferData(gl::ARRAY_BUFFER, sizeof(vertexData), vertexData, gl::STATIC_DRAW);
+            BufferData(ARRAY_BUFFER, sizeof(vertexData), vertexData, STATIC_DRAW);
             // Enable the first two vertex attributes
-            gl::EnableVertexAttribArray(0);
-            gl::EnableVertexAttribArray(1);
+            EnableVertexAttribArray(0);
+            EnableVertexAttribArray(1);
             // Attribute index, 4 values per position, inform they're floats, unknown, space between values, first value
-            gl::VertexAttribPointer(0, 4, gl::FLOAT, gl::FALSE_, 0, 0);
-            gl::VertexAttribPointer(1, 4, gl::FLOAT, gl::FALSE_, 0, (void*) (sizeof(vertexData) / 2));
+            VertexAttribPointer(0, 4, gl::FLOAT, false, 0, 0);
+            VertexAttribPointer(1, 4, gl::FLOAT, false, 0, (void*) (sizeof(vertexData) / 2));
             // And clean up
-            gl::DisableVertexAttribArray(0);
-            gl::DisableVertexAttribArray(1);
-            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-            gl::BindVertexArray(0);
+            DisableVertexAttribArray(0);
+            DisableVertexAttribArray(1);
+            BindBuffer(ARRAY_BUFFER, 0);
+            BindVertexArray(0);
         }
         void draw(GLFWwindow* _window)
         {
@@ -181,25 +182,25 @@ class TestScene
             offset.w = 1;
 
             // Set the shader program
-            gl::UseProgram(shader.getProgram());
-            gl::UniformMatrix4fv(mvpLocation, 1, gl::FALSE_, &modelViewProjection[0][0]);
-            gl::Uniform4fv(offsetLocation, 1, &offset[0]);
+            UseProgram(shader.getProgram());
+            UniformMatrix4fv(mvpLocation, 1, FALSE_, &modelViewProjection[0][0]);
+            Uniform4fv(offsetLocation, 1, &offset[0]);
             // Bind the vertex array
-            gl::BindVertexArray(VAO_id);
-            gl::EnableVertexAttribArray(0);
-            gl::EnableVertexAttribArray(1);
+            BindVertexArray(VAO_id);
+            EnableVertexAttribArray(0);
+            EnableVertexAttribArray(1);
             // Draw the values
-            gl::DrawArrays(gl::TRIANGLES, 0, 36);
+            DrawArrays(TRIANGLES, 0, 36);
             // And unbind the vertex array
-            gl::DisableVertexAttribArray(0);
-            gl::DisableVertexAttribArray(1);
-            gl::BindVertexArray(0);
+            DisableVertexAttribArray(0);
+            DisableVertexAttribArray(1);
+            BindVertexArray(0);
         }
 };
 
 void cbfun_windowResized(GLFWwindow* window, int width, int height)
 {
-    gl::Viewport(0, 0, width, height);
+    Viewport(0, 0, width, height);
 }
 
 int main(int argc, char** argv)
@@ -215,13 +216,13 @@ int main(int argc, char** argv)
     GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", NULL, NULL);
     glfwMakeContextCurrent(Window);
     glfwSwapInterval(1);
-    if (Window == nullptr || !gl::sys::LoadFunctions())
+    if (Window == nullptr || !sys::LoadFunctions())
     {
         MessageBoxError("Fatal Error", "Could not initialize an OpenGL context\nMake sure your computer supports OpenGL 3.3 and drivers are updated");
         return -1;
     }
     glfwSetWindowSizeCallback(Window, cbfun_windowResized);
-    fprintf(stdout, "OpenGL version: %s\nDisplay device: %s\nVendor: %s\n", gl::GetString(gl::VERSION), gl::GetString(gl::RENDERER), gl::GetString(gl::VENDOR));
+    fprintf(stdout, "OpenGL version: %s\nDisplay device: %s\nVendor: %s\n", GetString(VERSION), GetString(RENDERER), GetString(VENDOR));
 
     TestScene scene;
     bool runGame = true;
@@ -232,7 +233,7 @@ int main(int argc, char** argv)
         {
             runGame = false;
         }
-        gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
+        Clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
         scene.draw(Window);
         glfwSwapBuffers(Window);
     }
