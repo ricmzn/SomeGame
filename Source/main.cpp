@@ -1,11 +1,14 @@
 #include <iostream>
 #include <External/gl_core_3_3.hpp>
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <Base/Filesystem/File.h>
 #include "messagebox.h"
 using namespace gl;
+
+int keyPressed[SDL_NUM_SCANCODES] = {0};
+int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
 
 class String
 {
@@ -92,15 +95,15 @@ class TestScene
         GLuint VBO_id;
         GLuint VAO_id;
         GLuint mvpLocation, offsetLocation;
-        double deltaTime;
-        double currentFrame;
-        double lastFrame;
+        unsigned deltaTime;
+        unsigned currentFrame;
+        unsigned lastFrame;
 
         glm::mat4 model, view, projection;
         glm::vec4 offset;
 
     public:
-        TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag"), lastFrame(glfwGetTime())
+        TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag"), lastFrame(SDL_GetTicks())
         {
             ClearColor(0, 0, 0, 1);
             ClearDepth(1);
@@ -108,7 +111,7 @@ class TestScene
             Enable(CULL_FACE);
             CullFace(BACK);
             FrontFace(CW);
-            Viewport(0, 0, 1280, 720);
+            Viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
             // Set up uniforms for the shader
             mvpLocation = GetUniformLocation(shader.getProgram(), "MVP");
@@ -134,10 +137,10 @@ class TestScene
             BindBuffer(ARRAY_BUFFER, 0);
             BindVertexArray(0);
         }
-        void draw(GLFWwindow* _window)
+        void draw()
         {
-            static float totalTime = 0;
-            currentFrame = glfwGetTime();
+            static unsigned totalTime = 0;
+            currentFrame = SDL_GetTicks();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
 
@@ -150,29 +153,28 @@ class TestScene
                                glm::vec3(0, 0, 0),
                                glm::vec3(0, 1, 0));
 
-            int sizeX, sizeY;
-            glfwGetWindowSize(_window, &sizeX, &sizeY);
+            int sizeX = WINDOW_WIDTH, sizeY = WINDOW_HEIGHT;
 
             projection = glm::perspective(60.0, (double)sizeX/(double)sizeY, 0.01, 10000.0);
 
             glm::mat4 modelViewProjection = projection * view * model;
 
             static float modelX = 0, modelY = 0;
-            if (glfwGetKey(_window, GLFW_KEY_LEFT))
+            if (keyPressed[SDL_SCANCODE_LEFT])
             {
-                modelX -= deltaTime;
+                modelX -= float(deltaTime * 0.001);
             }
-            if(glfwGetKey(_window, GLFW_KEY_RIGHT))
+            if (keyPressed[SDL_SCANCODE_RIGHT])
             {
-                modelX += deltaTime;
+                modelX += float(deltaTime * 0.001);
             }
-            if (glfwGetKey(_window, GLFW_KEY_UP))
+            if (keyPressed[SDL_SCANCODE_UP])
             {
-                modelY += deltaTime;
+                modelY += float(deltaTime * 0.001);
             }
-            if (glfwGetKey(_window, GLFW_KEY_DOWN))
+            if (keyPressed[SDL_SCANCODE_DOWN])
             {
-                modelY -= deltaTime;
+                modelY -= float(deltaTime * 0.001);
             }
 
             // Offset
@@ -198,46 +200,69 @@ class TestScene
         }
 };
 
-void cbfun_windowResized(GLFWwindow* window, int width, int height)
+void cbfun_windowResized(int width, int height)
 {
-    Viewport(0, 0, width, height);
+    WINDOW_WIDTH = width;
+    WINDOW_HEIGHT = height;
+    Viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 int main(int argc, char** argv)
 {
     PHYSFS_init(argv[0]);
     setRootPath("../Data");
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
-    glfwWindowHint(GLFW_SAMPLES, 4);
-    GLFWwindow* Window = glfwCreateWindow(1280, 720, "GL App", NULL, NULL);
-    glfwMakeContextCurrent(Window);
-    glfwSwapInterval(1);
-    if (Window == nullptr || !sys::LoadFunctions())
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Window* window = SDL_CreateWindow("SomeGame (SDL)",
+                                          SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                          WINDOW_WIDTH, WINDOW_HEIGHT,
+                                          SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    SDL_GLContext context = SDL_GL_CreateContext(window);
+    SDL_GL_SetSwapInterval(1);
+    if (!window || !sys::LoadFunctions())
     {
         MessageBoxError("Fatal Error", "Could not initialize an OpenGL context\nMake sure your computer supports OpenGL 3.3 and drivers are updated");
+        fprintf(stderr, "SDL_GetError(): %s", SDL_GetError());
         return -1;
     }
-    glfwSetWindowSizeCallback(Window, cbfun_windowResized);
     fprintf(stdout, "OpenGL version: %s\nDisplay device: %s\nVendor: %s\n", GetString(VERSION), GetString(RENDERER), GetString(VENDOR));
 
     TestScene scene;
     bool runGame = true;
     while (runGame)
     {
-        glfwPollEvents();
-        if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS or glfwWindowShouldClose(Window))
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
         {
-            runGame = false;
+            if (event.type == SDL_KEYDOWN)
+            {
+                keyPressed[event.key.keysym.scancode] = 1;
+            }
+            else if (event.type == SDL_KEYUP)
+            {
+                keyPressed[event.key.keysym.scancode] = 0;
+            }
+
+            if (event.type == SDL_QUIT or event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+            {
+                runGame = false;
+            }
+            else if (event.type == SDL_WINDOWEVENT_RESIZED)
+            {
+                cbfun_windowResized(event.window.data1, event.window.data2);
+            }
         }
         Clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
-        scene.draw(Window);
-        glfwSwapBuffers(Window);
+        scene.draw();
+        SDL_GL_SwapWindow(window);
     }
-    glfwDestroyWindow(Window);
-    glfwTerminate();
+    SDL_GL_DeleteContext(context);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
     return 0;
 }
