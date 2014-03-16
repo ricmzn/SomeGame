@@ -200,13 +200,6 @@ class TestScene
         }
 };
 
-void cbfun_windowResized(int width, int height)
-{
-    WINDOW_WIDTH = width;
-    WINDOW_HEIGHT = height;
-    Viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-}
-
 int main(int argc, char** argv)
 {
     PHYSFS_init(argv[0]);
@@ -252,9 +245,12 @@ int main(int argc, char** argv)
             {
                 runGame = false;
             }
-            else if (event.type == SDL_WINDOWEVENT_RESIZED)
+
+            if (event.type == SDL_WINDOWEVENT and event.window.event == SDL_WINDOWEVENT_RESIZED)
             {
-                cbfun_windowResized(event.window.data1, event.window.data2);
+                WINDOW_WIDTH = event.window.data1;
+                WINDOW_HEIGHT = event.window.data2;
+                Viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
             }
         }
         Clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
