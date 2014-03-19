@@ -4,22 +4,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <Base/Filesystem/File.h>
+#include <Base/System/Window.h>
 #include "messagebox.h"
 
 int keyPressed[SDL_NUM_SCANCODES] = {0};
 int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
-
-class String
-{
-    private:
-        const char* stringData;
-    public:
-        String(const char* cstr) : stringData(cstr) {}
-        const char* str() const
-        {
-            return stringData;
-        }
-};
 
 class Shader
 {
@@ -222,7 +211,7 @@ int main(int argc, char** argv)
            glGetString(GL_RENDERER),
            glGetString(GL_VENDOR));
 
-    TestScene scene;
+    TestScene Scene;
     bool runGame = true;
     while (runGame)
     {
@@ -251,7 +240,7 @@ int main(int argc, char** argv)
             }
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        scene.draw();
+        Scene.draw();
         SDL_GL_SwapWindow(window);
     }
     SDL_GL_DeleteContext(context);
