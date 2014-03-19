@@ -1,5 +1,5 @@
 #include <iostream>
-#include <External/gl_core_3_3.hpp>
+#include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -30,25 +30,25 @@ class Shader
             // Tutorial code from http://www.arcsynthesis.org/gltut
             // Copyright © 2012 Jason L. McKesson
             // Variable names changed take custom parameters and work with glLoadGen func_cpp functions
-            GLuint shader = gl::CreateShader(shaderType);
-            gl::ShaderSource(shader, 1, &source, NULL);
-            gl::CompileShader(shader);
+            GLuint shader = glCreateShader(shaderType);
+            glShaderSource(shader, 1, &source, NULL);
+            glCompileShader(shader);
             GLint status;
-            gl::GetShaderiv(shader, gl::COMPILE_STATUS, &status);
+            glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
             if (status == false)
             {
                GLint infoLogLength;
-               gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &infoLogLength);
+               glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 
                GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-               gl::GetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
+               glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
 
                const char *strShaderType = NULL;
                switch(shaderType)
                {
-               case gl::VERTEX_SHADER: strShaderType = "vertex"; break;
-               case gl::GEOMETRY_SHADER: strShaderType = "geometry"; break;
-               case gl::FRAGMENT_SHADER: strShaderType = "fragment"; break;
+               case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
+               case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
+               case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
                }
 
                fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
@@ -60,16 +60,16 @@ class Shader
         Shader(const File& vert, const File& frag)
         {
             // Create both shaders
-            vertID = newShader(gl::VERTEX_SHADER, vert.string().c_str());
-            fragID = newShader(gl::FRAGMENT_SHADER, frag.string().c_str());
+            vertID = newShader(GL_VERTEX_SHADER, vert.string().c_str());
+            fragID = newShader(GL_FRAGMENT_SHADER, frag.string().c_str());
 
             // Create and link a program
-            progID = gl::CreateProgram();
-            gl::AttachShader(progID, vertID);
-            gl::AttachShader(progID, fragID);
-            gl::LinkProgram(progID);
-            gl::DetachShader(progID, vertID);
-            gl::DetachShader(progID, fragID);
+            progID = glCreateProgram();
+            glAttachShader(progID, vertID);
+            glAttachShader(progID, fragID);
+            glLinkProgram(progID);
+            glDetachShader(progID, vertID);
+            glDetachShader(progID, fragID);
         }
         const int getProgram() {return progID;}
 };
@@ -104,37 +104,37 @@ class TestScene
     public:
         TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag"), lastFrame(SDL_GetTicks())
         {
-            gl::ClearColor(0, 0, 0, 1);
-            gl::ClearDepth(1);
-            gl::Enable(gl::DEPTH_TEST);
-            gl::Enable(gl::CULL_FACE);
-            gl::CullFace(gl::BACK);
-            gl::FrontFace(gl::CW);
-            gl::Viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+            glClearColor(0, 0, 0, 1);
+            glClearDepth(1);
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+            glFrontFace(GL_CW);
+            glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
             // Set up uniforms for the shader
-            mvpLocation = gl::GetUniformLocation(shader.getProgram(), "MVP");
-            offsetLocation = gl::GetUniformLocation(shader.getProgram(), "offset");
+            mvpLocation = glGetUniformLocation(shader.getProgram(), "MVP");
+            offsetLocation = glGetUniformLocation(shader.getProgram(), "offset");
 
             // Generate a VBO and VAO
-            gl::GenBuffers(1, &VBO_id);
-            gl::GenVertexArrays(1, &VAO_id);
+            glGenBuffers(1, &VBO_id);
+            glGenVertexArrays(1, &VAO_id);
             // Bind them
-            gl::BindBuffer(gl::ARRAY_BUFFER, VBO_id);
-            gl::BindVertexArray(VAO_id);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO_id);
+            glBindVertexArray(VAO_id);
             // Set the buffer data
-            gl::BufferData(gl::ARRAY_BUFFER, sizeof(vertexData), vertexData, gl::STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
             // Enable the first two vertex attributes
-            gl::EnableVertexAttribArray(0);
-            gl::EnableVertexAttribArray(1);
+            glEnableVertexAttribArray(0);
+            glEnableVertexAttribArray(1);
             // Attribute index, 4 values per position, inform they're floats, unknown, space between values, first value
-            gl::VertexAttribPointer(0, 4, gl::FLOAT, false, 0, 0);
-            gl::VertexAttribPointer(1, 4, gl::FLOAT, false, 0, (void*) (sizeof(vertexData) / 2));
+            glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
+            glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, (void*) (sizeof(vertexData) / 2));
             // And clean up
-            gl::DisableVertexAttribArray(0);
-            gl::DisableVertexAttribArray(1);
-            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-            gl::BindVertexArray(0);
+            glDisableVertexAttribArray(0);
+            glDisableVertexAttribArray(1);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindVertexArray(0);
         }
         void draw()
         {
@@ -183,19 +183,19 @@ class TestScene
             offset.w = 1;
 
             // Set the shader program
-            gl::UseProgram(shader.getProgram());
-            gl::UniformMatrix4fv(mvpLocation, 1, false, &modelViewProjection[0][0]);
-            gl::Uniform4fv(offsetLocation, 1, &offset[0]);
+            glUseProgram(shader.getProgram());
+            glUniformMatrix4fv(mvpLocation, 1, false, &modelViewProjection[0][0]);
+            glUniform4fv(offsetLocation, 1, &offset[0]);
             // Bind the vertex array
-            gl::BindVertexArray(VAO_id);
-            gl::EnableVertexAttribArray(0);
-            gl::EnableVertexAttribArray(1);
+            glBindVertexArray(VAO_id);
+            glEnableVertexAttribArray(0);
+            glEnableVertexAttribArray(1);
             // Draw the values
-            gl::DrawArrays(gl::TRIANGLES, 0, 36);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
             // And unbind the vertex array
-            gl::DisableVertexAttribArray(0);
-            gl::DisableVertexAttribArray(1);
-            gl::BindVertexArray(0);
+            glDisableVertexAttribArray(0);
+            glDisableVertexAttribArray(1);
+            glBindVertexArray(0);
         }
 };
 
@@ -210,7 +210,7 @@ int main(int argc, char** argv)
                                           SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1);
-    if (!window || !gl::sys::LoadFunctions())
+    if (!window || glewInit() != GLEW_OK)
     {
         MessageBoxError("Fatal Error", "Could not initialize an OpenGL context\nMake sure your video drivers are updated");
         fprintf(stderr, "SDL_GetError(): %s\n", SDL_GetError());
@@ -218,9 +218,9 @@ int main(int argc, char** argv)
     }
 
     printf("OpenGL version: %s\nDisplay device: %s\nVendor: %s\n",
-           gl::GetString(gl::VERSION),
-           gl::GetString(gl::RENDERER),
-           gl::GetString(gl::VENDOR));
+           glGetString(GL_VERSION),
+           glGetString(GL_RENDERER),
+           glGetString(GL_VENDOR));
 
     TestScene scene;
     bool runGame = true;
@@ -247,10 +247,10 @@ int main(int argc, char** argv)
             {
                 WINDOW_WIDTH = event.window.data1;
                 WINDOW_HEIGHT = event.window.data2;
-                gl::Viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+                glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
             }
         }
-        gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         scene.draw();
         SDL_GL_SwapWindow(window);
     }

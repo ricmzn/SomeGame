@@ -10,9 +10,9 @@ file(GLOB_RECURSE MISC_LIST "*.cfg" "*.vert" "*.frag")
 include_directories("Source")
 
 if(WIN32)
-    set(LIBS mingw32 SDL2main SDL2 opengl32 physfs)
+    set(LIBS mingw32 SDL2main SDL2 glew32 opengl32 physfs)
 else()
-    set(LIBS SDL2 GL physfs)
+    set(LIBS SDL2 glew GL physfs)
 endif()
 
 add_executable(${PROJECT_NAME} ${SOURCE_LIST} ${MISC_LIST})
