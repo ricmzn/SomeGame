@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <Base/Filesystem/File.h>
-#include <Base/System/Window.h>
 #include "messagebox.h"
 
 int keyPressed[SDL_NUM_SCANCODES] = {0};
@@ -188,17 +187,56 @@ class TestScene
         }
 };
 
+void runTools_win32(int argc, char** argv)
+{
+    typedef int (__cdecl* dll_main_t)(int, char**);
+    HMODULE module = LoadLibraryA(".\\DeveloperTools.dll");
+    if (!module)
+    {
+        std::cerr << "Missing DeveloperTools.dll!\n";
+        exit(-1);
+    }
+    dll_main_t tools_main;
+    tools_main = (dll_main_t)GetProcAddress(module, "main");
+    int tools_return = tools_main(argc, argv);
+    FreeModule(module);
+
+    if (tools_return != 1)
+    {
+        exit(tools_return);
+    }
+}
+#define runTools(argc, argv) runTools_win32(argc, argv)
+
 int main(int argc, char** argv)
 {
+    for (int i = 0; i < argc; i++)
+    {
+        const char* arg = argv[i];
+        if (strcmp(arg, "-tools") == 0)
+        {
+            runTools(argc, argv);
+        }
+    }
+
     PHYSFS_init(argv[0]);
     setRootPath("../Data");
     SDL_Init(SDL_INIT_VIDEO);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
     SDL_Window* window = SDL_CreateWindow("SomeGame (SDL)",
-                                          SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                          SDL_WINDOWPOS_CENTERED,
+                                          SDL_WINDOWPOS_CENTERED,
                                           WINDOW_WIDTH, WINDOW_HEIGHT,
-                                          SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+                                          SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1);
+    glewExperimental = GL_TRUE;
     if (!window || glewInit() != GLEW_OK)
     {
         MessageBoxError("Fatal Error", "Could not initialize an OpenGL context\nMake sure your video drivers are updated");
@@ -211,6 +249,7 @@ int main(int argc, char** argv)
            glGetString(GL_RENDERER),
            glGetString(GL_VENDOR));
 
+    SDL_ShowWindow(window);
     TestScene Scene;
     bool runGame = true;
     while (runGame)
@@ -232,12 +271,12 @@ int main(int argc, char** argv)
                 runGame = false;
             }
 
-            if (event.type == SDL_WINDOWEVENT and event.window.event == SDL_WINDOWEVENT_RESIZED)
-            {
-                WINDOW_WIDTH = event.window.data1;
-                WINDOW_HEIGHT = event.window.data2;
-                glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-            }
+//            if (event.type == SDL_WINDOWEVENT and event.window.event == SDL_WINDOWEVENT_RESIZED)
+//            {
+//                WINDOW_WIDTH = event.window.data1;
+//                WINDOW_HEIGHT = event.window.data2;
+//                glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+//            }
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         Scene.draw();
