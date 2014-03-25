@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>500</height>
+    <width>640</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,12 +18,12 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>600</width>
-    <height>400</height>
+    <width>640</width>
+    <height>480</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>SomeGame Tools</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -43,13 +43,6 @@
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QPushButton" name="runButton">
-         <property name="text">
-          <string>Run</string>
-         </property>
-        </widget>
-       </item>
        <item>
         <widget class="QPushButton" name="closeButton">
          <property name="text">
@@ -73,22 +66,6 @@
    <hints>
     <hint type="sourcelabel">
      <x>291</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>149</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>runButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ToolLauncher</receiver>
-   <slot>runGame()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>107</x>
      <y>260</y>
     </hint>
     <hint type="destinationlabel">

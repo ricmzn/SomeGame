@@ -3,21 +3,19 @@
 
 #include <QMainWindow>
 #include "ResourceConverter.h"
+#include "ShaderViewer.h"
 
 namespace Ui {
     class ToolLauncher;
 }
 
-class ToolWindow : public QMainWindow
+class ToolsWindow : public QMainWindow
 {
         Q_OBJECT
 
     public:
-        explicit ToolWindow(QWidget *parent = 0);
-        ~ToolWindow();
-
-    public slots:
-        void runGame();
+        explicit ToolsWindow(QWidget *parent = 0);
+        ~ToolsWindow();
 
     private:
         Ui::ToolLauncher *ui;

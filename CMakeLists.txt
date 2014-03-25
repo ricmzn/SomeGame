@@ -34,7 +34,6 @@ if(BUILD_TOOLS)
     find_package(Qt5Widgets)
     qt5_wrap_ui(UI_HEADERS ${UI_LIST})
 
-    add_library(${TOOLS_NAME} SHARED ${SOURCE_LIST} ${UI_LIST})
-    set_target_properties(${TOOLS_NAME} PROPERTIES PREFIX "")
+    add_executable(${TOOLS_NAME} ${SOURCE_LIST} ${UI_LIST})
     qt5_use_modules(${TOOLS_NAME} Widgets)
 endif()

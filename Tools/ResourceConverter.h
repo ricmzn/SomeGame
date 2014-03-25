@@ -2,6 +2,8 @@
 #define RESOURCECONVERTER_H
 
 #include <QWidget>
+#include <QFileDialog>
+#include <QMessageBox>
 
 namespace Ui {
     class ResourceConverter;
@@ -15,8 +17,14 @@ class ResourceConverter : public QWidget
         explicit ResourceConverter(QWidget *parent = 0);
         ~ResourceConverter();
 
+    private slots:
+        void on_loadButton_clicked();
+
+        void on_saveButton_clicked();
+
     private:
         Ui::ResourceConverter *ui;
+        QPixmap previewImage;
 };
 
 #endif // RESOURCECONVERTER_H

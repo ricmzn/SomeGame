@@ -187,38 +187,8 @@ class TestScene
         }
 };
 
-void runTools_win32(int argc, char** argv)
-{
-    typedef int (__cdecl* dll_main_t)(int, char**);
-    HMODULE module = LoadLibraryA(".\\DeveloperTools.dll");
-    if (!module)
-    {
-        std::cerr << "Missing DeveloperTools.dll!\n";
-        exit(-1);
-    }
-    dll_main_t tools_main;
-    tools_main = (dll_main_t)GetProcAddress(module, "main");
-    int tools_return = tools_main(argc, argv);
-    FreeModule(module);
-
-    if (tools_return != 1)
-    {
-        exit(tools_return);
-    }
-}
-#define runTools(argc, argv) runTools_win32(argc, argv)
-
 int main(int argc, char** argv)
 {
-    for (int i = 0; i < argc; i++)
-    {
-        const char* arg = argv[i];
-        if (strcmp(arg, "-tools") == 0)
-        {
-            runTools(argc, argv);
-        }
-    }
-
     PHYSFS_init(argv[0]);
     setRootPath("../Data");
     SDL_Init(SDL_INIT_VIDEO);
