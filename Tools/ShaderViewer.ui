@@ -15,13 +15,30 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:72pt; color:#0000ff;&quot;&gt;S&lt;/span&gt;&lt;span style=&quot; font-size:72pt; color:#ffff00;&quot;&gt;h&lt;/span&gt;&lt;span style=&quot; font-size:72pt; font-style:italic; color:#ffff00; vertical-align:super;&quot;&gt;A&lt;/span&gt;&lt;span style=&quot; font-size:72pt; font-style:italic;&quot;&gt;D&lt;/span&gt;&lt;span style=&quot; font-size:72pt; color:#ff00ff; vertical-align:sub;&quot;&gt;E&lt;/span&gt;&lt;span style=&quot; font-size:72pt; color:#00ff00;&quot;&gt;R&lt;/span&gt;&lt;span style=&quot; font-size:72pt; color:#ff0000;&quot;&gt;S&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <widget class="QFrame" name="glFrame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
+     <layout class="QVBoxLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+     </layout>
     </widget>
    </item>
   </layout>

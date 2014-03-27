@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QFileDialog>
-#include <QMessageBox>
+#include <QMimeDatabase>
 
 namespace Ui {
     class ResourceConverter;

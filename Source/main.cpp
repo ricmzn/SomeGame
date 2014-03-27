@@ -133,8 +133,14 @@ class TestScene
 
             totalTime += deltaTime;
 
+            const float& x = offset.x;
+            const float& y = offset.y;
+            const float& z = offset.z;
             // Matrices
-            model = glm::mat4(1);
+            model = glm::mat4(1, 0, 0, 0,
+                              0, 1, 0, 0,
+                              0, 0, 1, 0,
+                              x, y, z, 1);
 
             view = glm::lookAt(glm::vec3(0, 0, 2),
                                glm::vec3(0, 0, 0),
@@ -146,29 +152,22 @@ class TestScene
 
             glm::mat4 modelViewProjection = projection * view * model;
 
-            static float modelX = 0, modelY = 0;
             if (keyPressed[SDL_SCANCODE_LEFT])
             {
-                modelX -= float(deltaTime * 0.001);
+                offset.x -= float(deltaTime * 0.001);
             }
             if (keyPressed[SDL_SCANCODE_RIGHT])
             {
-                modelX += float(deltaTime * 0.001);
+                offset.x += float(deltaTime * 0.001);
             }
             if (keyPressed[SDL_SCANCODE_UP])
             {
-                modelY += float(deltaTime * 0.001);
+                offset.y += float(deltaTime * 0.001);
             }
             if (keyPressed[SDL_SCANCODE_DOWN])
             {
-                modelY -= float(deltaTime * 0.001);
+                offset.y -= float(deltaTime * 0.001);
             }
-
-            // Offset
-            offset.x = modelX;
-            offset.y = modelY;
-            offset.z = 0;
-            offset.w = 1;
 
             // Set the shader program
             glUseProgram(shader.getProgram());
@@ -192,8 +191,8 @@ int main(int argc, char** argv)
     PHYSFS_init(argv[0]);
     setRootPath("../Data");
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
