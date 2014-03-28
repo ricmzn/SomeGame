@@ -2,8 +2,8 @@
 #define TOOLLAUNCHER_H
 
 #include <QMainWindow>
-#include "ResourceConverter.h"
-#include "ShaderViewer.h"
+#include <ResourceConverter/ResourceConverter.h>
+#include <ShaderViewer/ShaderViewer.h>
 #include <QTextEdit>
 
 namespace Ui {

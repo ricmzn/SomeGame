@@ -1,5 +1,5 @@
-#ifndef SHADERVIEWER_H
-#define SHADERVIEWER_H
+#ifndef SHADERGLWIDGET_H
+#define SHADERGLWIDGET_H
 
 #include <QWidget>
 #include <QtOpenGL/QGLWidget>
@@ -11,12 +11,7 @@
 #include <QTimer>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-namespace Ui {
-    class ShaderViewer;
-}
-
-#include "../Source/cube.cpp"
+#include "../../Source/cube.cpp"
 
 class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
 {
@@ -144,16 +139,4 @@ class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
         }
 };
 
-class ShaderViewer : public QWidget
-{
-        Q_OBJECT
-
-    public:
-        explicit ShaderViewer(QWidget *parent = 0);
-        ~ShaderViewer();
-
-    private:
-        Ui::ShaderViewer *ui;
-};
-
-#endif // SHADERVIEWER_H
+#endif // SHADERGLWIDGET_H
