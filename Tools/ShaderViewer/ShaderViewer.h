@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <ShaderViewer/ShaderGLWidget.h>
+#include <QPushButton>
 
 namespace Ui {
     class ShaderViewer;

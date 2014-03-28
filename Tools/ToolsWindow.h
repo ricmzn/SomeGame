@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <ResourceConverter/ResourceConverter.h>
 #include <ShaderViewer/ShaderViewer.h>
+#include <DataZipper/DataZipper.h>
 #include <QTextEdit>
 
 namespace Ui {

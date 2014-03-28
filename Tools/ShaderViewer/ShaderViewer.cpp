@@ -16,8 +16,14 @@ ShaderViewer::ShaderViewer(QWidget *parent) :
     QGLFormat format;
     format.setVersion(4, 0);
     format.setProfile(QGLFormat::CoreProfile);
+    format.setSampleBuffers(1);
+    format.setSamples(4);
     format.setSwapInterval(1);
     ui->glFrame->layout()->addWidget(new ShaderGLWidget(format, this));
+    for (int i = 0; i < 30; i++)
+    {
+        ui->uniformWidget->layout()->addWidget(new QPushButton(this));
+    }
 }
 
 ShaderViewer::~ShaderViewer()

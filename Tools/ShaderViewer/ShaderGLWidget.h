@@ -5,12 +5,11 @@
 #include <QtOpenGL/QGLWidget>
 #include <QOpenGLFunctions_4_0_Core>
 #include <QOpenGLShaderProgram>
+#include <QMatrix4x4>
 #include <QMessageBox>
 #include <QDebug>
 #include <QKeyEvent>
 #include <QTimer>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include "../../Source/cube.cpp"
 
 class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
@@ -22,10 +21,8 @@ class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
             QGLWidget(format, parent)
         {
             this->setAutoBufferSwap(true);
-            offset = glm::vec4(0);
-            setFocusPolicy(Qt::ClickFocus);
             timer = new QTimer(this);
-            connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+            this->connect(timer, SIGNAL(timeout()), this, SLOT(update()));
             timer->setInterval(33);
             timer->start();
         }
@@ -33,17 +30,21 @@ class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
     private:
         QTimer* timer;
         QOpenGLShaderProgram shader;
-        GLuint mvpLocation;
         GLuint vbo, vao;
-        glm::mat4 model, view, projection;
-        glm::vec4 offset;
+        QMatrix4x4 model, view, projection;
         void initializeGL()
         {
             initializeOpenGLFunctions();
+
+            printf("OpenGL version: %s\nDisplay device: %s\nVendor: %s\n",
+                   glGetString(GL_VERSION),
+                   glGetString(GL_RENDERER),
+                   glGetString(GL_VENDOR));
+                   fflush(stdout);
+
             shader.addShaderFromSourceFile(QOpenGLShader::Vertex, "../Data/Shaders/UnlitGeneric.vert");
             shader.addShaderFromSourceFile(QOpenGLShader::Fragment, "../Data/Shaders/UnlitGeneric.frag");
             shader.link();
-            qDebug() << "GL Version:" << (const char*)glGetString(GL_VERSION);
 
             glClearColor(0, 0, 0, 1);
             glClearDepth(1);
@@ -52,9 +53,6 @@ class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
             glCullFace(GL_BACK);
             glFrontFace(GL_CW);
             glViewport(0, 0, width(), height());
-
-            // Set up uniforms for the shader
-            mvpLocation = glGetUniformLocation(shader.programId(), "MVP");
 
             // Generate a VBO and VAO
             glGenBuffers(1, &vbo);
@@ -79,32 +77,32 @@ class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
         void resizeGL(int w, int h)
         {
             glViewport(0, 0, w, h);
-            qDebug() << "New size:" << w << 'x' << h;
         }
         void paintGL()
         {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            const float& x = offset.x;
-            const float& y = offset.y;
-            const float& z = offset.z;
+
+            static float rotation = 0;
+            rotation += 2;
 
             // Matrices
-            model = glm::mat4(1, 0, 0, 0,
-                              0, 1, 0, 0,
-                              0, 0, 1, 0,
-                              x, y, z, 1);
+            model.setToIdentity();
+            model.rotate(rotation, QVector3D(0, 1, 0));
 
-            view = glm::lookAt(glm::vec3(0, 0, 2),
-                               glm::vec3(0, 0, 0),
-                               glm::vec3(0, 1, 0));
+            view.setToIdentity();
+            view.lookAt(QVector3D(0, 0, 2),
+                        QVector3D(0, 0, 0),
+                        QVector3D(0, 1, 0));
 
-            projection = glm::perspective(60.0, (double)width()/(double)height(), 0.01, 10000.0);
+            projection.setToIdentity();
+            projection.perspective(60.0, (double)width()/(double)height(), 0.01, 10000.0);
 
-            glm::mat4 modelViewProjection = projection * view * model;
+            QMatrix4x4 modelViewProjection = projection * view * model;
 
             // Set the shader program
-            glUseProgram(shader.programId());
-            glUniformMatrix4fv(mvpLocation, 1, false, &modelViewProjection[0][0]);
+            //glUniformMatrix4fv(mvpLocation, 1, false, &modelViewProjection(0, 0));
+            shader.setUniformValue("MVP", modelViewProjection);
+            shader.bind();
             // Bind the vertex array
             glBindVertexArray(vao);
             glEnableVertexAttribArray(0);
@@ -115,27 +113,6 @@ class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
             glDisableVertexAttribArray(0);
             glDisableVertexAttribArray(1);
             glBindVertexArray(0);
-        }
-        void keyPressEvent(QKeyEvent* event)
-        {
-            switch (event->key())
-            {
-                case Qt::Key_Left:
-                    offset.x -= 0.02;
-                    break;
-                case Qt::Key_Right:
-                    offset.x += 0.02;
-                    break;
-                case Qt::Key_Down:
-                    offset.y -= 0.02;
-                    break;
-                case Qt::Key_Up:
-                    offset.y += 0.02;
-                    break;
-                default:
-                    event->ignore();
-                    break;
-            }
         }
 };
 
