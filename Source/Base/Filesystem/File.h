@@ -1,51 +1,7 @@
-#ifndef FILESYSTEM_H_INCLUDED
-#define FILESYSTEM_H_INCLUDED
-/**
- * @defgroup Filesystem
- * @brief A small PhysFS wrapper, with misc functions/types related to files.
- *
- * @section Usage
- * PhysFS must be initialized with PHYSFS_init(argv[0]) and setRootPath(const std::string& relativeToExecutable) must be set before usage.
- *
- * See File and WriteableFile for specific class usage reference.
- * @subsection Rudimentary example
- * @code
-int main(int argc, char** argv)
-{
-    PHYSFS_init(argv[0]);
-    // Let's assume we have a folder called myContentDirectory next to the executable
-    // And inside of this folder there is files.zip with message.txt and image.png
-    setRootPath("myContentDirectory/");
-    PHYSFS_mount("files.zip", false);
-    File textFile("message.txt");
-    std::cout << textFile;
-    File imageFile("image.png");
-    someImageLib_Image* myImage = someImageLib_loadPNG(imageFile.data(), imageFile.size());
-    someImageLib_doSomething(myImage);
-    // This part isn't actually in the library yet
-    setWriteDir(getUserDir());
-    WriteableFile logFile("log.txt");
-    logFile.string("Success!\n");
-    logFile.append("No errors have been found.");
-    logFile.save();
-    return 0;
-}
- * @endcode
- * @author Ricardo Maes
- * @version 0.2.1-nosfml
- */
-#include <string>
-#include <iostream>
-#include <vector>
-#include <cstring>
+#ifndef FILE_H
+#define FILE_H
 #include <physfs.h>
-
-/**
- * @ingroup Filesystem
- * @brief This function sets the path from where all File buffers are opened from
- * @param relativeToExecutable the root path (for the application) relative to the executable
- */
-void setRootPath(const std::string& relativeToExecutable);
+#include <string>
 
 /**
  * @ingroup Filesystem
@@ -140,4 +96,4 @@ std::ostream& operator<< (std::ostream& left, const File& right);
 
 //class WriteableFile : public File
 
-#endif
+#endif // FILE_H

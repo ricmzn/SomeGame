@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <Base/Filesystem/File.h>
+#include <Base/Filesystem/Filesystem.h>
 #include "messagebox.h"
 
 int keyPressed[SDL_NUM_SCANCODES] = {0};
@@ -188,8 +188,8 @@ class TestScene
 
 int main(int argc, char** argv)
 {
-    PHYSFS_init(argv[0]);
-    setRootPath("../Data");
+    Filesystem::initialize(argc, argv);
+    Filesystem::setRootPath("../Data");
     SDL_Init(SDL_INIT_VIDEO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);

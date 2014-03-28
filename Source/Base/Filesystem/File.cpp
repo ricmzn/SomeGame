@@ -1,27 +1,7 @@
-#include "file.h"
-
-///////////////
-// Functions //
-///////////////
-
-void setRootPath (const std::string& relativeToExecutable)
-{
-    std::string BaseDir = PHYSFS_getBaseDir() + relativeToExecutable;
-    PHYSFS_mount (BaseDir.c_str(), "/", 1);
-    /* Uncomment to add support for .zip addons
-    PHYSFS_enumerateFilesCallback ("content/addons",
-        [](void*, const char *dir, const char *name)
-        {
-            std::string path = dir; path += '/'; path += name;
-            PHYSFS_mount (path.c_str(), "/", 0);
-        },
-    nullptr);
-    */
-}
-
-//////////
-// File //
-//////////
+#include "File.h"
+#include <iostream>
+#include <vector>
+#include <cstring>
 
 File::File (const std::string& filename)
 {
