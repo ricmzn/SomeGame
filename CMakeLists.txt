@@ -10,8 +10,6 @@ option(BUILD_TOOLS "Build ${TOOLS_NAME}" OFF)
 
 if(BUILD_GAME)
     file(GLOB_RECURSE SOURCE_LIST "Source/*.cpp" "Source/*.h")
-    message(STATUS "Including non-source files in build. This should not cause any side effects.")
-    file(GLOB_RECURSE MISC_LIST "Data/*")
     include_directories("Source")
 
     if(WIN32)
@@ -39,3 +37,7 @@ if(BUILD_TOOLS)
     qt5_use_modules(${TOOLS_NAME} Widgets OpenGL)
     target_link_libraries(${TOOLS_NAME} opengl32)
 endif()
+
+# Non-code files
+file(GLOB_RECURSE MISC_LIST "Data/*")
+add_custom_target(target SOURCES ${MISC_LIST})
