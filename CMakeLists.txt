@@ -11,7 +11,7 @@ option(BUILD_TOOLS "Build ${TOOLS_NAME}" OFF)
 if(BUILD_GAME)
     file(GLOB_RECURSE SOURCE_LIST "Source/*.cpp" "Source/*.h")
     message(STATUS "Including non-source files in build. This should not cause any side effects.")
-    file(GLOB_RECURSE MISC_LIST "*.cfg" "*.vert" "*.frag" "Data/*.txt")
+    file(GLOB_RECURSE MISC_LIST "Data/*")
     include_directories("Source")
 
     if(WIN32)
