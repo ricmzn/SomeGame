@@ -3,38 +3,45 @@
  * @brief A small PhysFS wrapper, with misc functions/types related to files.
  *
  * @section Usage
- * PhysFS must be initialized with PHYSFS_init(argv[0]) and setRootPath(const std::string& relativeToExecutable) must be set before usage.
- *
- * See File and WriteableFile for specific class usage reference.
- * @subsection Rudimentary example
- * @code
-int main(int argc, char** argv)
-{
+ * Initialization:
+@code
     Filesystem::initialize(argc, argv);
-    // Let's assume we have a folder called myContentDirectory next to the executable
-    // And in it, a file MountList.txt describes zipfile.zip in the root dir
-    // In zipfile.zip: message.txt and image.png
-    Filesystem::setRootPath("myContentDirectory/");
-    File textFile("message.txt");
-    std::cout << textFile;
-    File imageFile("image.png");
-    someImageLib_Image* myImage = someImageLib_loadPNG(imageFile.data(), imageFile.size());
-    someImageLib_doSomething(myImage);
-    // This part isn't actually in the library yet
-    setWriteDir(getUserDir());
-    WriteableFile logFile("log.txt");
-    logFile.string("Success!\n");
-    logFile.append("No errors have been found.");
-    logFile.save();
-    return 0;
-}
- * @endcode
+    Filesystem::setRootPath("../Data"); // Primary folder from where files are opened, can be anything
+@endcode
+ * Opening a file:
+@code
+    File myFile1("file1.txt");
+
+    // Or
+    File myFile2;
+    myFile2.setFile("file2.txt");
+@endcode
+ * Using the data:
+@code
+    std::string myString = myFile1.string();
+    doSomething(myString);
+
+    // Or
+    doSomething(myFile2.data(), myFile2.size());
+@endcode
+ * Closing a file:
+@code
+// Frees the handle but keeps the data for reading
+myFile1.close();
+
+// Frees the handle and deallocates the data
+myFile2.clear();
+@endcode
+ *
+ * @see File
+ *
  * @author Ricardo Maes
- * @version 0.2.2
+ * @version 0.2.2_1
  */
 
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
+#include <stdexcept>
 #include "File.h"
 
 namespace Filesystem
@@ -48,9 +55,15 @@ namespace Filesystem
     void initialize(int argc, char** argv);
     /**
      * @ingroup Filesystem
-     * @brief This function sets the path from where all File buffers are opened from
+     * @brief Sets the root of the virtual filesystem. MountList.txt must exist in the path.
+     *
+     * MountList.txt is required both for safety (so it cannot mount a non-game folder if the executable
+     * is moved) and is also used to specify .zip files which can be mounted alongside the given path.
+     * The file may be empty if desired.
+     *
      * @param relativeToExecutable the root path (for the application) relative to the executable
-     * @note path must contain a file called MountList.txt
+     * @throws std::runtime_error if MountList.txt does not exist in the given path
+     * @throws std::runtime_error if a file in MountList.txt does not exist
      */
     void setRootPath(const std::string& relativeToExecutable);
 }

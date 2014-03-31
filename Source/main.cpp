@@ -90,8 +90,7 @@ class TestScene
             glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
             // Set up uniforms for the shader
-            mvpLocation = glGetUniformLocation(shader.getProgram(), "MVP");
-            offsetLocation = glGetUniformLocation(shader.getProgram(), "offset");
+            mvpLocation = glGetUniformLocation(shader.getProgram(), "projectionMatrix");
 
             // Generate a VBO and VAO
             glGenBuffers(1, &VBO_id);
@@ -177,8 +176,17 @@ class TestScene
 
 int main(int argc, char** argv)
 {
-    Filesystem::initialize(argc, argv);
-    Filesystem::setRootPath("../Data");
+    try
+    {
+        Filesystem::initialize(argc, argv);
+        Filesystem::setRootPath("../Data");
+    }
+    catch (std::runtime_error e)
+    {
+        MessageBoxError("Fatal Error", e.what());
+        return 1;
+    }
+
     SDL_Init(SDL_INIT_VIDEO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);

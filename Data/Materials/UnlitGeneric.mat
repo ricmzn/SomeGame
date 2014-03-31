@@ -1,0 +1,8 @@
+Vertex      Shaders/UnlitGeneric.vert
+Fragment    Shaders/UnlitGeneric.frag
+#TessCtrl
+#TessEval
+#Geometry
+
+vec4 color 1 0 0 1
+#float scale 2

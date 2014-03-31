@@ -120,7 +120,12 @@ void File::close()
     }
 }
 
-PHYSFS_File const* File::getHandle()
+File::operator bool() const
+{
+    return (fileHandle != nullptr);
+}
+
+const PHYSFS_File* File::getHandle() const
 {
     return fileHandle;
 }
@@ -129,7 +134,7 @@ bool File::openFile(const std::string& filename, bool writeMode)
 {
     if (!PHYSFS_exists(filename.c_str()))
     {
-        std::cout << "File not found: " << filename << "\n";
+        std::cerr << "File not found: " << filename << "\n";
         clear();
         return 0;
     }
@@ -150,7 +155,7 @@ void File::readData(void* dest, size_t start, size_t sz)
 {
     if (fileHandle == nullptr)
     {
-        std::cout << "Fatal error: file wasn't opened before trying to read from it!\n";
+        std::cerr << "Fatal error: file wasn't opened before trying to read from it!\n";
         return;
     }
     PHYSFS_seek(fileHandle, start);

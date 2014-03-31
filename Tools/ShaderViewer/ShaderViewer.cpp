@@ -30,3 +30,14 @@ ShaderViewer::~ShaderViewer()
 {
     delete ui;
 }
+
+void ShaderViewer::on_modelSelector_activated(const QString &arg1)
+{
+    std::cout << "I'm now a " << arg1.toStdString() << "!\n";
+    std::cout.flush();
+}
+
+void ShaderViewer::on_materialSelector_clicked()
+{
+    QFileDialog::getOpenFileName(this, "Open Material", "../Data/Materials", "*.mat");
+}
