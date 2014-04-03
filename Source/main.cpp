@@ -92,12 +92,12 @@ class TestScene
             // Set up uniforms for the shader
             mvpLocation = glGetUniformLocation(shader.getProgram(), "projectionMatrix");
 
-            // Generate a VBO and VAO
-            glGenBuffers(1, &VBO_id);
+            // Generate a VAO and VBO
             glGenVertexArrays(1, &VAO_id);
+            glGenBuffers(1, &VBO_id);
             // Bind them
-            glBindBuffer(GL_ARRAY_BUFFER, VBO_id);
             glBindVertexArray(VAO_id);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO_id);
             // Set the buffer data
             glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
             // Enable the first two vertex attributes
@@ -106,10 +106,7 @@ class TestScene
             // Attribute index, 4 values per position, inform they're floats, unknown, space between values, first value
             glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
             glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, (void*) (sizeof(vertexData) / 2));
-            // And clean up
-            glDisableVertexAttribArray(0);
-            glDisableVertexAttribArray(1);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            // Unbind the VAO
             glBindVertexArray(0);
         }
         void draw()
@@ -163,13 +160,8 @@ class TestScene
             glUniform4fv(offsetLocation, 1, &offset[0]);
             // Bind the vertex array
             glBindVertexArray(VAO_id);
-            glEnableVertexAttribArray(0);
-            glEnableVertexAttribArray(1);
             // Draw the values
             glDrawArrays(GL_TRIANGLES, 0, 36);
-            // And unbind the vertex array
-            glDisableVertexAttribArray(0);
-            glDisableVertexAttribArray(1);
             glBindVertexArray(0);
         }
 };

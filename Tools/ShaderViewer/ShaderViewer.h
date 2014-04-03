@@ -20,12 +20,15 @@ class ShaderViewer : public QWidget
         ~ShaderViewer();
 
     private slots:
-        void on_modelSelector_activated(const QString &arg1);
+        void on_modelSelector_clicked();
 
-        void on_materialSelector_clicked();
+        void on_wireframeBox_stateChanged(int arg1);
+
+        void fillUniformList();
 
     private:
         Ui::ShaderViewer *ui;
+        ShaderGLWidget* glWidget;
 };
 
 #endif // SHADERVIEWER_H

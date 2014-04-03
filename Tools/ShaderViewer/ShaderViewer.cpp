@@ -19,11 +19,10 @@ ShaderViewer::ShaderViewer(QWidget *parent) :
     format.setSampleBuffers(1);
     format.setSamples(4);
     format.setSwapInterval(1);
-    ui->glFrame->layout()->addWidget(new ShaderGLWidget(format, this));
-    for (int i = 0; i < 30; i++)
-    {
-        ui->uniformWidget->layout()->addWidget(new QPushButton(this));
-    }
+    glWidget = new ShaderGLWidget(format, this);
+    ui->glFrame->layout()->addWidget(glWidget);
+
+    connect(glWidget, SIGNAL(contextReady()), this, SLOT(fillUniformList()));
 }
 
 ShaderViewer::~ShaderViewer()
@@ -31,13 +30,30 @@ ShaderViewer::~ShaderViewer()
     delete ui;
 }
 
-void ShaderViewer::on_modelSelector_activated(const QString &arg1)
+void ShaderViewer::on_modelSelector_clicked()
 {
-    std::cout << "I'm now a " << arg1.toStdString() << "!\n";
-    std::cout.flush();
+    QFileDialog::getOpenFileName(this, "Open Model", "../Data");
 }
 
-void ShaderViewer::on_materialSelector_clicked()
+void ShaderViewer::on_wireframeBox_stateChanged(int arg1)
 {
-    QFileDialog::getOpenFileName(this, "Open Material", "../Data/Materials", "*.mat");
+    if (arg1)
+    {
+        glWidget->setWireframe(true);
+    }
+    else
+    {
+        glWidget->setWireframe(false);
+    }
+}
+
+void ShaderViewer::fillUniformList()
+{
+    const QList<Uniform>& uniforms = glWidget->getUniforms();
+    for (const Uniform& uniform : uniforms)
+    {
+        QPushButton* button = new QPushButton(this);
+        button->setText(uniform.name);
+        ui->uniformWidget->layout()->addWidget(button);
+    }
 }

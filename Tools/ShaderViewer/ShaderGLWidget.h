@@ -14,6 +14,13 @@
 #include <QTimer>
 #include "../Source/cube.cpp"
 
+struct Uniform
+{
+    QString name;
+    GLuint type;
+    GLuint location;
+};
+
 class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
 {
         Q_OBJECT
@@ -27,10 +34,42 @@ class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
             this->connect(timer, SIGNAL(timeout()), this, SLOT(update()));
             timer->setInterval(16);
             timer->start();
+            wireframe = false;
+        }
+        QList<Uniform> getUniforms()
+        {
+            QList<Uniform> list;
+
+            GLint count = 0;
+            GLuint program = shader.programId();
+            glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
+            for (int i = 0; i < count; i++)
+            {
+                Uniform active;
+                GLsizei len = 0;
+                GLint size = 0;
+                GLenum type = 0;
+                GLchar name[256] = {0};
+                glGetActiveUniform((GLuint)program, (GLuint)i, (GLsizei)255, (GLsizei*)&len, (GLint*)&size, (GLenum*)&type, (GLchar*)&name);
+                active.location = glGetUniformLocation(program, name);
+                active.name = QString((const char*)name);
+                active.type = type;
+                list.push_back(active);
+            }
+            return list;
         }
 
+        void setWireframe(bool enable)
+        {
+            wireframe = enable;
+        }
+
+    signals:
+        void contextReady();
+
     private:
-        GLuint vao, vbo, ibo, fbo, prog, mvp_location;
+        bool wireframe;
+        GLuint vao, vbo, ibo, fbo, tex, prog, proj_location, color_location;
         QTimer* timer;
         QOpenGLShaderProgram shader;
         QMatrix4x4 model, view, projection;
@@ -44,17 +83,30 @@ class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
                 -1,  1,  1, // 4 - Back upper-left
                  1,  1,  1, // 5 - Back upper-right
                  1, -1,  1, // 6 - Back bottom-right
-                -1, -1,  1  // 7 - Back bottom-left
+                -1, -1,  1, // 7 - Back bottom-left
+                 0,  1,
+                 1,  1,
+                 1,  0,
+                 0,  0,
+                 0,  1,
+                 1,  1,
+                 1,  0,
+                 0,  0
             };
             const unsigned indices[] = {
                 0, 1, 2,   0, 2, 3, // Front
                 1, 6, 5,   1, 5, 2, // Right
+                6, 7, 4,   6, 4, 5, // Back
+                7, 0, 3,   7, 3, 4, // Left
             };
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
             glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
             glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+            glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, (void*)(3*8));
+
+            emit contextReady();
         }
         void initializeGL()
         {
@@ -70,17 +122,26 @@ class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
             shader.addShaderFromSourceFile(QOpenGLShader::Fragment, "../Data/Shaders/UnlitGeneric.frag");
             shader.link();
 
-            mvp_location = shader.uniformLocation("projectionMatrix");
+            proj_location = shader.uniformLocation("projectionMatrix");
+            color_location = shader.uniformLocation("colorMult");
             prog = shader.programId();
 
-            glClearColor(0, 0, 0, 1);
+            glClearColor(1, 1, 0, 1);
             glClearDepth(1);
             glEnable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
-//            glEnable(GL_CULL_FACE);
-//            glCullFace(GL_BACK);
-//            glFrontFace(GL_CCW);
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+            glFrontFace(GL_CW);
             glViewport(0, 0, width(), height());
+
+            QImage image("../Data/Textures/uv.png");
+            glGenTextures(1, &tex);
+            glBindTexture(GL_TEXTURE_2D, tex);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glGenerateMipmap(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, 0);
 
             glGenVertexArrays(1, &vao);
             glGenBuffers(1, &vbo);
@@ -89,6 +150,7 @@ class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
 
             glBindVertexArray(vao);
             glEnableVertexAttribArray(0);
+            glEnableVertexAttribArray(2);
             generateCube();
             glBindVertexArray(0);
         }
@@ -101,14 +163,13 @@ class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             static float rotation = 0;
-            rotation += 1;
+            rotation += 0.5;
 
-            // Matrices
             model.setToIdentity();
             model.rotate(rotation, QVector3D(0, 1, 0));
 
             view.setToIdentity();
-            view.lookAt(QVector3D(0, 0, 8),
+            view.lookAt(QVector3D(0, 0,-4),
                         QVector3D(0, 0, 0),
                         QVector3D(0, 1, 0));
 
@@ -117,14 +178,22 @@ class ShaderGLWidget : public QGLWidget, private QOpenGLFunctions_4_0_Core
 
             QMatrix4x4 modelViewProjection = projection * view * model;
 
+            glBindTexture(GL_TEXTURE_2D, tex);
             glUseProgram(prog);
-            glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &modelViewProjection(0, 0));
+            glUniformMatrix4fv(proj_location, 1, GL_FALSE, &modelViewProjection(0, 0));
+            glUniform3f(color_location, 1, 1, 1);
             glBindVertexArray(vao);
-            // Draw the values
-            //glDrawArrays(GL_TRIANGLES, 0, 36);
-            glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+            if (wireframe)
+            {
+                glDrawElements(GL_LINES, 36, GL_UNSIGNED_INT, 0);
+            }
+            else
+            {
+                glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+            }
             glBindVertexArray(0);
             glUseProgram(0);
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
 };
 
