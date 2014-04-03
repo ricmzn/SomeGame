@@ -22,12 +22,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
      <layout class="QVBoxLayout">
       <property name="spacing">
        <number>0</number>
@@ -59,9 +53,6 @@
          </size>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <property name="spacing">
-          <number>0</number>
-         </property>
          <property name="leftMargin">
           <number>0</number>
          </property>
@@ -75,51 +66,22 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QComboBox" name="modelSelector">
+          <widget class="QPushButton" name="modelSelector">
+           <property name="text">
+            <string>Select Model...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="wireframeBox">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="maximumSize">
-            <size>
-             <width>240</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <item>
-            <property name="text">
-             <string>Cube</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Icosahedron</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Sphere</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Plane</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="materialSelector">
-           <property name="minimumSize">
-            <size>
-             <width>120</width>
-             <height>0</height>
-            </size>
-           </property>
            <property name="text">
-            <string>Material...</string>
+            <string>Wireframe</string>
            </property>
           </widget>
          </item>
@@ -167,8 +129,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>166</width>
-           <height>263</height>
+           <width>183</width>
+           <height>262</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2"/>

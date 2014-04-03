@@ -15,7 +15,7 @@ if(BUILD_GAME)
     if(WIN32)
         set(LIBS mingw32 SDL2main SDL2 glew32 opengl32 physfs)
     else()
-        set(LIBS SDL2 glew GL physfs)
+        set(LIBS SDL2 GLEW GL physfs)
     endif()
 
     add_executable(${GAME_NAME} ${SOURCE_LIST} ${MISC_LIST})
@@ -35,7 +35,9 @@ if(BUILD_TOOLS)
 
     add_executable(${TOOLS_NAME} ${SOURCE_LIST} ${UI_LIST})
     qt5_use_modules(${TOOLS_NAME} Widgets OpenGL)
-    target_link_libraries(${TOOLS_NAME} opengl32)
+    if(WIN32)
+        target_link_libraries(${TOOLS_NAME} opengl32)
+    endif()
 endif()
 
 # Non-code files
