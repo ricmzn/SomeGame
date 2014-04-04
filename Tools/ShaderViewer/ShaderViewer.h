@@ -1,8 +1,7 @@
 #ifndef SHADERVIEWER_H
 #define SHADERVIEWER_H
 
-#include <QWidget>
-#include <ShaderViewer/ShaderGLWidget.h>
+#include <ShaderViewer/Widgets/ShaderGLWidget.h>
 #include <QPushButton>
 #include <QFileDialog>
 #include <iostream>
@@ -16,7 +15,7 @@ class ShaderViewer : public QWidget
         Q_OBJECT
 
     public:
-        explicit ShaderViewer(QWidget *parent = 0);
+        explicit ShaderViewer(QWidget* parent);
         ~ShaderViewer();
 
     private slots:
@@ -27,7 +26,7 @@ class ShaderViewer : public QWidget
         void fillUniformList();
 
     private:
-        Ui::ShaderViewer *ui;
+        Ui::ShaderViewer* ui;
         ShaderGLWidget* glWidget;
 };
 

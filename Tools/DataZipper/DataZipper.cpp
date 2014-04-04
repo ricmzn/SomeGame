@@ -1,7 +1,7 @@
 #include "DataZipper.h"
 #include "ui_DataZipper.h"
 
-DataZipper::DataZipper(QWidget *parent) :
+DataZipper::DataZipper(QWidget* parent) :
     QWidget(parent),
     ui(new Ui::DataZipper)
 {

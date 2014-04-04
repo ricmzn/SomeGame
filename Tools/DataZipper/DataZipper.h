@@ -12,11 +12,11 @@ class DataZipper : public QWidget
         Q_OBJECT
 
     public:
-        explicit DataZipper(QWidget *parent = 0);
+        explicit DataZipper(QWidget* parent);
         ~DataZipper();
 
     private:
-        Ui::DataZipper *ui;
+        Ui::DataZipper* ui;
 };
 
 #endif // DATAZIPPER_H

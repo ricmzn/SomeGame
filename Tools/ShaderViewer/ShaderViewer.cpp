@@ -1,7 +1,7 @@
 #include "ShaderViewer.h"
 #include "ui_ShaderViewer.h"
 
-ShaderViewer::ShaderViewer(QWidget *parent) :
+ShaderViewer::ShaderViewer(QWidget* parent) :
     QWidget(parent),
     ui(new Ui::ShaderViewer)
 {
@@ -52,8 +52,13 @@ void ShaderViewer::fillUniformList()
     const QList<Uniform>& uniforms = glWidget->getUniforms();
     for (const Uniform& uniform : uniforms)
     {
-        QPushButton* button = new QPushButton(this);
-        button->setText(uniform.name);
-        ui->uniformWidget->layout()->addWidget(button);
+        switch(uniform.type)
+        {
+            default:
+                QPushButton* button = new QPushButton(this);
+                button->setText(uniform.name);
+                ui->uniformWidget->layout()->addWidget(button);
+                break;
+        }
     }
 }

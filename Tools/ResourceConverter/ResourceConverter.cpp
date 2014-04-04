@@ -1,7 +1,7 @@
 #include "ResourceConverter.h"
 #include "ui_ResourceConverter.h"
 
-ResourceConverter::ResourceConverter(QWidget *parent) :
+ResourceConverter::ResourceConverter(QWidget* parent) :
     QWidget(parent),
     ui(new Ui::ResourceConverter)
 {

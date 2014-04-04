@@ -16,7 +16,7 @@ class ToolsWindow : public QMainWindow
         Q_OBJECT
 
     public:
-        explicit ToolsWindow(QWidget *parent = 0);
+        explicit ToolsWindow(QWidget* parent);
         ~ToolsWindow();
 
     private:

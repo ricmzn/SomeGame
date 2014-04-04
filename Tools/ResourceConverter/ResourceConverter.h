@@ -14,7 +14,7 @@ class ResourceConverter : public QWidget
         Q_OBJECT
 
     public:
-        explicit ResourceConverter(QWidget *parent = 0);
+        explicit ResourceConverter(QWidget* parent);
         ~ResourceConverter();
 
     private slots:

@@ -1,7 +1,7 @@
 #include "ToolsWindow.h"
 #include "ui_ToolsWindow.h"
 
-ToolsWindow::ToolsWindow(QWidget *parent) :
+ToolsWindow::ToolsWindow(QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::ToolLauncher)
 {
