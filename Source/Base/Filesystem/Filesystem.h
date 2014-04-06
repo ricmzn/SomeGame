@@ -41,7 +41,8 @@ myFile2.clear();
 
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
-#include <stdexcept>
+#include <Base/Exceptions.h>
+#include <string>
 #include "File.h"
 
 namespace Filesystem
@@ -51,6 +52,7 @@ namespace Filesystem
      * @brief Convenience wrapper for PHYSFS_Init()
      * @param argc Argument count from main()
      * @param argv Arguments from main()
+     * @throws InitializationException if PHYSFS fails to initialize for some reason
      */
     void initialize(int argc, char** argv);
     /**
@@ -62,10 +64,16 @@ namespace Filesystem
      * The file may be empty if desired.
      *
      * @param relativeToExecutable the root path (for the application) relative to the executable
-     * @throws std::runtime_error if MountList.txt does not exist in the given path
-     * @throws std::runtime_error if a file in MountList.txt does not exist
+     * @throws InitializationException if Filesystem::initialize() was not called first
+     * @throws InitializationException if MountList.txt does not exist in the given path
+     * @throws InitializationException if an archive listed in MountList.txt does not exist
      */
     void setRootPath(const std::string& relativeToExecutable);
+    /**
+     * @ingroup Filesystem
+     * @return true if initialize() and setRootPath() were called and succeeded, false otherwise.
+     */
+    bool isInit();
 }
 
 #endif // FILESYSTEM_H

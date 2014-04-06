@@ -4,7 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <Base/Filesystem/Filesystem.h>
-#include "messagebox.h"
+#include <Base/Exceptions.h>
+#include <Base/Messagebox.h>
 
 int keyPressed[SDL_NUM_SCANCODES] = {0};
 int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
@@ -166,18 +167,16 @@ class TestScene
         }
 };
 
-int main(int argc, char** argv)
+#include <Import/WavefrontObj.h>
+
+int main(int argc, char** argv) try
 {
-    try
-    {
-        Filesystem::initialize(argc, argv);
-        Filesystem::setRootPath("../Data");
-    }
-    catch (std::runtime_error e)
-    {
-        MessageBoxError("Fatal Error", e.what());
-        return 1;
-    }
+    Filesystem::initialize(argc, argv);
+    Filesystem::setRootPath("../Data");
+
+    Importers::WavefrontObj obj;
+    obj.read("Meshes/monkey.obj");
+    obj.getMesh();
 
     SDL_Init(SDL_INIT_VIDEO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -244,4 +243,10 @@ int main(int argc, char** argv)
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
+}
+catch (const BaseException& ex)
+{
+    MessageBoxError("Fatal Error", ex.message());
+    std::cerr << ex.trace() << std::endl;
+    return 1;
 }

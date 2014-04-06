@@ -5,6 +5,12 @@
 
 File::File (const std::string& filename)
 {
+    // Might want to check if the filesystem is initialized
+    if (!Filesystem::isInit())
+    {
+        throw InitializationException("Filesystem is not initialized!");
+    }
+
     fileHandle = nullptr;
     fileData = nullptr;
     setFile(filename);
@@ -46,7 +52,7 @@ unsigned File::size(const std::string& file)
     return tempSize;
 }
 
-bool File::setFile(const std::string& file)
+void File::setFile(const std::string& file)
 {
     if (file == "")
     {
@@ -57,7 +63,8 @@ bool File::setFile(const std::string& file)
         clear();
         if (!openFile(file))
         {
-            return 0;
+            // File probably does not exist
+            throw MissingFileException(file.c_str());
         }
         if (fileData != nullptr)
         {
@@ -66,13 +73,7 @@ bool File::setFile(const std::string& file)
         fileData = new char[fileLength];
         readData(fileData, 0, fileLength);
     }
-    return 1;
 }
-
-/*bool File::setFile (const std::string& path, const std::string& name)
-{
-    return setFile(path + name);
-}*/
 
 std::string File::filename() const
 {
@@ -134,9 +135,8 @@ bool File::openFile(const std::string& filename, bool writeMode)
 {
     if (!PHYSFS_exists(filename.c_str()))
     {
-        std::cerr << "File not found: " << filename << "\n";
         clear();
-        return 0;
+        return false;
     }
     if (writeMode)
     {
@@ -148,7 +148,7 @@ bool File::openFile(const std::string& filename, bool writeMode)
     }
     fileLength = PHYSFS_fileLength (fileHandle);
     filePath = filename;
-    return 1;
+    return true;
 }
 
 void File::readData(void* dest, size_t start, size_t sz)

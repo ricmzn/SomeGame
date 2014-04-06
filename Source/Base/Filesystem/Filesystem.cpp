@@ -3,80 +3,73 @@
 
 namespace Filesystem
 {
+    static bool fsIsInitialized = false;
+
+    // This should probably be deprecated and done in setRootPath
     void initialize(int argc, char **argv)
     {
-        if (!PHYSFS_isInit())
-            PHYSFS_init(argv[0]);
+        if (!PHYSFS_init(argv[0]))
+        {
+            throw InitializationException("Could not initialize virtual filesystem!");
+        }
     }
 
-    // TODO maybe make a function to generate mount system-specific errors?
     void setRootPath(const std::string &relativeToExecutable)
     {
+        // Check if PHYSFS was initialized already
+        if (!PHYSFS_isInit())
+        {
+            throw InitializationException("Could not set paths! (Was the filesystem initialized?)");
+        }
+
         // Build the root path
         std::string baseDir = PHYSFS_getBaseDir() + relativeToExecutable;
-        // Check for existance of MountList.txt
-        std::string mountListPath = baseDir + "/MountList.txt";
-        if (FILE* mountListFile = fopen(mountListPath.c_str(), "r"))
-        {
-            fclose(mountListFile);
-        }
-        else
-        {
-            std::string error;
-            error += "Failed to open MountList.txt in \'";
-            error += relativeToExecutable;
-            error += "\'";
-            throw std::runtime_error(error);
-        }
         // Mount the root path
         PHYSFS_mount(baseDir.c_str(), "/", 1);
+        // Check for existance of MountList.txt
+        if (!PHYSFS_exists("MountList.txt"))
+        {
+            throw InitializationException("Failed to open MountList.txt!");
+        }
+
+        // From now on, it's safe to use the filesystem classes
+        fsIsInitialized = true;
 
         // Mount archives
         File mountList("MountList.txt");
-        while (mountList)
-        {
-            std::istringstream ss(mountList.string());
-            std::string line;
-            // For each line
-            while (std::getline(ss, line))
-            {
-                if (!line.empty())
-                {
-                    // Windows CR-LF trailing CR fix
-                    if (line.at(line.size()-1) == '\r')
-                    {
-                        line.resize(line.size()-1);
-                    }
 
-                    // Build the mount path
-                    std::string mountPath = baseDir + "/" + line;
-                    // Skip folders and non-existing files
-                    if (FILE* file = fopen(mountPath.c_str(), "r"))
-                    {
-                        fclose(file);
-                    }
-                    else
-                    {
-                        std::string error;
-                        error += "File not exist in virtual filesystem: \'";
-                        error += line;
-                        error += "\'";
-                        throw std::runtime_error(error);
-                    }
-                    // Mount the file
-                    int status = PHYSFS_mount(mountPath.c_str(), "/", 0);
-                    // Abort if it's not an archive
-                    if(!status)
-                    {
-                        std::string error;
-                        error += "File is not a valid .zip archive: \'";
-                        error += line;
-                        error += "\'";
-                        throw std::runtime_error(error);
-                    }
+        // Create stream objects
+        std::istringstream ss(mountList.string());
+        std::string line;
+        // For each line
+        while (std::getline(ss, line))
+        {
+            if (!line.empty())
+            {
+                // Windows CR-LF trailing CR fix
+                if (line.at(line.size()-1) == '\r')
+                {
+                    line.resize(line.size()-1);
+                }
+
+                // Build the mount path
+                std::string mountPath = baseDir + "/" + line;
+                // Mount the file
+                int status = PHYSFS_mount(mountPath.c_str(), "/", 0);
+                // Abort if the path couldn't be mounted
+                if(!status)
+                {
+                    std::stringstream error;
+                    error << "Tried to mount invalid path/archive: \'" << line << "\'";
+                    // Side-note: on most platforms, the line below copies the string twice!
+                    throw InitializationException(error.str().c_str());
                 }
             }
-            mountList.close();
         }
+    }
+
+    bool isInit()
+    {
+        return fsIsInitialized;
     }
 }
