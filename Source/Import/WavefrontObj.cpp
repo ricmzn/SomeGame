@@ -8,6 +8,10 @@ namespace Importers
 {
     void WavefrontObj::read(const char* filename)
     {
+        clock_t start = clock();
+        clock_t delta = clock();
+        clock_t taken = 0;
+        printf("Loading .obj...\n");
         File meshFile(filename);
         unsigned fileChar = 0;
         char line[MAX_LINE_LENGTH];
@@ -17,33 +21,33 @@ namespace Importers
         while (doCount)
         {
             // Working around sscanf
-            int iNULL;
-            double dNULL;
+            unsigned iNULL;
+            float dNULL;
             // Get a pointer
             const char* fileIterator = &meshFile.data()[fileChar];
             // Vertex coordinates
-            if (sscanf(fileIterator, "v %lf %lf %lf %lf",
+            if (sscanf(fileIterator, "v %f %f %f %f",
                        &dNULL, &dNULL, &dNULL, &dNULL) >= 3)
             {
-                meshData.num_verts++;
-            }
-            // Vertex normals
-            else if (sscanf(fileIterator, "vn %lf %lf %lf %lf",
-                            &dNULL, &dNULL, &dNULL, &dNULL) >= 3)
-            {
-                meshData.num_normals++;
+                meshData.header.num_verts++;
             }
             // Vertex texture coordinates
-            else if (sscanf(fileIterator, "vt %lf %lf",
+            else if (sscanf(fileIterator, "vt %f %f",
                             &dNULL, &dNULL) >= 2)
             {
-                meshData.num_uvs++;
+                meshData.header.num_uvs++;
+            }
+            // Vertex normals
+            else if (sscanf(fileIterator, "vn %f %f %f %f",
+                            &dNULL, &dNULL, &dNULL, &dNULL) >= 3)
+            {
+                meshData.header.num_normals++;
             }
             // Three-sided faces
-            else if (sscanf(fileIterator, "f %d/%d/%d %d/%d/%d %d/%d/%d",
+            else if (sscanf(fileIterator, "f %u/%u/%u %u/%u/%u %u/%u/%u",
                             &iNULL, &iNULL, &iNULL, &iNULL, &iNULL, &iNULL, &iNULL, &iNULL, &iNULL) >= 9)
             {
-                meshData.num_faces++;
+                meshData.header.num_faces++;
             }
 
             // Skip until next line
@@ -54,14 +58,28 @@ namespace Importers
             }
             // Break if we're past the file's size
             if (++fileChar >= meshFile.size()) doCount = false;
+
+            taken += clock() - delta;
+            delta = clock();
+            if (taken > 2000)
+            {
+                printf("Still counting...\n");
+                fflush(stdout);
+                delta = clock();
+                taken = 0;
+            }
         }
+        // Allocate the required space and initialize the counters
+        BinaryMesh::prepareData(&meshData);
+        unsigned long n_verts = 0, n_normals = 0, n_uvs = 0, n_faces = 0;
 
         // And then parse the file
         fileChar = 0;
         while (meshFile)
         {
-            double x, y, z, w = 1;
-            double& s = x, t = y;
+            float x, y, z, w = 1;
+            float& s = x, t = y;
+            Face face;
 
             // Clear the line buffer
             memset(line, '\0', MAX_LINE_LENGTH-1);
@@ -77,35 +95,49 @@ namespace Importers
             fileChar += ++lineChar;
 
             // Vertex coordinate
-            if (sscanf(line, "v %lf %lf %lf %lf", &x, &y, &z, &w) >= 3)
+            if (sscanf(line, "v %f %f %f %f", &x, &y, &z, &w) >= 3)
             {
-
-            }
-            // Vertex normal
-            else if (sscanf(line, "vn %lf %lf %lf %lf", &x, &y, &z, &w) >= 3)
-            {
-
+                meshData.verts[n_verts] = {x, y, z, w};
+                n_verts++;
             }
             // Vertex texture coordinate
-            else if (sscanf(line, "vt %lf %lf", &s, &t) >= 2)
+            else if (sscanf(line, "vt %f %f", &s, &t) >= 2)
             {
-
+                meshData.uvs[n_uvs] = {s, t};
+                n_uvs++;
+            }
+            // Vertex normal
+            else if (sscanf(line, "vn %f %f %f %f", &x, &y, &z, &w) >= 3)
+            {
+                meshData.normals[n_normals] = {x, y, z, w};
+                n_normals++;
             }
             // Three-sided face
-            else if (sscanf(line, "f %d/%d/%d %d/%d/%d %d/%d/%d",
-                            &x, &y, &z,
-                            &x, &y, &z,
-                            &x, &y, &z))
+            else if (sscanf(line, "f %u/%u/%u %u/%u/%u %u/%u/%u",
+                            &face.fv[0], &face.ft[0], &face.fn[0],
+                            &face.fv[1], &face.ft[1], &face.fn[1],
+                            &face.fv[2], &face.ft[2], &face.fn[2]) >= 9)
             {
-
+                meshData.faces[n_faces] = face;
+                n_faces++;
             }
 
+            taken += clock() - delta;
+            delta = clock();
+            if (taken > 2000)
+            {
+                printf("Still importing...\n");
+                fflush(stdout);
+                delta = clock();
+                taken = 0;
+            }
             // EOF
             if (fileChar >= meshFile.size())
             {
                 meshFile.close();
             }
-            BinaryMesh::updateChecksum(&meshData);
         }
+        BinaryMesh::updateChecksum(&meshData);
+        printf("time taken importing .obj: %ldms", clock() - start);
     }
 }

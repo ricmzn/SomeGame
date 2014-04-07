@@ -1,12 +1,11 @@
 #include "File.h"
 #include <iostream>
 #include <vector>
-#include <cstring>
 
-File::File (const std::string& filename)
+File::File(const std::string& filename)
 {
     // Might want to check if the filesystem is initialized
-    if (!Filesystem::isInit())
+    if(!Filesystem::isInit())
     {
         throw InitializationException("Filesystem is not initialized!");
     }
@@ -21,11 +20,11 @@ File::File() : File("") {}
 
 File::~File()
 {
-    if (fileHandle != nullptr)
+    if(fileHandle != nullptr)
     {
         PHYSFS_close(fileHandle);
     }
-    if (fileData != nullptr)
+    if(fileData != nullptr)
     {
         delete[] fileData;
     }
@@ -33,7 +32,7 @@ File::~File()
 
 unsigned File::size() const
 {
-    if (fileHandle != nullptr)
+    if(fileHandle != nullptr)
     {
         return fileLength;
     }
@@ -46,27 +45,27 @@ unsigned File::size() const
 unsigned File::size(const std::string& file)
 {
     unsigned tempSize;
-    PHYSFS_File *temp = PHYSFS_openRead (file.c_str());
-    tempSize = PHYSFS_fileLength (temp);
-    PHYSFS_close (temp);
+    PHYSFS_File *temp = PHYSFS_openRead(file.c_str());
+    tempSize = PHYSFS_fileLength(temp);
+    PHYSFS_close(temp);
     return tempSize;
 }
 
 void File::setFile(const std::string& file)
 {
-    if (file == "")
+    if(file == "")
     {
         clear();
     }
     else
     {
         clear();
-        if (!openFile(file))
+        if(!openFile(file))
         {
             // File probably does not exist
             throw MissingFileException(file.c_str());
         }
-        if (fileData != nullptr)
+        if(fileData != nullptr)
         {
             delete[] fileData;
         }
@@ -82,7 +81,7 @@ std::string File::filename() const
 
 std::string File::string() const
 {
-    if (fileData != nullptr)
+    if(fileData != nullptr)
     {
         return std::string(fileData, fileLength);
     }
@@ -99,13 +98,13 @@ const char* File::data() const
 
 void File::clear()
 {
-    if (fileHandle != nullptr)
+    if(fileHandle != nullptr)
     {
         PHYSFS_close(fileHandle);
         fileHandle = nullptr;
     }
     filePath.clear();
-    if (fileData != nullptr)
+    if(fileData != nullptr)
     {
         delete[] fileData;
         fileData = nullptr;
@@ -114,16 +113,16 @@ void File::clear()
 
 void File::close()
 {
-    if (fileHandle != nullptr)
+    if(fileHandle != nullptr)
     {
-        PHYSFS_close (fileHandle);
+        PHYSFS_close(fileHandle);
         fileHandle = nullptr;
     }
 }
 
 File::operator bool() const
 {
-    return (fileHandle != nullptr);
+    return(fileHandle != nullptr);
 }
 
 const PHYSFS_File* File::getHandle() const
@@ -133,12 +132,12 @@ const PHYSFS_File* File::getHandle() const
 
 bool File::openFile(const std::string& filename, bool writeMode)
 {
-    if (!PHYSFS_exists(filename.c_str()))
+    if(!PHYSFS_exists(filename.c_str()))
     {
         clear();
         return false;
     }
-    if (writeMode)
+    if(writeMode)
     {
         fileHandle = PHYSFS_openWrite(filename.c_str());
     }
@@ -153,7 +152,7 @@ bool File::openFile(const std::string& filename, bool writeMode)
 
 void File::readData(void* dest, size_t start, size_t sz)
 {
-    if (fileHandle == nullptr)
+    if(fileHandle == nullptr)
     {
         std::cerr << "Fatal error: file wasn't opened before trying to read from it!\n";
         return;

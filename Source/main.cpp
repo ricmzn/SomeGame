@@ -7,6 +7,7 @@
 #include <Base/Filesystem/Filesystem.h>
 #include <Base/Exceptions.h>
 #include <Base/Messagebox.h>
+#include <Base/BinaryMesh.h>
 
 int keyPressed[SDL_NUM_SCANCODES] = {0};
 int WINDOW_WIDTH = 1024, WINDOW_HEIGHT = 600;
@@ -168,18 +169,15 @@ class TestScene
         }
 };
 
-#include <Import/WavefrontObj.h>
-
 int main(int argc, char** argv) try
 {
     Filesystem::initialize(argc, argv);
     Filesystem::setRootPath("../Data");
 
-    Importers::WavefrontObj obj;
-    obj.read("Meshes/monkey.obj");
-    obj.write("../Data/monkey.mdl");
-
-    return 0;
+    File file("monkey.mdl");
+    BinaryMesh test;
+    BinaryMesh::read(&test, file.data(), file.size());
+    file.clear();
 
     SDL_Init(SDL_INIT_VIDEO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
