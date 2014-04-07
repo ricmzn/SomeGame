@@ -10,6 +10,7 @@ namespace Importers
         protected:
             BinaryMesh meshData;
         public:
+            BaseMeshImporter();
             virtual void read(const char* filename) = 0;
             virtual void write(const char* destination);
             const BinaryMesh& getMesh() const;

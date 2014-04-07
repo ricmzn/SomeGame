@@ -9,7 +9,6 @@ GLEW 1.8 or newer - http://glew.sourceforge.net/
 Latest SDL 2.0 - http://libsdl.org/  
 PhysFS 2.0.3 - http://icculus.org/physfs/  
 GLM, any version - http://glm.g-truc.net/  
-libnoise - http://libnoise.sourceforge.net/index.html *(Tentative)*
 
 ###DeveloperTools additional dependencies:
 

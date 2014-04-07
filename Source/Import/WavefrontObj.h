@@ -7,7 +7,9 @@ namespace Importers
     class WavefrontObj : public BaseMeshImporter
     {
         public:
-            void read(const char* filename);
+            int unfinished;
+            WavefrontObj() {unfinished = 4;}
+            void read(const char *filename);
     };
 }
 

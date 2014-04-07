@@ -3,12 +3,13 @@
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/constants.hpp>
 #include <Base/Filesystem/Filesystem.h>
 #include <Base/Exceptions.h>
 #include <Base/Messagebox.h>
 
 int keyPressed[SDL_NUM_SCANCODES] = {0};
-int WINDOW_WIDTH = 1280, WINDOW_HEIGHT = 720;
+int WINDOW_WIDTH = 1024, WINDOW_HEIGHT = 600;
 
 class Shader
 {
@@ -82,7 +83,7 @@ class TestScene
     public:
         TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag"), lastFrame(SDL_GetTicks())
         {
-            glClearColor(0, 0, 0, 1);
+            glClearColor(1, 1, 1, 1);
             glClearDepth(1);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
@@ -134,7 +135,7 @@ class TestScene
 
             int sizeX = WINDOW_WIDTH, sizeY = WINDOW_HEIGHT;
 
-            projection = glm::perspective(60.0, (double)sizeX/(double)sizeY, 0.01, 10000.0);
+            projection = glm::perspective(glm::radians<double>(60.0), (double)sizeX/(double)sizeY, 0.01, 10000.0);
 
             glm::mat4 modelViewProjection = projection * view * model;
 
@@ -176,7 +177,9 @@ int main(int argc, char** argv) try
 
     Importers::WavefrontObj obj;
     obj.read("Meshes/monkey.obj");
-    obj.getMesh();
+    obj.write("../Data/monkey.mdl");
+
+    return 0;
 
     SDL_Init(SDL_INIT_VIDEO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -227,7 +230,6 @@ int main(int argc, char** argv) try
             {
                 runGame = false;
             }
-
 //            if (event.type == SDL_WINDOWEVENT and event.window.event == SDL_WINDOWEVENT_RESIZED)
 //            {
 //                WINDOW_WIDTH = event.window.data1;

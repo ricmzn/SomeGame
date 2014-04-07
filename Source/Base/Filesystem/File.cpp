@@ -140,13 +140,13 @@ bool File::openFile(const std::string& filename, bool writeMode)
     }
     if (writeMode)
     {
-        fileHandle = PHYSFS_openWrite (filename.c_str());
+        fileHandle = PHYSFS_openWrite(filename.c_str());
     }
     else
     {
-        fileHandle = PHYSFS_openRead  (filename.c_str());
+        fileHandle = PHYSFS_openRead(filename.c_str());
     }
-    fileLength = PHYSFS_fileLength (fileHandle);
+    fileLength = PHYSFS_fileLength(fileHandle);
     filePath = filename;
     return true;
 }
@@ -159,7 +159,7 @@ void File::readData(void* dest, size_t start, size_t sz)
         return;
     }
     PHYSFS_seek(fileHandle, start);
-    PHYSFS_read (fileHandle, dest, sz, 1);
+    PHYSFS_read(fileHandle, dest, sz, 1);
     PHYSFS_seek(fileHandle, 0);
 }
 
