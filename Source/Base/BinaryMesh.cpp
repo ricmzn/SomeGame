@@ -10,7 +10,7 @@ static unsigned getChecksum(const BinaryMesh* mesh)
          + NumberGenerator::byteSum<uint32_t>(mesh->verts, mesh->header.num_verts * sizeof(Vec4))
          + NumberGenerator::byteSum<uint32_t>(mesh->uvs, mesh->header.num_uvs * sizeof(Vec2))
          + NumberGenerator::byteSum<uint32_t>(mesh->normals, mesh->header.num_normals * sizeof(Vec4))
-         + NumberGenerator::byteSum<uint32_t>(mesh->faces, mesh->header.num_faces * sizeof(Face));
+         + NumberGenerator::byteSum<uint32_t>(mesh->indices, mesh->header.num_indices * sizeof(Index));
 }
 
 void BinaryMesh::initialize(BinaryMesh* mesh)
@@ -27,7 +27,7 @@ void BinaryMesh::prepareData(BinaryMesh *mesh)
     mesh->verts     = new Vec4[mesh->header.num_verts];
     mesh->uvs       = new Vec2[mesh->header.num_uvs];
     mesh->normals   = new Vec4[mesh->header.num_normals];
-    mesh->faces     = new Face[mesh->header.num_faces];
+    mesh->indices   = new Index[mesh->header.num_indices*3];
 }
 
 void BinaryMesh::clearData(BinaryMesh *mesh)
@@ -35,11 +35,11 @@ void BinaryMesh::clearData(BinaryMesh *mesh)
     delete mesh->verts;
     delete mesh->uvs;
     delete mesh->normals;
-    delete mesh->faces;
+    delete mesh->indices;
     mesh->verts     = NULL;
     mesh->normals   = NULL;
     mesh->uvs       = NULL;
-    mesh->faces     = NULL;
+    mesh->indices   = NULL;
 }
 
 void BinaryMesh::updateChecksum(BinaryMesh* mesh)
@@ -69,7 +69,7 @@ void BinaryMesh::read(BinaryMesh* mesh, const Byte* src, size_t size)
     memcpy(mesh->verts,     src += sizeof(header_t),                        mesh->header.num_verts * sizeof(Vec4));
     memcpy(mesh->uvs,       src += sizeof(Vec4) * mesh->header.num_verts,   mesh->header.num_uvs * sizeof(Vec2));
     memcpy(mesh->normals,   src += sizeof(Vec2) * mesh->header.num_uvs,     mesh->header.num_normals * sizeof(Vec4));
-    memcpy(mesh->faces,     src += sizeof(Vec4) * mesh->header.num_normals, mesh->header.num_faces * sizeof(Face));
+    memcpy(mesh->indices,   src += sizeof(Vec4) * mesh->header.num_normals, mesh->header.num_indices * sizeof(Index) * 3);
 
-    mesh->checksum = *((uint32_t*)(src += sizeof(Face) * mesh->header.num_faces));
+    mesh->checksum = *((uint32_t*)(src += sizeof(Index) * mesh->header.num_indices));
 }

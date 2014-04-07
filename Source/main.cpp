@@ -70,10 +70,12 @@ class Shader
 class TestScene
 {
     private:
+        BinaryMesh mesh;
         Shader shader;
-        GLuint VBO_id;
         GLuint VAO_id;
-        GLuint mvpLocation, offsetLocation;
+        GLuint VBO_id;
+        GLuint IBO_id;
+        GLuint mvpLocation;
         unsigned deltaTime;
         unsigned currentFrame;
         unsigned lastFrame;
@@ -89,27 +91,64 @@ class TestScene
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
-            glFrontFace(GL_CW);
-            glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+            glFrontFace(GL_CCW);
+            //glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
             // Set up uniforms for the shader
             mvpLocation = glGetUniformLocation(shader.getProgram(), "projectionMatrix");
 
-            // Generate a VAO and VBO
+            File file("sphere.mdl");
+            BinaryMesh::read(&mesh, file.data(), file.size());
+            file.clear();
+
+            // Temp texture
+            const float texData[] = {
+                0, 0, 0, 1,    1, 0, 1, 1,
+                1, 0, 1, 1,    0, 0, 0, 1
+            };
+            GLuint tex;
+            glGenTextures(1, &tex);
+            glBindTexture(GL_TEXTURE_2D, tex);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0, GL_RGBA, GL_FLOAT, texData);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glGenerateMipmap(GL_TEXTURE_2D);
+
+            // Generate a VAO, VBO and IBO
             glGenVertexArrays(1, &VAO_id);
             glGenBuffers(1, &VBO_id);
+            glGenBuffers(1, &IBO_id);
             // Bind them
             glBindVertexArray(VAO_id);
             glBindBuffer(GL_ARRAY_BUFFER, VBO_id);
-            // Set the buffer data
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
-            // Enable the first two vertex attributes
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO_id);
+
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
-            // Attribute index, 4 values per position, inform they're floats, unknown, space between values, first value
-            glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, 0);
-            glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, (void*) (sizeof(vertexData) / 2));
-            // Unbind the VAO
+            glEnableVertexAttribArray(2);
+
+            // Set the buffer data
+//            glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER,
+                         mesh.header.num_verts * sizeof(Vec4) +
+                         mesh.header.num_uvs * sizeof(Vec2) +
+                         mesh.header.num_normals * sizeof(Vec4),
+                         NULL, GL_STATIC_DRAW);
+
+            int offset = 0;
+            glBufferSubData(GL_ARRAY_BUFFER, offset, mesh.header.num_verts * sizeof(Vec4), mesh.verts);
+            glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, (void*)offset);
+
+            offset += mesh.header.num_verts * sizeof(Vec4);
+            glBufferSubData(GL_ARRAY_BUFFER, offset, mesh.header.num_uvs * sizeof(Vec2), mesh.uvs);
+            glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, (void*)offset);
+
+            offset += mesh.header.num_uvs * sizeof(Vec2);
+            glBufferSubData(GL_ARRAY_BUFFER, offset, mesh.header.num_normals * sizeof(Vec4), mesh.normals);
+            glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, (void*)offset);
+
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.header.num_indices * sizeof(Index) * 3, mesh.indices, GL_STATIC_DRAW);
+
             glBindVertexArray(0);
         }
         void draw()
@@ -130,7 +169,7 @@ class TestScene
                               0, 0, 1, 0,
                               x, y, z, 1);
 
-            view = glm::lookAt(glm::vec3(0, 0, 2),
+            view = glm::lookAt(glm::vec3(0, 0, 4),
                                glm::vec3(0, 0, 0),
                                glm::vec3(0, 1, 0));
 
@@ -142,42 +181,41 @@ class TestScene
 
             if (keyPressed[SDL_SCANCODE_LEFT])
             {
-                offset.x -= float(deltaTime * 0.001);
+                offset.x -= float(deltaTime * 0.002);
             }
             if (keyPressed[SDL_SCANCODE_RIGHT])
             {
-                offset.x += float(deltaTime * 0.001);
+                offset.x += float(deltaTime * 0.002);
             }
             if (keyPressed[SDL_SCANCODE_UP])
             {
-                offset.y += float(deltaTime * 0.001);
+                offset.y += float(deltaTime * 0.002);
             }
             if (keyPressed[SDL_SCANCODE_DOWN])
             {
-                offset.y -= float(deltaTime * 0.001);
+                offset.y -= float(deltaTime * 0.002);
             }
 
             // Set the shader program
             glUseProgram(shader.getProgram());
             glUniformMatrix4fv(mvpLocation, 1, false, &modelViewProjection[0][0]);
-            glUniform4fv(offsetLocation, 1, &offset[0]);
             // Bind the vertex array
             glBindVertexArray(VAO_id);
             // Draw the values
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDrawElements(GL_TRIANGLES, mesh.header.num_indices*3, GL_UNSIGNED_INT, 0);
             glBindVertexArray(0);
         }
 };
 
+#include <Import/WavefrontObj.h>
 int main(int argc, char** argv) try
 {
     Filesystem::initialize(argc, argv);
     Filesystem::setRootPath("../Data");
 
-    File file("monkey.mdl");
-    BinaryMesh test;
-    BinaryMesh::read(&test, file.data(), file.size());
-    file.clear();
+    Importers::WavefrontObj obj;
+    obj.read("Meshes/Icosphere_3.obj");
+    obj.write("../Data/sphere.mdl");
 
     SDL_Init(SDL_INIT_VIDEO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);

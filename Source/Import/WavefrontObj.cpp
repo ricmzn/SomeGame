@@ -8,10 +8,6 @@ namespace Importers
 {
     void WavefrontObj::read(const char* filename)
     {
-        clock_t start = clock();
-        clock_t delta = clock();
-        clock_t taken = 0;
-        printf("Loading .obj...\n");
         File meshFile(filename);
         unsigned fileChar = 0;
         char line[MAX_LINE_LENGTH];
@@ -47,7 +43,7 @@ namespace Importers
             else if (sscanf(fileIterator, "f %u/%u/%u %u/%u/%u %u/%u/%u",
                             &iNULL, &iNULL, &iNULL, &iNULL, &iNULL, &iNULL, &iNULL, &iNULL, &iNULL) >= 9)
             {
-                meshData.header.num_faces++;
+                meshData.header.num_indices++;
             }
 
             // Skip until next line
@@ -58,20 +54,13 @@ namespace Importers
             }
             // Break if we're past the file's size
             if (++fileChar >= meshFile.size()) doCount = false;
-
-            taken += clock() - delta;
-            delta = clock();
-            if (taken > 2000)
-            {
-                printf("Still counting...\n");
-                fflush(stdout);
-                delta = clock();
-                taken = 0;
-            }
         }
         // Allocate the required space and initialize the counters
         BinaryMesh::prepareData(&meshData);
-        unsigned long n_verts = 0, n_normals = 0, n_uvs = 0, n_faces = 0;
+        unsigned long verts = 0, normals = 0, uvs = 0,
+                v_indices = meshData.header.num_indices*0,
+                t_indices = meshData.header.num_indices*1,
+                n_indices = meshData.header.num_indices*2;
 
         // And then parse the file
         fileChar = 0;
@@ -97,20 +86,20 @@ namespace Importers
             // Vertex coordinate
             if (sscanf(line, "v %f %f %f %f", &x, &y, &z, &w) >= 3)
             {
-                meshData.verts[n_verts] = {x, y, z, w};
-                n_verts++;
+                meshData.verts[verts] = {x, y, z, w};
+                verts++;
             }
             // Vertex texture coordinate
             else if (sscanf(line, "vt %f %f", &s, &t) >= 2)
             {
-                meshData.uvs[n_uvs] = {s, t};
-                n_uvs++;
+                meshData.uvs[uvs] = {t, s};
+                uvs++;
             }
             // Vertex normal
             else if (sscanf(line, "vn %f %f %f %f", &x, &y, &z, &w) >= 3)
             {
-                meshData.normals[n_normals] = {x, y, z, w};
-                n_normals++;
+                meshData.normals[normals] = {x, y, z, w};
+                normals++;
             }
             // Three-sided face
             else if (sscanf(line, "f %u/%u/%u %u/%u/%u %u/%u/%u",
@@ -118,19 +107,19 @@ namespace Importers
                             &face.fv[1], &face.ft[1], &face.fn[1],
                             &face.fv[2], &face.ft[2], &face.fn[2]) >= 9)
             {
-                meshData.faces[n_faces] = face;
-                n_faces++;
+                // MASSIVE CODE WALL TODO
+                meshData.indices[v_indices].i[0] = face.fv[0]-1;
+                meshData.indices[v_indices].i[1] = face.fv[1]-1;
+                meshData.indices[v_indices].i[2] = face.fv[2]-1;
+                meshData.indices[t_indices].i[0] = face.ft[0]-1;
+                meshData.indices[t_indices].i[1] = face.ft[1]-1;
+                meshData.indices[t_indices].i[2] = face.ft[2]-1;
+                meshData.indices[n_indices].i[0] = face.fn[0]-1;
+                meshData.indices[n_indices].i[1] = face.fn[1]-1;
+                meshData.indices[n_indices].i[2] = face.fn[2]-1;
+                v_indices++; t_indices++; n_indices++;
             }
 
-            taken += clock() - delta;
-            delta = clock();
-            if (taken > 2000)
-            {
-                printf("Still importing...\n");
-                fflush(stdout);
-                delta = clock();
-                taken = 0;
-            }
             // EOF
             if (fileChar >= meshFile.size())
             {
@@ -138,6 +127,5 @@ namespace Importers
             }
         }
         BinaryMesh::updateChecksum(&meshData);
-        printf("time taken importing .obj: %ldms", clock() - start);
     }
 }

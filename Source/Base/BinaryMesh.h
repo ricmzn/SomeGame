@@ -10,14 +10,14 @@ struct BinaryMesh
     uint8_t magic[3];
     uint8_t version;
     // Counts (60 bytes)
-    uint32_t num_faces;
+    uint32_t num_indices;
     uint32_t num_verts;
     uint32_t num_uvs;
     uint32_t num_normals;
     uint32_t pad1[11];
     } header;
     // Data (variable size)
-    Face* faces;
+    Index* indices;
     Vec4* verts;
     Vec2* uvs;
     Vec4* normals;
