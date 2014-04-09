@@ -11,6 +11,7 @@ namespace Import
             BinaryMesh meshData;
         public:
             BaseMeshImporter();
+            virtual ~BaseMeshImporter() = 0;
             virtual void read(const char* ospath) = 0;
             virtual void write(const char* ospath);
             const BinaryMesh& getMesh() const;

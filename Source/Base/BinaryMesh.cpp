@@ -16,10 +16,14 @@ static unsigned getChecksum(const BinaryMesh* mesh)
 void BinaryMesh::initialize(BinaryMesh* mesh)
 {
     memset(mesh, 0, sizeof(BinaryMesh));
-    mesh->header.magic[0] = MESH_MAGIC[0];
-    mesh->header.magic[1] = MESH_MAGIC[1];
-    mesh->header.magic[2] = MESH_MAGIC[2];
-    mesh->header.version  = MESH_VERSION;
+    mesh->header.magic[0]   = MESH_MAGIC[0];
+    mesh->header.magic[1]   = MESH_MAGIC[1];
+    mesh->header.magic[2]   = MESH_MAGIC[2];
+    mesh->header.version    = MESH_VERSION;
+    mesh->verts     = NULL;
+    mesh->normals   = NULL;
+    mesh->texCoords = NULL;
+    mesh->indices   = NULL;
 }
 
 void BinaryMesh::allocData(BinaryMesh *mesh)
@@ -32,10 +36,10 @@ void BinaryMesh::allocData(BinaryMesh *mesh)
 
 void BinaryMesh::clearData(BinaryMesh *mesh)
 {
-    delete mesh->verts;
-    delete mesh->texCoords;
-    delete mesh->normals;
-    delete mesh->indices;
+    if (mesh->verts)        delete mesh->verts;
+    if (mesh->normals)      delete mesh->texCoords;
+    if (mesh->texCoords)    delete mesh->normals;
+    if (mesh->indices)      delete mesh->indices;
     mesh->verts     = NULL;
     mesh->normals   = NULL;
     mesh->texCoords = NULL;

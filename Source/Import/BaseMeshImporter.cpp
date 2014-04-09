@@ -7,6 +7,10 @@ namespace Import
     {
         BinaryMesh::initialize(&meshData);
     }
+    BaseMeshImporter::~BaseMeshImporter()
+    {
+        BinaryMesh::clearData(&meshData);
+    }
 
     void BaseMeshImporter::write(const char* ospath)
     {
