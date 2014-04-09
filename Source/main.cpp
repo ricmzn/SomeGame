@@ -62,10 +62,8 @@ class Shader
             glDetachShader(progID, vertID);
             glDetachShader(progID, fragID);
         }
-        const int getProgram() {return progID;}
+        int getProgram() {return progID;}
 };
-
-#include "cube.cpp"
 
 class TestScene
 {
@@ -73,81 +71,75 @@ class TestScene
         BinaryMesh mesh;
         Shader shader;
         GLuint VAO_id;
-        GLuint VBO_id;
+        GLuint VBO_ids[3];
         GLuint IBO_id;
         GLuint mvpLocation;
+        GLuint colorLocation;
         unsigned deltaTime;
         unsigned currentFrame;
         unsigned lastFrame;
 
         glm::mat4 model, view, projection;
-        glm::vec4 offset;
+        glm::vec3 offset;
 
     public:
         TestScene() : shader("Shaders/UnlitGeneric.vert", "Shaders/UnlitGeneric.frag"), lastFrame(SDL_GetTicks())
         {
-            glClearColor(1, 1, 1, 1);
+            glClearColor(0, 0, 0, 1);
             glClearDepth(1);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
             glFrontFace(GL_CCW);
-            //glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+            glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
             // Set up uniforms for the shader
             mvpLocation = glGetUniformLocation(shader.getProgram(), "projectionMatrix");
+            colorLocation = glGetUniformLocation(shader.getProgram(), "flatColor");
 
             File file("sphere.mdl");
             BinaryMesh::read(&mesh, file.data(), file.size());
             file.clear();
 
-            // Temp texture
-            const float texData[] = {
-                0, 0, 0, 1,    1, 0, 1, 1,
-                1, 0, 1, 1,    0, 0, 0, 1
-            };
+            SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromFile("../Data/sphericalheightmap.bmp", "r"), 0);
+//            SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromFile("../Data/uv.bmp", "r"), 0);
+
             GLuint tex;
             glGenTextures(1, &tex);
             glBindTexture(GL_TEXTURE_2D, tex);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0, GL_RGBA, GL_FLOAT, texData);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surf->w, surf->h, 0, GL_BGR, GL_UNSIGNED_BYTE, surf->pixels);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             glGenerateMipmap(GL_TEXTURE_2D);
 
-            // Generate a VAO, VBO and IBO
+            SDL_FreeSurface(surf);
+
+            // Generate a VAO
             glGenVertexArrays(1, &VAO_id);
-            glGenBuffers(1, &VBO_id);
-            glGenBuffers(1, &IBO_id);
-            // Bind them
             glBindVertexArray(VAO_id);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO_id);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO_id);
 
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
             glEnableVertexAttribArray(2);
 
-            // Set the buffer data
-//            glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
-            glBufferData(GL_ARRAY_BUFFER,
-                         mesh.header.num_verts * sizeof(Vec4) +
-                         mesh.header.num_uvs * sizeof(Vec2) +
-                         mesh.header.num_normals * sizeof(Vec4),
-                         NULL, GL_STATIC_DRAW);
+            glGenBuffers(3, VBO_ids);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO_ids[0]);
+            glBufferData(GL_ARRAY_BUFFER, mesh.header.nVerts * sizeof(Vec3), mesh.verts, GL_STATIC_DRAW);
+            glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 
-            int offset = 0;
-            glBufferSubData(GL_ARRAY_BUFFER, offset, mesh.header.num_verts * sizeof(Vec4), mesh.verts);
-            glVertexAttribPointer(0, 4, GL_FLOAT, false, 0, (void*)offset);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO_ids[1]);
+            glBufferData(GL_ARRAY_BUFFER, mesh.header.nVerts * sizeof(Vec2), mesh.texCoords, GL_STATIC_DRAW);
+            glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 
-            offset += mesh.header.num_verts * sizeof(Vec4);
-            glBufferSubData(GL_ARRAY_BUFFER, offset, mesh.header.num_uvs * sizeof(Vec2), mesh.uvs);
-            glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, (void*)offset);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO_ids[2]);
+            glBufferData(GL_ARRAY_BUFFER, mesh.header.nVerts * sizeof(Vec3), mesh.normals, GL_STATIC_DRAW);
+            glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
 
-            offset += mesh.header.num_uvs * sizeof(Vec2);
-            glBufferSubData(GL_ARRAY_BUFFER, offset, mesh.header.num_normals * sizeof(Vec4), mesh.normals);
-            glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, (void*)offset);
-
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.header.num_indices * sizeof(Index) * 3, mesh.indices, GL_STATIC_DRAW);
+            glGenBuffers(1, &IBO_id);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO_id);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.header.nIndices * sizeof(uint32_t), mesh.indices, GL_STATIC_DRAW);
 
             glBindVertexArray(0);
         }
@@ -164,10 +156,9 @@ class TestScene
             const float& y = offset.y;
             const float& z = offset.z;
             // Matrices
-            model = glm::mat4(1, 0, 0, 0,
-                              0, 1, 0, 0,
-                              0, 0, 1, 0,
-                              x, y, z, 1);
+            model = glm::mat4();
+            //model = glm::translate(model, glm::vec3(x, y, z));
+            model = glm::rotate(model, x, glm::vec3(0, 1, 0));
 
             view = glm::lookAt(glm::vec3(0, 0, 4),
                                glm::vec3(0, 0, 0),
@@ -196,25 +187,40 @@ class TestScene
                 offset.y -= float(deltaTime * 0.002);
             }
 
+            if (keyPressed[SDL_SCANCODE_W])
+            {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glDisable(GL_CULL_FACE);
+                glUniform1f(colorLocation, 1.f);
+            }
+            else if (keyPressed[SDL_SCANCODE_E])
+            {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                glEnable(GL_CULL_FACE);
+                glUniform1f(colorLocation, 0.f);
+            }
+
             // Set the shader program
             glUseProgram(shader.getProgram());
             glUniformMatrix4fv(mvpLocation, 1, false, &modelViewProjection[0][0]);
             // Bind the vertex array
             glBindVertexArray(VAO_id);
             // Draw the values
-            glDrawElements(GL_TRIANGLES, mesh.header.num_indices*3, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, mesh.header.nIndices, GL_UNSIGNED_INT, 0);
             glBindVertexArray(0);
         }
 };
 
-#include <Import/WavefrontObj.h>
+#include <Import/GenericAssimp.h>
+
 int main(int argc, char** argv) try
 {
     Filesystem::initialize(argc, argv);
     Filesystem::setRootPath("../Data");
 
-    Importers::WavefrontObj obj;
-    obj.read("Meshes/Icosphere_3.obj");
+    Import::GenericAssimp obj;
+    obj.read("../Data/Meshes/Icosphere_3.obj");
+//    obj.read("../Data/Meshes/plane.obj");
     obj.write("../Data/sphere.mdl");
 
     SDL_Init(SDL_INIT_VIDEO);

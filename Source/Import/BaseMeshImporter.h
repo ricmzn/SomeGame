@@ -3,7 +3,7 @@
 #include <Base/Filesystem/File.h>
 #include <Base/BinaryMesh.h>
 
-namespace Importers
+namespace Import
 {
     class BaseMeshImporter
     {
@@ -11,8 +11,8 @@ namespace Importers
             BinaryMesh meshData;
         public:
             BaseMeshImporter();
-            virtual void read(const char* filename) = 0;
-            virtual void write(const char* destination);
+            virtual void read(const char* ospath) = 0;
+            virtual void write(const char* ospath);
             const BinaryMesh& getMesh() const;
     };
 }

@@ -79,7 +79,7 @@ class File
         PHYSFS_File* fileHandle;
         std::string filePath;
         size_t fileLength;
-        char *fileData;
+        char* fileData;
 
         bool openFile(const std::string& filename, bool writeMode = false);
         void readData(void* dest, size_t start, size_t size);

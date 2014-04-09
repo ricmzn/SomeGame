@@ -6,11 +6,11 @@
 
 static unsigned getChecksum(const BinaryMesh* mesh)
 {
-    return NumberGenerator::byteSum<uint32_t>(&mesh->header, sizeof(mesh->header))
-         + NumberGenerator::byteSum<uint32_t>(mesh->verts, mesh->header.num_verts * sizeof(Vec4))
-         + NumberGenerator::byteSum<uint32_t>(mesh->uvs, mesh->header.num_uvs * sizeof(Vec2))
-         + NumberGenerator::byteSum<uint32_t>(mesh->normals, mesh->header.num_normals * sizeof(Vec4))
-         + NumberGenerator::byteSum<uint32_t>(mesh->indices, mesh->header.num_indices * sizeof(Index));
+    return NumberGenerator::byteSum<uint32_t>(&mesh->header,    sizeof(mesh->header))
+         + NumberGenerator::byteSum<uint32_t>(mesh->verts,      mesh->header.nVerts * sizeof(Vec3))
+         + NumberGenerator::byteSum<uint32_t>(mesh->texCoords,  mesh->header.nVerts * sizeof(Vec2))
+         + NumberGenerator::byteSum<uint32_t>(mesh->normals,    mesh->header.nVerts * sizeof(Vec3))
+         + NumberGenerator::byteSum<uint32_t>(mesh->indices,    mesh->header.nIndices * sizeof(uint32_t));
 }
 
 void BinaryMesh::initialize(BinaryMesh* mesh)
@@ -22,23 +22,23 @@ void BinaryMesh::initialize(BinaryMesh* mesh)
     mesh->header.version  = MESH_VERSION;
 }
 
-void BinaryMesh::prepareData(BinaryMesh *mesh)
+void BinaryMesh::allocData(BinaryMesh *mesh)
 {
-    mesh->verts     = new Vec4[mesh->header.num_verts];
-    mesh->uvs       = new Vec2[mesh->header.num_uvs];
-    mesh->normals   = new Vec4[mesh->header.num_normals];
-    mesh->indices   = new Index[mesh->header.num_indices*3];
+    mesh->verts     = new Vec3[mesh->header.nVerts];
+    mesh->texCoords = new Vec2[mesh->header.nVerts];
+    mesh->normals   = new Vec3[mesh->header.nVerts];
+    mesh->indices   = new uint32_t[mesh->header.nIndices];
 }
 
 void BinaryMesh::clearData(BinaryMesh *mesh)
 {
     delete mesh->verts;
-    delete mesh->uvs;
+    delete mesh->texCoords;
     delete mesh->normals;
     delete mesh->indices;
     mesh->verts     = NULL;
     mesh->normals   = NULL;
-    mesh->uvs       = NULL;
+    mesh->texCoords = NULL;
     mesh->indices   = NULL;
 }
 
@@ -60,16 +60,30 @@ bool BinaryMesh::isValid(const BinaryMesh* mesh)
 
     return true;
 }
+
 void BinaryMesh::read(BinaryMesh* mesh, const Byte* src, size_t size)
 {
-    // TODO verify the checksum before reading the file (checksum is always at [size - 4])
     mesh->header = ((BinaryMesh*)src)->header;
-    prepareData(mesh);
+    mesh->checksum = *((uint32_t*)(src + size - sizeof(uint32_t)));
 
-    memcpy(mesh->verts,     src += sizeof(header_t),                        mesh->header.num_verts * sizeof(Vec4));
-    memcpy(mesh->uvs,       src += sizeof(Vec4) * mesh->header.num_verts,   mesh->header.num_uvs * sizeof(Vec2));
-    memcpy(mesh->normals,   src += sizeof(Vec2) * mesh->header.num_uvs,     mesh->header.num_normals * sizeof(Vec4));
-    memcpy(mesh->indices,   src += sizeof(Vec4) * mesh->header.num_normals, mesh->header.num_indices * sizeof(Index) * 3);
+    // TODO specialized exceptions
+    if (mesh->header.magic[0] != MESH_MAGIC[0] or
+        mesh->header.magic[1] != MESH_MAGIC[1] or
+        mesh->header.magic[2] != MESH_MAGIC[2] or
+        mesh->header.version > MESH_VERSION)
+    {
+        initialize(mesh);
+        throw InitializationException("Invalid mesh header");
+    }
+    else if (mesh->checksum != NumberGenerator::byteSum<uint32_t>(src, size - sizeof(uint32_t)))
+    {
+        initialize(mesh);
+        throw InitializationException("Invalid mesh checksum");
+    }
 
-    mesh->checksum = *((uint32_t*)(src += sizeof(Index) * mesh->header.num_indices));
+    allocData(mesh);
+    memcpy(mesh->verts,     src += sizeof(header_t),                    mesh->header.nVerts * sizeof(Vec3));
+    memcpy(mesh->texCoords, src += sizeof(Vec3) * mesh->header.nVerts,  mesh->header.nVerts * sizeof(Vec2));
+    memcpy(mesh->normals,   src += sizeof(Vec2) * mesh->header.nVerts,  mesh->header.nVerts * sizeof(Vec3));
+    memcpy(mesh->indices,   src += sizeof(Vec3) * mesh->header.nVerts,  mesh->header.nIndices * sizeof(uint32_t));
 }

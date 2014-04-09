@@ -8,6 +8,7 @@ OpenGL 4.0 - NVIDIA 400 series, AMD 5000 series or Intel HD4000. Anything newer 
 GLEW 1.8 or newer - http://glew.sourceforge.net/  
 Latest SDL 2.0 - http://libsdl.org/  
 PhysFS 2.0.3 - http://icculus.org/physfs/  
+Open Asset Import Library 3.0 - http://assimp.sourceforge.net/  
 GLM, any version - http://glm.g-truc.net/  
 
 ###DeveloperTools additional dependencies:

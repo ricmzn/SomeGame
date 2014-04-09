@@ -2,11 +2,12 @@
 
 uniform mat4 projectionMatrix;
 layout(location = 0) in vec4 position;
-layout(location = 1) in vec4 normal;
-layout(location = 2) in vec2 texCoord;
-out vec4 vNormal;
-out vec2 vTexCoord;
+layout(location = 1) in vec2 texCoord;
+layout(location = 2) in vec4 normal;
 out vec4 vPosition;
+out vec2 vTexCoord;
+out vec4 vNormal;
+out float depth;
 
 void main(void)
 {
@@ -14,4 +15,5 @@ void main(void)
     vNormal = normal;
     vTexCoord = texCoord;
     vPosition = position;
+    depth = gl_Position.z;
 }
