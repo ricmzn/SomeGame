@@ -5,6 +5,17 @@
 /*---------------*/
 /* BaseException */
 /*---------------*/
+BaseException::BaseException(const char *msg,
+                             const char *start,
+                             const char *end)
+{
+    // Concatenate an error message to inform the user of the error
+    const char* fmt = "%s%s%s";
+    const int len = snprintf(NULL, 0, fmt, start, msg, end) + 1;
+    buffer = new char[len];
+    snprintf(buffer, len, fmt, start, msg, end);
+}
+
 BaseException::~BaseException()
 {
     free(buffer);
@@ -24,20 +35,22 @@ const char* BaseException::trace() const
 /* InitializationException */
 /*-------------------------*/
 InitializationException::InitializationException(const char* what)
+    : BaseException(what)
 {
-    const char* fmt = "%s";
-    const int len = snprintf(NULL, 0, fmt, what) + 1;
-    buffer = new char[len];
-    snprintf(buffer, len, fmt, what);
 }
 
 /*----------------------*/
 /* MissingFileException */
 /*----------------------*/
 MissingFileException::MissingFileException(const char* filename)
+    : BaseException(filename, "File does not exist in search path: \'", "\'!")
 {
-    const char* fmt = "File does not exist in search path: \'%s\'";
-    const int len = snprintf(NULL, 0, fmt, filename) + 1;
-    buffer = new char[len];
-    snprintf(buffer, len, fmt, filename);
+}
+
+/*---------------------------*/
+/* InvalidParameterException */
+/*---------------------------*/
+InvalidParameterException::InvalidParameterException(const char *param, const char* func)
+    : BaseException("\nInvalid parameter: ", func, param)
+{
 }

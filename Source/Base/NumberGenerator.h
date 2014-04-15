@@ -1,26 +1,31 @@
 #ifndef NUMBERGENERATOR_H
 #define NUMBERGENERATOR_H
 #include <cstddef>
+#include <cstdlib>
+#include <ctime>
 
-class NumberGenerator
+namespace NumberGenerator
 {
-    private:
-        static long seed;
-    public:
-        template <typename T> static T byteSum(const void* data, size_t size);
-};
+    /*--------------*/
+    /* Declarations */
+    /*--------------*/
+    template <typename T> T byteSum(const void* data, size_t size);
 
-template <typename T>
-T NumberGenerator::byteSum(const void* data, size_t size)
-{
-    T sum = 0;
-    size_t n = 0;
-    while (n < size)
+    /*-----------------*/
+    /* Implementations */
+    /*-----------------*/
+    template <typename T>
+    T byteSum(const void* data, size_t size)
     {
-        sum += *((unsigned char*)data + n);
-        ++n;
+        T sum = 0;
+        size_t n = 0;
+        while (n < size)
+        {
+            sum += *((unsigned char*)data + n);
+            ++n;
+        }
+        return sum;
     }
-    return sum;
 }
 
 #endif // NUMBERGENERATOR_H

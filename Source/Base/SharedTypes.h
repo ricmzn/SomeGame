@@ -2,7 +2,9 @@
 #define SHAREDTYPES_H
 #include <cstdint>
 
+typedef float lowp;
 typedef float mediump;
+typedef double highp;
 typedef char Byte;
 
 struct Vec2
