@@ -11,14 +11,15 @@ uniform float flatColor;
 
 void main()
 {
-    float fogDepth = pow(depth, 3)/256;
+    float fog = pow(depth, 3)/256;
+    vec4 fogColor = vec4(fog, fog, fog, 0);
     if (flatColor == 0.f)
     {
-        diffuseColor = texture(albedoTexture, vTexCoord) - vec3(fogDepth) * 0.5;
+        diffuseColor = texture(albedoTexture, vTexCoord) - fogColor * 0.5;
     }
     else
     {
-        diffuseColor = vec4(1, 1, 1, 1) - vec3(fogDepth);
+        diffuseColor = vec4(1, 1, 1, 1) - fogColor;
     }
     //diffuseColor = vec4((vTexCoord.st + 1)/2, 0, 1);
     normalColor = vec4(0.5, 0.5, 1, 1);
