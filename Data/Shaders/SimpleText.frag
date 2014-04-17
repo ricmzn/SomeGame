@@ -1,4 +1,4 @@
-#version 400 core
+#version 330 core
 
 in vec2 vTexCoord;
 layout(location = 0) out vec4 diffuseColor;
@@ -10,6 +10,7 @@ void main(void)
     // Discard bright purple
     if (diffuseColor == vec4(1, 0, 1, 1))
     {
-        discard;
+        diffuseColor = vec4(1, 0, 0, 1);
+        //discard;
     }
 }

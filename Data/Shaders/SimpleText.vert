@@ -1,4 +1,4 @@
-#version 400 core
+#version 330 core
 
 uniform vec2 screenSize = vec2(1024, 600);
 uniform vec2 offset;
@@ -17,8 +17,9 @@ void main(void)
     float aspect = screenSize.y / screenSize.x;
 
     vec4 offsetPosition = position
-                        + vec2(offset.x * safe_x_mult + safe_x_offset,
-                               offset.y * safe_y_mult + safe_y_offset);
+                        + vec4(offset.x * safe_x_mult + safe_x_offset,
+                               offset.y * safe_y_mult + safe_y_offset,
+                               0, 0);
 
     vec4 scaledPosition = vec4(offsetPosition.x * aspect, offsetPosition.y, 0, 1);
     gl_Position = scaledPosition;

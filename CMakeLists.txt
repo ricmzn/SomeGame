@@ -16,7 +16,7 @@ if(BUILD_GAME)
     if(WIN32)
         set(LIBS mingw32 SDL2main SDL2 glew32 opengl32 physfs assimp)
     else()
-        set(LIBS SDL2 GLEW GL physfs)
+        set(LIBS SDL2 GLEW GL physfs assimp)
     endif()
 
     add_executable(${GAME_NAME} ${SOURCE_LIST} ${MISC_LIST})
