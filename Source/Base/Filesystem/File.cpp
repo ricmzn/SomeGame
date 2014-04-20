@@ -69,7 +69,7 @@ void File::setFile(const std::string& file)
         {
             delete[] fileData;
         }
-        fileData = new char[fileLength];
+        fileData = new unsigned char[fileLength];
         readData(fileData, 0, fileLength);
     }
 }
@@ -79,11 +79,11 @@ std::string File::filename() const
     return filePath;
 }
 
-std::string File::string() const
+std::string File::toString() const
 {
     if(fileData != nullptr)
     {
-        return std::string(fileData, fileLength);
+        return std::string((const char*)fileData, fileLength);
     }
     else
     {
@@ -91,7 +91,7 @@ std::string File::string() const
     }
 }
 
-const char* File::data() const
+const unsigned char* File::data() const
 {
     return fileData;
 }
@@ -164,6 +164,6 @@ void File::readData(void* dest, size_t start, size_t sz)
 
 std::ostream& operator<<(std::ostream& left, const File& right)
 {
-    left << right.string();
+    left << right.toString();
     return left;
 }

@@ -21,7 +21,7 @@ struct BinaryMesh
     // Verification checksum (4 bytes)
     uint32_t checksum;
 
-    // Static functions (not part of the structure)
+    // Related functions
     static void initialize(BinaryMesh* mesh);
     static void allocData(BinaryMesh* mesh);
     static void clearData(BinaryMesh* mesh);

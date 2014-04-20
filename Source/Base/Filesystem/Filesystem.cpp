@@ -8,6 +8,9 @@ namespace Filesystem
     // This should probably be deprecated and done in setRootPath
     void initialize(int argc, char **argv)
     {
+        // Suppress "Unused Variable: $var" warnings
+        (void) argc;
+
         if (!PHYSFS_init(argv[0]))
         {
             throw InitializationException("Could not initialize virtual filesystem!");
@@ -39,7 +42,7 @@ namespace Filesystem
         File mountList("MountList.txt");
 
         // Create stream objects
-        std::istringstream ss(mountList.string());
+        std::istringstream ss(mountList.toString());
         std::string line;
         // For each line
         while (std::getline(ss, line))

@@ -53,11 +53,11 @@ class File
         /**
          * @brief Get the file's loaded content in as a text string
          */
-        std::string string() const;
+        std::string toString() const;
         /**
          * @brief Get the file's loaded content in as a raw, non-null terminated byte stream
          */
-        const char* data() const;
+        const unsigned char* data() const;
         /**
          * @brief Get the handle used to read the file
          */
@@ -79,7 +79,7 @@ class File
         PHYSFS_File* fileHandle;
         std::string filePath;
         size_t fileLength;
-        char* fileData;
+        unsigned char* fileData;
 
         bool openFile(const std::string& filename, bool writeMode = false);
         void readData(void* dest, size_t start, size_t size);
