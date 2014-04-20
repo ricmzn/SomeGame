@@ -2,7 +2,7 @@
 
 in vec2 vTexCoord;
 layout(location = 0) out vec4 diffuseColor;
-uniform sampler2D textAtlas;
+uniform sampler2DRect textAtlas;
 
 void main(void)
 {
@@ -10,7 +10,6 @@ void main(void)
     // Discard bright purple
     if (diffuseColor == vec4(1, 0, 1, 1))
     {
-        diffuseColor = vec4(1, 0, 0, 1);
-        //discard;
+        discard;
     }
 }

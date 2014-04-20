@@ -2,7 +2,7 @@
 #define BITMAPTEXT_H
 #include <Base/Filesystem/File.h>
 #include <Base/SharedTypes.h>
-#include <GL/glew.h>
+#include <Base/GL.h>
 
 struct BMPTextInfo
 {

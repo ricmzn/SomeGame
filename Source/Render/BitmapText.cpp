@@ -38,8 +38,8 @@ static GLuint initShader()
 {
     File vshFile("Shaders/SimpleText.vert");
     File fshFile("Shaders/SimpleText.frag");
-    GLuint vsh = newShader(GL_VERTEX_SHADER, vshFile.string().c_str());
-    GLuint fsh = newShader(GL_FRAGMENT_SHADER, fshFile.string().c_str());
+    GLuint vsh = newShader(GL_VERTEX_SHADER, vshFile.toString().c_str());
+    GLuint fsh = newShader(GL_FRAGMENT_SHADER, fshFile.toString().c_str());
 
     GLuint prog = glCreateProgram();
     glAttachShader(prog, vsh);
@@ -75,8 +75,8 @@ BitmapText::~BitmapText()
 void BitmapText::buildQuads()
 {
     const Vec2 charSize = {
-        textInfo.char_width/float(textInfo.texture_width),
-        textInfo.char_height/float(textInfo.texture_height)
+        textInfo.char_width,
+        textInfo.char_height
     };
     const unsigned faceVerts = 6;
     const unsigned numFaces = strlen(text);
@@ -102,8 +102,8 @@ void BitmapText::buildQuads()
 
         // And texture coordinates
         const Vec2 charOffset = {
-            (text[i] % textInfo.columns) / float(16),
-            (text[i] / textInfo.columns) / float(16)
+            text[i] % textInfo.columns * charSize.x,
+            text[i] / textInfo.columns * charSize.y
         };
 
         texCoords[i*faceVerts+0] = {charOffset.x,              charOffset.y};
@@ -132,14 +132,14 @@ void BitmapText::buildQuads()
     glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
     glBindVertexArray(GL_NONE);
 
-    delete verts;
-    delete texCoords;
+    delete[] verts;
+    delete[] texCoords;
 }
 
 void BitmapText::draw(const Vec2& pos) const
 {
     glDisable(GL_DEPTH_TEST);
-    glBindTexture(GL_TEXTURE_2D, textInfo.texture);
+    glBindTexture(GL_TEXTURE_RECTANGLE, textInfo.texture);
     glBindVertexArray(VAO_id);
     glUseProgram(shaderProgram);
 
@@ -147,7 +147,7 @@ void BitmapText::draw(const Vec2& pos) const
     glUniform2f(offsetLocation, pos.x, pos.y);
     glDrawArrays(GL_TRIANGLES, 0, numVerts);
 
-    glBindTexture(GL_TEXTURE_2D, GL_NONE);
+    glBindTexture(GL_TEXTURE_RECTANGLE, GL_NONE);
     glBindVertexArray(GL_NONE);
     glUseProgram(GL_NONE);
     glEnable(GL_DEPTH_TEST);
@@ -160,11 +160,11 @@ void loadBitmapTextSDL(BitmapText *bt, const File &tex)
 
     GLuint texture_id;
     glGenTextures(1, &texture_id);
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surf->w, surf->h, 0, GL_BGR, GL_UNSIGNED_BYTE, surf->pixels);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, GL_NONE);
+    glBindTexture(GL_TEXTURE_RECTANGLE, texture_id);
+    glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, surf->w, surf->h, 0, GL_BGR, GL_UNSIGNED_BYTE, surf->pixels);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_RECTANGLE, GL_NONE);
 
     bt->textInfo.texture_width = surf->w;
     bt->textInfo.texture_height = surf->h;

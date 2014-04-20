@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(SomeGame)
+
 set(GAME_NAME ${PROJECT_NAME})
 set(TOOLS_NAME DeveloperTools)
+set(CMAKE_C_FLAGS "-std=c11 -Wall -Wextra -pedantic -g")
 set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pedantic -g")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Bin)
 add_definitions(-DGLM_FORCE_RADIANS)
@@ -10,7 +12,7 @@ option(BUILD_GAME "Build ${GAME_NAME}" ON)
 option(BUILD_TOOLS "Build ${TOOLS_NAME}" OFF)
 
 if(BUILD_GAME)
-    file(GLOB_RECURSE SOURCE_LIST "Source/*.cpp" "Source/*.h")
+    file(GLOB_RECURSE SOURCE_LIST "Source/*.cpp" "Source/*.c" "Source/*.h")
     include_directories("Source")
 
     if(WIN32)

@@ -11,12 +11,12 @@ void main(void)
     // Safezone values
     // TODO: pass these in as pre-calculated uniforms
     const float safe_y_mult   = -1.925;
-    const float safe_y_offset = 1 - 0.0675;
+    const float safe_y_offset = 1 - 0.12;
     const float safe_x_mult   = 1.475;
     const float safe_x_offset = -1;
     float aspect = screenSize.y / screenSize.x;
 
-    vec4 offsetPosition = position
+    vec4 offsetPosition = position * 0.01
                         + vec4(offset.x * safe_x_mult + safe_x_offset,
                                offset.y * safe_y_mult + safe_y_offset,
                                0, 0);

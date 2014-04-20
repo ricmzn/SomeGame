@@ -1,25 +1,27 @@
 #ifndef SHAREDTYPES_H
 #define SHAREDTYPES_H
+#include <forward_list>
 #include <cstdint>
 
-typedef float lowp;
-typedef float mediump;
-typedef double highp;
-typedef char Byte;
+// Primitive types
+typedef unsigned char Byte;
+typedef unsigned long tick_t;
 
-struct Vec2
-{
-    mediump x, y;
-};
+// Container types
+#include <vector>
 
-struct Vec3
-{
-    mediump x, y, z;
-};
+template <typename T> using Array = std::vector<T>;
+#include <list>
+template <typename T> using List = std::forward_list<T>;
 
-struct Vec4
-{
-    mediump x, y, z, w;
-};
+// Vector types
+#include <glm/vec2.hpp>
+typedef glm::vec2 Vec2;
+
+#include <glm/vec3.hpp>
+typedef glm::vec3 Vec3;
+
+#include <glm/vec4.hpp>
+typedef glm::vec4 Vec4;
 
 #endif // SHAREDTYPES_H

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -9,6 +8,8 @@
 #include <Base/Messagebox.h>
 #include <Base/BinaryMesh.h>
 #include <Render/BitmapText.h>
+#include <Base/Entity.h>
+#include <Base/GL.h>
 
 int keyPressed[SDL_NUM_SCANCODES] = {0};
 int WINDOW_WIDTH = 1024, WINDOW_HEIGHT = 600;
@@ -26,6 +27,7 @@ class Shader
             glShaderSource(shader, 1, &source, NULL);
             glCompileShader(shader);
             GLint status;
+
             glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
             if (status == false)
             {
@@ -52,8 +54,8 @@ class Shader
         Shader(const File& vert, const File& frag)
         {
             // Create both shaders
-            vertID = newShader(GL_VERTEX_SHADER, vert.string().c_str());
-            fragID = newShader(GL_FRAGMENT_SHADER, frag.string().c_str());
+            vertID = newShader(GL_VERTEX_SHADER, vert.toString().c_str());
+            fragID = newShader(GL_FRAGMENT_SHADER, frag.toString().c_str());
 
             // Create and link a program
             progID = glCreateProgram();
@@ -105,8 +107,7 @@ class TestScene
             BinaryMesh::read(&mesh, file.data(), file.size());
             file.clear();
 
-            SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromFile("../Data/sphericalheightmap.bmp", "r"), 0);
-//            SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromFile("../Data/uv.bmp", "r"), 0);
+            SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromFile("../Data/sphericalheightmap.bmp", "r"), 1);
 
             glGenTextures(1, &Tex_id);
             glBindTexture(GL_TEXTURE_2D, Tex_id);
@@ -259,13 +260,7 @@ int main(int argc, char** argv) try
                                           SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1);
-    glewExperimental = GL_TRUE;
-    if (!window || glewInit() != GLEW_OK)
-    {
-        MessageBoxError("Fatal Error", "Could not initialize an OpenGL context\nMake sure your video drivers are updated");
-        fprintf(stderr, "SDL_GetError(): %s\n", SDL_GetError());
-        return -1;
-    }
+    glInitializeContext();
 
     printf("OpenGL version: %s\nDisplay device: %s\nVendor: %s\n",
            glGetString(GL_VERSION),
