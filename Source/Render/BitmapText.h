@@ -25,15 +25,18 @@ class BitmapText
         Vec3* verts;
         Vec2* texCoords;
         const char* text;
+
+        void buildQuads();
+
     public:
         BMPTextInfo textInfo;
 
-        BitmapText(const char* text);
+        BitmapText();
         ~BitmapText();
-        void buildQuads();
+        void setString(const char* text);
         void draw(const Vec2& pos) const;
 };
 
-void loadBitmapTextSDL(BitmapText* bt, const File& tex);
+BitmapText loadBitmapTextSDL(const char*, const File& tex);
 
 #endif // BITMAPTEXT_H

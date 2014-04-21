@@ -53,8 +53,8 @@ static GLuint initShader()
 bool BitmapText::isShaderInit = false;
 GLuint BitmapText::shaderProgram;
 
-BitmapText::BitmapText(const char* text)
-    : text(text)
+BitmapText::BitmapText()
+    : text(nullptr)
 {
     if (!isShaderInit)
     {
@@ -63,7 +63,6 @@ BitmapText::BitmapText(const char* text)
     }
     verts     = nullptr;
     texCoords = nullptr;
-    glGenVertexArrays(1, &VAO_id);
 }
 
 BitmapText::~BitmapText()
@@ -72,8 +71,20 @@ BitmapText::~BitmapText()
     glDeleteBuffers(2, VBO_ids);
 }
 
+void BitmapText::setString(const char *text)
+{
+    glDeleteVertexArrays(1, &VAO_id);
+    glGenVertexArrays(1, &VAO_id);
+    glDeleteBuffers(2, VBO_ids);
+    glGenBuffers(2, VBO_ids);
+    this->text = text;
+    this->buildQuads();
+}
+
 void BitmapText::buildQuads()
 {
+    if (!text) return;
+
     const Vec2 charSize = {
         textInfo.char_width,
         textInfo.char_height
@@ -117,7 +128,6 @@ void BitmapText::buildQuads()
     glBindVertexArray(VAO_id);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    glGenBuffers(2, VBO_ids);
 
     // Vertex positions
     glBindBuffer(GL_ARRAY_BUFFER, VBO_ids[0]);
@@ -154,7 +164,7 @@ void BitmapText::draw(const Vec2& pos) const
 }
 
 #include <SDL2/SDL.h>
-void loadBitmapTextSDL(BitmapText *bt, const File &tex)
+BitmapText loadBitmapTextSDL(const char* str, const File &tex)
 {
     SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromConstMem(tex.data(), tex.size()), SDL_FALSE);
 
@@ -166,11 +176,13 @@ void loadBitmapTextSDL(BitmapText *bt, const File &tex)
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_RECTANGLE, GL_NONE);
 
-    bt->textInfo.texture_width = surf->w;
-    bt->textInfo.texture_height = surf->h;
-    bt->textInfo.char_width = 8;
-    bt->textInfo.char_height = 12;
-    bt->textInfo.texture = texture_id;
-    bt->textInfo.columns = 16;
-    bt->buildQuads();
+    BitmapText bt;
+    bt.textInfo.texture_width = surf->w;
+    bt.textInfo.texture_height = surf->h;
+    bt.textInfo.char_width = 8;
+    bt.textInfo.char_height = 12;
+    bt.textInfo.texture = texture_id;
+    bt.textInfo.columns = 16;
+    bt.setString(str);
+    return bt;
 }

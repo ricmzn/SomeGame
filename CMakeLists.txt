@@ -10,9 +10,9 @@ add_definitions(-DGLM_FORCE_RADIANS)
 
 option(BUILD_GAME "Build ${GAME_NAME}" ON)
 option(BUILD_TOOLS "Build ${TOOLS_NAME}" OFF)
+file(GLOB_RECURSE SOURCE_LIST "Source/*.cpp" "Source/*.c" "Source/*.h")
 
 if(BUILD_GAME)
-    file(GLOB_RECURSE SOURCE_LIST "Source/*.cpp" "Source/*.c" "Source/*.h")
     include_directories("Source")
 
     if(WIN32)
