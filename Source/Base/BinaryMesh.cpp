@@ -6,11 +6,11 @@
 
 static unsigned getChecksum(const BinaryMesh* mesh)
 {
-    return NumberGenerator::byteSum<uint32_t>(&mesh->header,    sizeof(mesh->header))
-         + NumberGenerator::byteSum<uint32_t>(mesh->verts,      mesh->header.nVerts * sizeof(Vec3))
-         + NumberGenerator::byteSum<uint32_t>(mesh->texCoords,  mesh->header.nVerts * sizeof(Vec2))
-         + NumberGenerator::byteSum<uint32_t>(mesh->normals,    mesh->header.nVerts * sizeof(Vec3))
-         + NumberGenerator::byteSum<uint32_t>(mesh->indices,    mesh->header.nIndices * sizeof(uint32_t));
+    return NumberGenerator::byteSum(&mesh->header,    sizeof(mesh->header))
+         + NumberGenerator::byteSum(mesh->verts,      mesh->header.nVerts * sizeof(Vec3))
+         + NumberGenerator::byteSum(mesh->texCoords,  mesh->header.nVerts * sizeof(Vec2))
+         + NumberGenerator::byteSum(mesh->normals,    mesh->header.nVerts * sizeof(Vec3))
+         + NumberGenerator::byteSum(mesh->indices,    mesh->header.nIndices * sizeof(uint32_t));
 }
 
 void BinaryMesh::initialize(BinaryMesh* mesh)
@@ -79,7 +79,7 @@ void BinaryMesh::read(BinaryMesh* mesh, const Byte* src, size_t size)
         initialize(mesh);
         throw InitializationException("Invalid mesh header");
     }
-    else if (mesh->checksum != NumberGenerator::byteSum<uint32_t>(src, size - sizeof(uint32_t)))
+    else if (mesh->checksum != NumberGenerator::byteSum(src, size - sizeof(uint32_t)))
     {
         initialize(mesh);
         throw InitializationException("Invalid mesh checksum");
