@@ -1,21 +1,20 @@
 #include <iostream>
 #include <sstream>
 #include <SDL2/SDL.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/constants.hpp>
-#include <Base/Filesystem/Filesystem.h>
 #include <Base/Exceptions.h>
 #include <Base/Messagebox.h>
-#include <Base/BinaryMesh.h>
 #include <Render/BitmapText.h>
-#include <Base/GL.h>
+#include <Render/TestTerrain.h>
+#include <glm/gtc/noise.hpp>
+#include <ctime>
 
 int keyPressed[SDL_NUM_SCANCODES] = {0};
 int WINDOW_WIDTH = 1024, WINDOW_HEIGHT = 600;
+float deltaTime = 0.f;
 
 int main(int argc, char** argv) try
 {
+    srand(time(NULL));
     Filesystem::initialize(argc, argv);
     Filesystem::setRootPath("../Data");
 
@@ -42,14 +41,16 @@ int main(int argc, char** argv) try
            glGetString(GL_VENDOR));
 
     BitmapText text = loadBitmapTextSDL(NULL, "curses_640x300.bmp");
-    std::stringstream counter;
-    unsigned count = 0;
+    std::stringstream ticker;
+
+    TestTerrain terrain(32, 32, 5);
+    terrain.generate(1.0, 1.5);
 
     SDL_ShowWindow(window);
-
     bool runGame = true;
     while (runGame)
     {
+        uint32_t start = SDL_GetTicks();
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -73,12 +74,15 @@ int main(int argc, char** argv) try
 //                glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 //            }
         }
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        counter.str("");
-        counter << "Ticks: " << count++;
-        text.setString(counter.str().c_str());
+        ticker.str("");
+        ticker << "deltaTime: " << deltaTime << "s";
+        text.setString(ticker.str().c_str());
+        terrain.draw();
         text.draw({0, 0});
         SDL_GL_SwapWindow(window);
+        deltaTime = (SDL_GetTicks() - start)/1000.f;
     }
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);

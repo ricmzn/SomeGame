@@ -11,6 +11,7 @@
 #endif
 #include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <string>
 
 /**
  * @brief Loads OpenGL functions in the current context through GLEW
@@ -20,31 +21,72 @@ void glInitializeContext();
 
 class GLBaseObject
 {
-    private:
+    protected:
         GLuint handle;
     public:
         GLBaseObject();
         virtual ~GLBaseObject() = 0;
+        GLuint getHandle() const;
+        operator GLuint() const;
 };
 
-class ShaderProgram : GLBaseObject
+class ShaderProgram : public GLBaseObject
 {
-
+    protected:
+        std::string errorLog;
+    public:
+        ShaderProgram();
+        virtual ~ShaderProgram();
+        void addShader(GLenum type, const GLchar* src, GLint size);
+        const char* getLog() const;
+        void link();
 };
 
-class VertexBufferObject : GLBaseObject
+class VertexBufferObject : public GLBaseObject
 {
-
+    protected:
+        GLenum bufferTarget;
+        GLenum bufferUsage;
+        GLuint bufferSize;
+    public:
+        VertexBufferObject(GLenum target, GLenum usage = GL_STATIC_DRAW);
+        virtual ~VertexBufferObject();
+        void upload(void* data, size_t len);
+        GLuint target() const;
+        GLuint size() const;
 };
 
-class VertexArrayObject : GLBaseObject
+class VertexArrayObject : public GLBaseObject
 {
-
+    protected:
+        GLuint indexArray;
+    public:
+        VertexArrayObject();
+        virtual ~VertexArrayObject();
+        void setIndexArray(const VertexBufferObject& ibo);
+        void addAttrib(const VertexBufferObject& vbo,
+                       GLuint index, GLuint size, GLenum type, GLint offset = 0, GLint stride = 0);
+        void removeAttrib(GLuint index);
 };
 
-class Texture2D : GLBaseObject
+class Texture2D : public GLBaseObject
 {
+    protected:
+        GLsizei texWidth, texHeight;
+    public:
+        Texture2D();
+        virtual ~Texture2D();
+        void upload(void* pixels, GLenum format, GLenum type, GLsizei width, GLsizei height, GLint level = 0);
+        GLsizei width() const;
+        GLsizei height() const;
+};
 
+class Texture2DRect : public Texture2D
+{
+    public:
+        Texture2DRect();
+        virtual ~Texture2DRect();
+        void upload(void* pixels, GLenum format, GLenum typ, GLsizei width, GLsizei height);
 };
 
 #endif // GL_H
