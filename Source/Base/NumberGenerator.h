@@ -25,10 +25,10 @@ namespace NumberGenerator
         private:
             int seed;
         public:
-            PerlinNoise2D();
+            PerlinNoise2D(int seed);
             ~PerlinNoise2D();
-            float get(int x, int y) const;
-            float operator() (int x, int y) const;
+            float get(float x, float y) const;
+            float operator() (float x, float y) const;
     };
 }
 

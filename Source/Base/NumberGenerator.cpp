@@ -23,17 +23,16 @@ namespace NumberGenerator
     /*---------------*/
     /* PerlinNoise2D */
     /*---------------*/
-    PerlinNoise2D::PerlinNoise2D()
-    {
-        seed = rand();
-    }
+    PerlinNoise2D::PerlinNoise2D(int seed)
+        : seed(seed)
+    {}
 
     PerlinNoise2D::~PerlinNoise2D() {}
-    float PerlinNoise2D::get(int x, int y) const
+    float PerlinNoise2D::get(float x, float y) const
     {
-        return glm::perlin(glm::vec3(4*x + seed, 4*y + seed, seed/float(RAND_MAX)));
+        return glm::perlin(glm::vec3(x + seed, y + seed, seed/float(RAND_MAX)));
     }
-    float PerlinNoise2D::operator() (int x, int y) const
+    float PerlinNoise2D::operator() (float x, float y) const
     {
         return this->get(x, y);
     }

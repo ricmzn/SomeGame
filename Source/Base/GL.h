@@ -65,7 +65,7 @@ class VertexArrayObject : public GLBaseObject
         virtual ~VertexArrayObject();
         void setIndexArray(const VertexBufferObject& ibo);
         void addAttrib(const VertexBufferObject& vbo,
-                       GLuint index, GLuint size, GLenum type, GLint offset = 0, GLint stride = 0);
+                       GLuint index, GLuint size, GLenum type, GLvoid* offset = 0, GLint stride = 0);
         void removeAttrib(GLuint index);
 };
 
@@ -86,7 +86,7 @@ class Texture2DRect : public Texture2D
     public:
         Texture2DRect();
         virtual ~Texture2DRect();
-        void upload(void* pixels, GLenum format, GLenum typ, GLsizei width, GLsizei height);
+        void upload(void* pixels, GLenum format, GLenum type, GLsizei width, GLsizei height);
 };
 
 #endif // GL_H

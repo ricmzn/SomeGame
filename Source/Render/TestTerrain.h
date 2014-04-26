@@ -1,8 +1,7 @@
 #ifndef TESTTERRAIN_H
 #define TESTTERRAIN_H
-#include <Base/SharedTypes.h>
 #include <Base/GL.h>
-#include <vector>
+#include <Entities/Camera.h>
 
 class TestTerrain
 {
@@ -15,7 +14,7 @@ class TestTerrain
             Vec3 northEast;
         };
 
-        std::vector<Quad> quads;
+        Array<Quad> quads;
         ShaderProgram shader;
         VertexArrayObject vao;
         VertexBufferObject vbo;
@@ -28,8 +27,8 @@ class TestTerrain
     public:
         TestTerrain(int width, int height, int lod);
         ~TestTerrain();
-        void generate(float frequency, float amplitude);
-        void draw();
+        void generate(float frequency, float amplitude, int seed);
+        void draw(int x, int y, int z, const Camera* camera);
 };
 
 #endif // TESTTERRAIN_H

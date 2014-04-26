@@ -87,7 +87,7 @@ void TestTerrain::triangulate()
         indices[i*12 +11] = i*5 + 4;
     }
     vbo.upload(vertices, nVertices*sizeof(Vec3));
-    ibo.upload(indices, nIndices*sizeof(unsigned));
+    ibo.upload(indices, nIndices*sizeof(GLuint));
     vao.setIndexArray(ibo);
     vao.addAttrib(vbo, 0, 3, GL_FLOAT);
     delete[] vertices;
@@ -125,63 +125,24 @@ TestTerrain::~TestTerrain()
 
 }
 
-void TestTerrain::generate(float frequency, float amplitude)
+void TestTerrain::generate(float frequency, float amplitude, int seed)
 {
-    NumberGenerator::PerlinNoise2D perlin;
+    NumberGenerator::PerlinNoise2D perlin(seed);
     for (size_t i = 0; i < quads.size(); i++)
     {
         Quad& quad = quads[i];
-        quad.northWest.y = perlin.get(quad.northWest.x, quad.northWest.z) * amplitude;
-        quad.southWest.y = perlin.get(quad.southWest.x, quad.southWest.z) * amplitude;
-        quad.southEast.y = perlin.get(quad.southEast.x, quad.southEast.z) * amplitude;
-        quad.northEast.y = perlin.get(quad.northEast.x, quad.northEast.z) * amplitude;
+        quad.northWest.y = perlin.get(quad.northWest.x*frequency, quad.northWest.z*frequency) * amplitude;
+        quad.southWest.y = perlin.get(quad.southWest.x*frequency, quad.southWest.z*frequency) * amplitude;
+        quad.southEast.y = perlin.get(quad.southEast.x*frequency, quad.southEast.z*frequency) * amplitude;
+        quad.northEast.y = perlin.get(quad.northEast.x*frequency, quad.northEast.z*frequency) * amplitude;
     }
     this->triangulate();
 }
 
-#include <SDL2/SDL_scancode.h>
-extern int keyPressed[];
-extern float deltaTime;
-
-void TestTerrain::draw()
+void TestTerrain::draw(int x, int y, int z, const Camera* camera)
 {
-    glEnable(GL_CULL_FACE);
-    static Vec3 pos = {-8, 8, -8};
-    const float speed = 16 * deltaTime;
-
-    glm::mat4 model = glm::mat4();
-    glm::mat4 view = glm::lookAt(pos,
-                                 glm::vec3(16, 0, 16),
-                                 glm::vec3(0, 1, 0));
-    glm::mat4 projection = glm::perspective(glm::radians(60.f),
-                                            1024.f/600.f,
-                                            0.1f, 100.f);
-    glm::mat4 MVP = projection * view * model;
-
-    if (keyPressed[SDL_SCANCODE_W])
-    {
-        pos.z += speed;
-    }
-    else if (keyPressed[SDL_SCANCODE_S])
-    {
-        pos.z -= speed;
-    }
-    if (keyPressed[SDL_SCANCODE_A])
-    {
-        pos.x += speed;
-    }
-    else if (keyPressed[SDL_SCANCODE_D])
-    {
-        pos.x -= speed;
-    }
-    if (keyPressed[SDL_SCANCODE_Q])
-    {
-        pos.y += speed;
-    }
-    else if (keyPressed[SDL_SCANCODE_Z])
-    {
-        pos.y -= speed;
-    }
+    glm::mat4 model = glm::translate(glm::mat4(), glm::vec3(x, y, z));
+    glm::mat4 MVP = camera->getMatrix() * model;
 
     glUseProgram(shader);
     GLuint projLocation = glGetUniformLocation(shader, "projectionMatrix");

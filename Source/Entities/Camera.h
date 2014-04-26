@@ -1,26 +1,28 @@
 #ifndef CAMERA_H
 #define CAMERA_H
+#include <Base/Entity/TransformEntity.h>
 #include <Base/SharedTypes.h>
-#include <glm/matrix.hpp>
 
-class Camera
+class Camera : public TransformEntity
 {
     private:
-        glm::mat4 viewProjectionMatrix;
-        glm::vec3 position;
+        Mat4 viewProjectionMatrix;
         float aspectRatio;
         float fieldOfView;
     public:
-        enum Projection
+        enum class Projection
         {
             Ortho,
             Perspective
         };
 
         Camera(float vfov, float aspect);
+        virtual void spawn(SpawnFlags flags) {(void)flags;}
+        virtual void think(float deltaTime);
+
         void setAspect(float aspect);
         void setPosition(glm::vec3 pos);
-        void setProjection(Projection type, float vfov);
+        void setProjection(float vfov, Projection type = Projection::Perspective);
         const glm::mat4& getMatrix() const;
 };
 

@@ -5,10 +5,10 @@
 #include <Base/Messagebox.h>
 #include <Render/BitmapText.h>
 #include <Render/TestTerrain.h>
-#include <glm/gtc/noise.hpp>
+#include <Entities/PlayerController.h>
 #include <ctime>
 
-int keyPressed[SDL_NUM_SCANCODES] = {0};
+KeyArray keys;
 int WINDOW_WIDTH = 1024, WINDOW_HEIGHT = 600;
 float deltaTime = 0.f;
 
@@ -34,8 +34,11 @@ int main(int argc, char** argv) try
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1);
     glInitializeContext();
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 
-    printf("OpenGL version: %s\nDisplay device: %s\nVendor: %s\n",
+    printf("OpenGL version: %s\nDisplay device: %s\nVendor: %s\n\n",
            glGetString(GL_VERSION),
            glGetString(GL_RENDERER),
            glGetString(GL_VENDOR));
@@ -43,10 +46,16 @@ int main(int argc, char** argv) try
     BitmapText text = loadBitmapTextSDL(NULL, "curses_640x300.bmp");
     std::stringstream ticker;
 
-    TestTerrain terrain(32, 32, 5);
-    terrain.generate(1.0, 1.5);
+    int r = rand();
+    TestTerrain terrain(256, 256, 7);
+    terrain.generate(0.25, 2.0, r);
+
+    Camera* camera = new Camera(60.f, WINDOW_WIDTH/float(WINDOW_HEIGHT));
+    PlayerController player(&keys);
+    player.addChild(camera);
 
     SDL_ShowWindow(window);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
     bool runGame = true;
     while (runGame)
     {
@@ -56,16 +65,23 @@ int main(int argc, char** argv) try
         {
             if (event.type == SDL_KEYDOWN)
             {
-                keyPressed[event.key.keysym.scancode] = 1;
+                keys.pressed[event.key.keysym.scancode] = 1;
             }
             else if (event.type == SDL_KEYUP)
             {
-                keyPressed[event.key.keysym.scancode] = 0;
+                keys.pressed[event.key.keysym.scancode] = 0;
             }
 
             if (event.type == SDL_QUIT or event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
             {
                 runGame = false;
+            }
+
+            if (event.type == SDL_MOUSEMOTION)
+            {
+                const float sensitivity = 0.25;
+                player.rotate(Vec3(0, 1, 0), event.motion.xrel * deltaTime * sensitivity);
+                player.rotate(player.right(), event.motion.yrel * deltaTime * sensitivity);
             }
 //            if (event.type == SDL_WINDOWEVENT and event.window.event == SDL_WINDOWEVENT_RESIZED)
 //            {
@@ -79,11 +95,13 @@ int main(int argc, char** argv) try
         ticker.str("");
         ticker << "deltaTime: " << deltaTime << "s";
         text.setString(ticker.str().c_str());
-        terrain.draw();
-        text.draw({0, 0});
+        player.update(deltaTime);
+        terrain.draw(-128, 0, -128, camera);
+        text.draw(0, 0);
         SDL_GL_SwapWindow(window);
         deltaTime = (SDL_GetTicks() - start)/1000.f;
     }
+    SDL_SetRelativeMouseMode(SDL_FALSE);
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();

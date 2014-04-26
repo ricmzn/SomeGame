@@ -2,81 +2,24 @@
 #include <Base/Filesystem/File.h>
 #include <cstring>
 
-static GLuint newShader(GLenum shaderType, const char* source)
-{
-    // Tutorial code from http://www.arcsynthesis.org/gltut
-    // Copyright © 2012 Jason L. McKesson
-    // Variable names changed take custom parameters and work with glLoadGen func_cpp functions
-    GLuint shader = glCreateShader(shaderType);
-    glShaderSource(shader, 1, &source, NULL);
-    glCompileShader(shader);
-    GLint status;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-    if (status == false)
-    {
-       GLint infoLogLength;
-       glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-       GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-       glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
-
-       const char *strShaderType = NULL;
-       switch(shaderType)
-       {
-       case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
-       case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
-       case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
-       }
-
-       fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
-       delete[] strInfoLog;
-    }
-    return shader;
-}
-
-static GLuint initShader()
-{
-    File vshFile("Shaders/SimpleText.vert");
-    File fshFile("Shaders/SimpleText.frag");
-    GLuint vsh = newShader(GL_VERTEX_SHADER, vshFile.toString().c_str());
-    GLuint fsh = newShader(GL_FRAGMENT_SHADER, fshFile.toString().c_str());
-
-    GLuint prog = glCreateProgram();
-    glAttachShader(prog, vsh);
-    glAttachShader(prog, fsh);
-    glLinkProgram(prog);
-    glDetachShader(prog, vsh);
-    glDetachShader(prog, fsh);
-    return prog;
-}
-
-bool BitmapText::isShaderInit = false;
-GLuint BitmapText::shaderProgram;
-
 BitmapText::BitmapText()
-    : text(nullptr)
+    : vertexBuffer(GL_ARRAY_BUFFER),
+      texCoordBuffer(GL_ARRAY_BUFFER),
+      text(nullptr)
 {
-    if (!isShaderInit)
-    {
-        shaderProgram = initShader();
-        isShaderInit = true;
-    }
-    verts     = nullptr;
-    texCoords = nullptr;
+    File shaderFile;
+    shaderFile.setFile("Shaders/SimpleText.vert");
+    shaderProgram.addShader(GL_VERTEX_SHADER, shaderFile.toString().c_str(), shaderFile.size());
+    shaderFile.setFile("Shaders/SimpleText.frag");
+    shaderProgram.addShader(GL_FRAGMENT_SHADER, shaderFile.toString().c_str(), shaderFile.size());
+    shaderProgram.link();
 }
 
 BitmapText::~BitmapText()
-{
-    glDeleteVertexArrays(1, &VAO_id);
-    glDeleteBuffers(2, VBO_ids);
-}
+{}
 
 void BitmapText::setString(const char *text)
 {
-    glDeleteVertexArrays(1, &VAO_id);
-    glGenVertexArrays(1, &VAO_id);
-    glDeleteBuffers(2, VBO_ids);
-    glGenBuffers(2, VBO_ids);
     this->text = text;
     this->buildQuads();
 }
@@ -92,9 +35,9 @@ void BitmapText::buildQuads()
     const unsigned faceVerts = 6;
     const unsigned numFaces = strlen(text);
 
-    numVerts  = numFaces*faceVerts;
-    verts     = new Vec3[numVerts];
-    texCoords = new Vec2[numVerts];
+    GLuint  numVerts  = numFaces*faceVerts;
+    Vec3*   verts     = new Vec3[numVerts];
+    Vec2*   texCoords = new Vec2[numVerts];
 
     for (unsigned i = 0; i < numFaces; i++)
     {
@@ -125,37 +68,26 @@ void BitmapText::buildQuads()
         texCoords[i*faceVerts+5] = {charOffset.x + charSize.x, charOffset.y + charSize.y};
     }
 
-    glBindVertexArray(VAO_id);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-    // Vertex positions
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_ids[0]);
-    glBufferData(GL_ARRAY_BUFFER, numVerts * sizeof(Vec3), verts, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-    // Texture coordinates
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_ids[1]);
-    glBufferData(GL_ARRAY_BUFFER, numVerts * sizeof(Vec2), texCoords, GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
-    glBindVertexArray(GL_NONE);
+    vertexBuffer.upload(verts, numVerts * sizeof(Vec3));
+    texCoordBuffer.upload(texCoords, numVerts * sizeof(Vec2));
+    vertexArray.addAttrib(vertexBuffer, 0, 3, GL_FLOAT);
+    vertexArray.addAttrib(texCoordBuffer, 1, 2, GL_FLOAT);
 
     delete[] verts;
     delete[] texCoords;
 }
 
-void BitmapText::draw(const Vec2& pos) const
+void BitmapText::draw(int x, int y) const
 {
     glDisable(GL_DEPTH_TEST);
     glBindTexture(GL_TEXTURE_RECTANGLE, textInfo.texture);
-    glBindVertexArray(VAO_id);
+    glBindVertexArray(vertexArray);
     glUseProgram(shaderProgram);
 
     GLuint offsetLocation = glGetUniformLocation(shaderProgram, "offset");
-    glUniform2f(offsetLocation, pos.x, pos.y);
-    glDrawArrays(GL_TRIANGLES, 0, numVerts);
+    glUniform2f(offsetLocation, x, y);
+
+    glDrawArrays(GL_TRIANGLES, 0, vertexBuffer.size());
 
     glBindTexture(GL_TEXTURE_RECTANGLE, GL_NONE);
     glBindVertexArray(GL_NONE);
@@ -168,20 +100,12 @@ BitmapText loadBitmapTextSDL(const char* str, const File &tex)
 {
     SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromConstMem(tex.data(), tex.size()), SDL_FALSE);
 
-    GLuint texture_id;
-    glGenTextures(1, &texture_id);
-    glBindTexture(GL_TEXTURE_RECTANGLE, texture_id);
-    glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, surf->w, surf->h, 0, GL_BGR, GL_UNSIGNED_BYTE, surf->pixels);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_RECTANGLE, GL_NONE);
-
     BitmapText bt;
     bt.textInfo.texture_width = surf->w;
     bt.textInfo.texture_height = surf->h;
     bt.textInfo.char_width = 8;
     bt.textInfo.char_height = 12;
-    bt.textInfo.texture = texture_id;
+    bt.textInfo.texture.upload(surf->pixels, GL_BGR, GL_UNSIGNED_BYTE, surf->w, surf->h);
     bt.textInfo.columns = 16;
     bt.setString(str);
     return bt;

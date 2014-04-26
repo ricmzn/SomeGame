@@ -11,30 +11,24 @@ struct BMPTextInfo
     short char_width;
     short char_height;
     short columns;
-    GLuint texture;
+    Texture2DRect texture;
 };
 
 class BitmapText
 {
     private:
-        GLuint VAO_id;
-        GLuint VBO_ids[2];
-        static bool isShaderInit;
-        static GLuint shaderProgram;
-        unsigned numVerts;
-        Vec3* verts;
-        Vec2* texCoords;
+        ShaderProgram shaderProgram;
+        VertexArrayObject vertexArray;
+        VertexBufferObject vertexBuffer;
+        VertexBufferObject texCoordBuffer;
         const char* text;
-
         void buildQuads();
-
     public:
         BMPTextInfo textInfo;
-
         BitmapText();
         ~BitmapText();
         void setString(const char* text);
-        void draw(const Vec2& pos) const;
+        void draw(int x, int y) const;
 };
 
 BitmapText loadBitmapTextSDL(const char*, const File& tex);

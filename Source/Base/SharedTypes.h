@@ -24,4 +24,18 @@ typedef glm::vec3 Vec3;
 #include <glm/vec4.hpp>
 typedef glm::vec4 Vec4;
 
+// Matrix types
+#include <glm/mat4x4.hpp>
+typedef glm::mat4 Mat4;
+
+#include <glm/gtc/quaternion.hpp>
+typedef glm::quat Quaternion;
+
+// Misc
+#include <SDL2/SDL_scancode.h>
+struct KeyArray
+{
+    int pressed[SDL_NUM_SCANCODES];
+};
+
 #endif // SHAREDTYPES_H
