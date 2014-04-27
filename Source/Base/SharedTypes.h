@@ -24,6 +24,11 @@ typedef glm::vec3 Vec3;
 #include <glm/vec4.hpp>
 typedef glm::vec4 Vec4;
 
+// Commonly-used vectors
+#define VEC3_FORWARD Vec3(0, 0, -1)
+#define VEC3_RIGHT   Vec3(1, 0, 0)
+#define VEC3_UP      Vec3(0, 1, 0)
+
 // Matrix types
 #include <glm/mat4x4.hpp>
 typedef glm::mat4 Mat4;
@@ -33,9 +38,16 @@ typedef glm::quat Quaternion;
 
 // Misc
 #include <SDL2/SDL_scancode.h>
-struct KeyArray
+struct InputArray
 {
     int pressed[SDL_NUM_SCANCODES];
+    struct
+    {
+        int left;
+        int right;
+        int xrel;
+        int yrel;
+    } mouse;
 };
 
 #endif // SHAREDTYPES_H

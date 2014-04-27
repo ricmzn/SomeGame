@@ -1,4 +1,5 @@
 #include "GenericAssimp.h"
+#if USE_ASSIMP
 #include <cstdio>
 #include <cstring>
 #include <assimp/Importer.hpp>
@@ -51,3 +52,4 @@ namespace Import
         BinaryMesh::updateChecksum(&meshData);
     }
 }
+#endif

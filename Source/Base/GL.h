@@ -49,7 +49,7 @@ class VertexBufferObject : public GLBaseObject
         GLenum bufferUsage;
         GLuint bufferSize;
     public:
-        VertexBufferObject(GLenum target, GLenum usage = GL_STATIC_DRAW);
+        VertexBufferObject(GLenum target = GL_ARRAY_BUFFER, GLenum usage = GL_STATIC_DRAW);
         virtual ~VertexBufferObject();
         void upload(void* data, size_t len);
         GLuint target() const;

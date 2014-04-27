@@ -16,9 +16,9 @@ if(BUILD_GAME)
     include_directories("Source")
 
     if(WIN32)
-        set(LIBS mingw32 SDL2main SDL2 glew32 opengl32 physfs assimp)
+        set(LIBS mingw32 SDL2main SDL2 glew32 opengl32 physfs)
     else()
-        set(LIBS SDL2 GLEW GL physfs assimp)
+        set(LIBS SDL2 GLEW GL physfs)
     endif()
 
     add_executable(${GAME_NAME} ${SOURCE_LIST} ${MISC_LIST})

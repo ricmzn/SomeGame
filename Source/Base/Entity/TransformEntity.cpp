@@ -12,15 +12,15 @@ void TransformEntity::rotate(Vec3 axis, float angle)
 
 Vec3 TransformEntity::forward() const
 {
-    return Vec3(0, 0, -1) * rot;
+    return VEC3_FORWARD * rot;
 }
 
 Vec3 TransformEntity::right() const
 {
-    return Vec3(1, 0, 0) * -rot;
+    return VEC3_RIGHT * rot;
 }
 
 Vec3 TransformEntity::up() const
 {
-    return Vec3(0, 1, 0) * rot;
+    return VEC3_UP * rot;
 }

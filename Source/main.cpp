@@ -8,7 +8,7 @@
 #include <Entities/PlayerController.h>
 #include <ctime>
 
-KeyArray keys;
+InputArray keys;
 int WINDOW_WIDTH = 1024, WINDOW_HEIGHT = 600;
 float deltaTime = 0.f;
 
@@ -19,8 +19,8 @@ int main(int argc, char** argv) try
     Filesystem::setRootPath("../Data");
 
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -56,9 +56,11 @@ int main(int argc, char** argv) try
 
     SDL_ShowWindow(window);
     SDL_SetRelativeMouseMode(SDL_TRUE);
-    bool runGame = true;
+    bool runGame = true, atmo = false;
     while (runGame)
     {
+        keys.mouse.xrel = 0;
+        keys.mouse.yrel = 0;
         uint32_t start = SDL_GetTicks();
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -71,24 +73,40 @@ int main(int argc, char** argv) try
             {
                 keys.pressed[event.key.keysym.scancode] = 0;
             }
+            if (event.type == SDL_MOUSEBUTTONDOWN)
+            {
+                if (event.button.button == SDL_BUTTON_LEFT) keys.mouse.left = true;
+                if (event.button.button == SDL_BUTTON_RIGHT) keys.mouse.right = true;
+            }
+            else if (event.type == SDL_MOUSEBUTTONUP)
+            {
+                if (event.button.button == SDL_BUTTON_LEFT) keys.mouse.left = false;
+                if (event.button.button == SDL_BUTTON_RIGHT) keys.mouse.right = false;
+            }
+            if (event.type == SDL_MOUSEMOTION)
+            {
+                keys.mouse.xrel = event.motion.xrel;
+                keys.mouse.yrel = event.motion.yrel;
+            }
 
             if (event.type == SDL_QUIT or event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
             {
                 runGame = false;
             }
 
-            if (event.type == SDL_MOUSEMOTION)
+            if (event.type == SDL_KEYDOWN and event.key.keysym.scancode == SDL_SCANCODE_F)
             {
-                const float sensitivity = 0.25;
-                player.rotate(Vec3(0, 1, 0), event.motion.xrel * deltaTime * sensitivity);
-                player.rotate(player.right(), event.motion.yrel * deltaTime * sensitivity);
+                if (atmo)
+                {
+                    player.setFlightMode(FlightMode::SPACE);
+                    atmo = false;
+                }
+                else
+                {
+                    player.setFlightMode(FlightMode::ATMO);
+                    atmo = true;
+                }
             }
-//            if (event.type == SDL_WINDOWEVENT and event.window.event == SDL_WINDOWEVENT_RESIZED)
-//            {
-//                WINDOW_WIDTH = event.window.data1;
-//                WINDOW_HEIGHT = event.window.data2;
-//                glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-//            }
         }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
