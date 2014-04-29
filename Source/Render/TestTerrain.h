@@ -27,8 +27,9 @@ class TestTerrain
     public:
         TestTerrain(int width, int height, int lod);
         ~TestTerrain();
-        void generate(float frequency, float amplitude, int seed);
-        void draw(int x, int y, int z, const Camera* camera);
+        void generate(float frequency, float amplitude, int seed,
+                      float exponent = 1, int octaves = 1, float x = 0, float y = 0);
+        void draw(float x, float y, float z, const Camera* camera);
 };
 
 #endif // TESTTERRAIN_H

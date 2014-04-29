@@ -24,10 +24,10 @@ void WorldModel::uploadGeometry(const BinaryMesh& mesh)
 
     glBindVertexArray(0);
 
-    vertexBuffer.upload(mesh.verts, mesh.header.nVerts * sizeof(Vec3));
-    normalBuffer.upload(mesh.normals, mesh.header.nVerts * sizeof(Vec3));
-    texCoordBuffer.upload(mesh.texCoords, mesh.header.nVerts * sizeof(Vec2));
-    elementBuffer.upload(mesh.indices, mesh.header.nIndices * sizeof(uint32_t));
+    vertexBuffer.upload(mesh.verts, mesh.header.nVerts);
+    normalBuffer.upload(mesh.normals, mesh.header.nVerts);
+    texCoordBuffer.upload(mesh.texCoords, mesh.header.nVerts);
+    elementBuffer.upload(mesh.indices, mesh.header.nIndices);
 
     vertexArray.setIndexArray(elementBuffer);
     vertexArray.addAttrib(vertexBuffer, 0, 3, GL_FLOAT);

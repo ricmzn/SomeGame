@@ -28,7 +28,7 @@ class BitmapText
         BitmapText();
         ~BitmapText();
         void setString(const char* text);
-        void draw(int x, int y) const;
+        void draw(float x, float y) const;
 };
 
 BitmapText loadBitmapTextSDL(const char*, const File& tex);

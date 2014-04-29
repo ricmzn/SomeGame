@@ -68,8 +68,8 @@ void BitmapText::buildQuads()
         texCoords[i*faceVerts+5] = {charOffset.x + charSize.x, charOffset.y + charSize.y};
     }
 
-    vertexBuffer.upload(verts, numVerts * sizeof(Vec3));
-    texCoordBuffer.upload(texCoords, numVerts * sizeof(Vec2));
+    vertexBuffer.upload(verts, numVerts);
+    texCoordBuffer.upload(texCoords, numVerts);
     vertexArray.addAttrib(vertexBuffer, 0, 3, GL_FLOAT);
     vertexArray.addAttrib(texCoordBuffer, 1, 2, GL_FLOAT);
 
@@ -77,7 +77,7 @@ void BitmapText::buildQuads()
     delete[] texCoords;
 }
 
-void BitmapText::draw(int x, int y) const
+void BitmapText::draw(float x, float y) const
 {
     glDisable(GL_DEPTH_TEST);
     glBindTexture(GL_TEXTURE_RECTANGLE, textInfo.texture);

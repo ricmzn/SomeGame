@@ -14,6 +14,7 @@ enum class FlightMode
 class PlayerController : public TransformEntity
 {       
     private:
+        Camera* camera;
         FlightMode mode;
         InputArray* keys;
         Vec3 velocity;
@@ -24,7 +25,7 @@ class PlayerController : public TransformEntity
         virtual ~PlayerController();
         virtual void spawn(SpawnFlags flags);
         virtual void think(float deltaTime);
-        void setFlightMode(FlightMode newMode) {this->mode = newMode;}
+        void setFlightMode(FlightMode newMode);
 };
 
 #endif // PLAYERCONTROLLER_H

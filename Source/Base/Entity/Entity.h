@@ -11,8 +11,8 @@ class Entity
     private:
         Entity* parent;
         EntList children;
-        tick_t thinkRate;
-        tick_t nextThink;
+        Tick thinkRate;
+        Tick nextThink;
 
     protected:
         void removeChild(Entity* child);
@@ -27,9 +27,9 @@ class Entity
         const EntList& getChildren() const;
         void update(float delta);
         void addChild(Entity* child);
-        void setThinkRate(tick_t ticks);
-        tick_t getThinkRate() const;
-        tick_t getNextThink() const;
+        void setThinkRate(Tick ticks);
+        Tick getThinkRate() const;
+        Tick getNextThink() const;
 };
 
 #endif // ENTITY_H

@@ -48,17 +48,17 @@ void Entity::addChild(Entity* child)
     children.push_front(child);
 }
 
-void Entity::setThinkRate(tick_t ticks)
+void Entity::setThinkRate(Tick ticks)
 {
     thinkRate = ticks;
 }
 
-tick_t Entity::getThinkRate() const
+Tick Entity::getThinkRate() const
 {
     return thinkRate;
 }
 
-tick_t Entity::getNextThink() const
+Tick Entity::getNextThink() const
 {
     return nextThink;
 }

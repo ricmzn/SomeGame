@@ -4,7 +4,7 @@
 #include <Base/Exceptions.h>
 #include <Base/Messagebox.h>
 #include <Render/BitmapText.h>
-#include <Render/TestTerrain.h>
+#include <Entities/TerrainManager.h>
 #include <Entities/PlayerController.h>
 #include <ctime>
 
@@ -46,17 +46,34 @@ int main(int argc, char** argv) try
     BitmapText text = loadBitmapTextSDL(NULL, "curses_640x300.bmp");
     std::stringstream ticker;
 
-    int r = rand();
-    TestTerrain terrain(256, 256, 7);
-    terrain.generate(0.25, 2.0, r);
-
     Camera* camera = new Camera(60.f, WINDOW_WIDTH/float(WINDOW_HEIGHT));
+    camera->setClip(1.0f, 32768.f);
     PlayerController player(&keys);
     player.addChild(camera);
+
+    TerrainManager terrain(camera);
+    terrain.setParams(5, 256, 256, 0.25, 2.0, 0.95, 8);
 
     SDL_ShowWindow(window);
     SDL_SetRelativeMouseMode(SDL_TRUE);
     bool runGame = true, atmo = false;
+
+    // Show a loading screen before generation
+    if (true)
+    {
+        glClearColor(0, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        text.setString("Generating terrain...");
+        text.draw(0.2, 0.5);
+        SDL_GL_SwapWindow(window);
+    }
+
+    // Sky color
+    glClearColor(0x8B / 255.f,
+                 0xD4 / 255.f,
+                 0xFF / 255.f,
+                 0xFF / 255.f);
+
     while (runGame)
     {
         keys.mouse.xrel = 0;
@@ -111,10 +128,11 @@ int main(int argc, char** argv) try
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         ticker.str("");
-        ticker << "deltaTime: " << deltaTime << "s";
+        ticker << "deltaTime: " << deltaTime << "s    ";
         text.setString(ticker.str().c_str());
         player.update(deltaTime);
-        terrain.draw(-128, 0, -128, camera);
+        terrain.update(deltaTime);
+        terrain.draw();
         text.draw(0, 0);
         SDL_GL_SwapWindow(window);
         deltaTime = (SDL_GetTicks() - start)/1000.f;

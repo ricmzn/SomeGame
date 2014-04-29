@@ -9,6 +9,7 @@ class Camera : public TransformEntity
         Mat4 viewProjectionMatrix;
         float aspectRatio;
         float fieldOfView;
+        float nearz, farz;
     public:
         enum class Projection
         {
@@ -21,7 +22,7 @@ class Camera : public TransformEntity
         virtual void think(float deltaTime);
 
         void setAspect(float aspect);
-        void setPosition(glm::vec3 pos);
+        void setClip(float near, float far);
         void setProjection(float vfov, Projection type = Projection::Perspective);
         const glm::mat4& getMatrix() const;
 };

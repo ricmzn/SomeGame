@@ -86,8 +86,8 @@ void TestTerrain::triangulate()
         indices[i*12 +10] = i*5 + 0;
         indices[i*12 +11] = i*5 + 4;
     }
-    vbo.upload(vertices, nVertices*sizeof(Vec3));
-    ibo.upload(indices, nIndices*sizeof(GLuint));
+    vbo.upload(vertices, nVertices);
+    ibo.upload(indices, nIndices);
     vao.setIndexArray(ibo);
     vao.addAttrib(vbo, 0, 3, GL_FLOAT);
     delete[] vertices;
@@ -106,9 +106,10 @@ TestTerrain::TestTerrain(int width, int height, int lod)
     shader.addShader(GL_FRAGMENT_SHADER, shaderFile.toString().c_str(), shaderFile.size());
     shader.link();
 
-    if (const char* errorLog = shader.getLog())
+    if (shader.getLog())
     {
-        fprintf(stderr, "%s", errorLog);
+        //fprintf(stderr, "%s", shader.getLog());
+        throw InitializationException(shader.getLog());
     }
 
     Quad start;
@@ -125,21 +126,30 @@ TestTerrain::~TestTerrain()
 
 }
 
-void TestTerrain::generate(float frequency, float amplitude, int seed)
+void TestTerrain::generate(float frequency, float amplitude, int seed,
+                           float exponent, int octaves, float x, float y)
 {
     NumberGenerator::PerlinNoise2D perlin(seed);
-    for (size_t i = 0; i < quads.size(); i++)
+    amplitude /= octaves;
+    exponent *= 2;
+    while (octaves > 0)
     {
-        Quad& quad = quads[i];
-        quad.northWest.y = perlin.get(quad.northWest.x*frequency, quad.northWest.z*frequency) * amplitude;
-        quad.southWest.y = perlin.get(quad.southWest.x*frequency, quad.southWest.z*frequency) * amplitude;
-        quad.southEast.y = perlin.get(quad.southEast.x*frequency, quad.southEast.z*frequency) * amplitude;
-        quad.northEast.y = perlin.get(quad.northEast.x*frequency, quad.northEast.z*frequency) * amplitude;
+        for (size_t i = 0; i < quads.size(); i++)
+        {
+            Quad& quad = quads[i];
+            quad.northWest.y += perlin.get((quad.northWest.x + x) * frequency, (quad.northWest.z + y) * frequency) * amplitude;
+            quad.southWest.y += perlin.get((quad.southWest.x + x) * frequency, (quad.southWest.z + y) * frequency) * amplitude;
+            quad.southEast.y += perlin.get((quad.southEast.x + x) * frequency, (quad.southEast.z + y) * frequency) * amplitude;
+            quad.northEast.y += perlin.get((quad.northEast.x + x) * frequency, (quad.northEast.z + y) * frequency) * amplitude;
+        }
+        amplitude *= exponent;
+        frequency /= exponent;
+        octaves--;
     }
     this->triangulate();
 }
 
-void TestTerrain::draw(int x, int y, int z, const Camera* camera)
+void TestTerrain::draw(float x, float y, float z, const Camera* camera)
 {
     glm::mat4 model = glm::translate(glm::mat4(), glm::vec3(x, y, z));
     glm::mat4 MVP = camera->getMatrix() * model;

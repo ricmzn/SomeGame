@@ -5,7 +5,7 @@ PlayerController::PlayerController(InputArray* keyArrayPtr)
       keys(keyArrayPtr),
       drag(0.9925)
 {
-    pos = {0, 4, 0};
+    pos = {0, 16, 0};
 }
 
 PlayerController::~PlayerController()
@@ -48,11 +48,11 @@ void PlayerController::think(float deltaTime)
 
         this->rotate(this->up(), keys->mouse.xrel * deltaTime * sensitivity);
         this->rotate(this->right(), keys->mouse.yrel * deltaTime * sensitivity);
-        if (this->right().y > 0.01)
+        if (this->right().y > 1 * deltaTime)
         {
             this->rotate(this->forward(), -deltaTime);
         }
-        else if (this->right().y < -0.01)
+        else if (this->right().y < -1 * deltaTime)
         {
             this->rotate(this->forward(), deltaTime);
         }
@@ -86,4 +86,9 @@ void PlayerController::think(float deltaTime)
     this->rotate(forward(), angvel.z);
     velocity *= drag;
     angvel *= drag;
+}
+
+void PlayerController::setFlightMode(FlightMode newMode)
+{
+    this->mode = newMode;
 }

@@ -3,7 +3,8 @@
 
 Camera::Camera(float vfov, float aspect)
     : aspectRatio(aspect),
-      fieldOfView(glm::radians(vfov))
+      fieldOfView(glm::radians(vfov)),
+      nearz(0.01f), farz(1000.f)
 {}
 
 void Camera::think(float deltaTime)
@@ -19,8 +20,14 @@ void Camera::think(float deltaTime)
     Mat4 view;
     view = glm::mat4_cast(rot);
     view = glm::translate(view, -pos);
-    Mat4 projection = glm::perspective(fieldOfView, aspectRatio, 0.1f, 1000.f);
+    Mat4 projection = glm::perspective(fieldOfView, aspectRatio, nearz, farz);
     viewProjectionMatrix = projection * view;
+}
+
+void Camera::setClip(float near, float far)
+{
+    nearz = near;
+    farz = far;
 }
 
 const glm::mat4& Camera::getMatrix() const

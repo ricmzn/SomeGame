@@ -1,16 +1,18 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(SomeGame)
 
+set(GNUC_FLAGS "-Wall -Wextra -pedantic -msse -msse2 -mfpmath=sse -g")
+add_definitions(-DGLM_FORCE_RADIANS)
+
 set(GAME_NAME ${PROJECT_NAME})
 set(TOOLS_NAME DeveloperTools)
-set(CMAKE_C_FLAGS "-std=c11 -Wall -Wextra -pedantic -g")
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pedantic -g")
+set(CMAKE_C_FLAGS "-std=c11 ${GNUC_FLAGS}")
+set(CMAKE_CXX_FLAGS "-std=c++11 ${GNUC_FLAGS}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Bin)
-add_definitions(-DGLM_FORCE_RADIANS)
 
 option(BUILD_GAME "Build ${GAME_NAME}" ON)
 option(BUILD_TOOLS "Build ${TOOLS_NAME}" OFF)
-file(GLOB_RECURSE SOURCE_LIST "Source/*.cpp" "Source/*.c" "Source/*.h")
+file(GLOB_RECURSE SOURCE_LIST "Source/*.cpp" "Source/*.c" "Source/*.inl" "Source/*.h")
 
 if(BUILD_GAME)
     include_directories("Source")

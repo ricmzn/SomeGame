@@ -15,9 +15,9 @@ void main()
     );
     const float ranges[4] = float[](
         0,
-        0.1,
-        0.5,
-        1.5
+        0.8,
+        4.0,
+        12.0
     );
 
     if (height < ranges[0])
@@ -37,7 +37,7 @@ void main()
         diffuseColor = mix(layers[2], layers[3], (height-ranges[2])/(ranges[3]-ranges[2]));
     }
 #else
-    float h = mix(0.5, 1.0, height);
+    float h = mix(0.0, 1.0, height/16);
     diffuseColor = vec4(h, h, h, 1);
 #endif
 }
