@@ -17,7 +17,7 @@ void main()
         0,
         0.8,
         4.0,
-        12.0
+        32.0
     );
 
     if (height < ranges[0])

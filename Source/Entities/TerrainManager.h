@@ -2,26 +2,20 @@
 #define TERRAINMANAGER_H
 #include <Entities/PlayerController.h>
 #include <Render/TestTerrain.h>
+#include <Terrain/Tile.h>
+using Terrain::Tile;
 
 class TerrainManager : public Entity
 {
-    public:
-
-    struct Tile
+    public: struct AsyncData
     {
-        int x, y;
-        bool generated;
-        TestTerrain* data;
-    };
-
-    struct AsyncData
-    {
-        volatile int stopFlag;
+        volatile bool stopFlag;
         Array<Tile*> tiles;
+        Mutex mutex;
     };
 
     private:
-        List<Tile> tiles;
+        Array<Tile> tiles;
         int maxLod;
         int tileWidth;
         int tileHeight;
@@ -36,9 +30,9 @@ class TerrainManager : public Entity
         Thread workerThread;
         static void workerFunction(AsyncData* data);
 
-        float distance(const Vec3& pos, const Tile* tile) const;
-        const Tile* find(int x, int y) const;
-        const Tile* createTile(int x, int y);
+        float distanceTile(const Vec3& pos, const Tile& tile) const;
+        const Tile* findTile(int x, int y) const;
+        const Tile* createTile(int x, int y, int lod);
         void deleteTile(int x, int y);
 
     public:

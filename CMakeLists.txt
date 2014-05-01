@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(SomeGame)
 
-set(GNUC_FLAGS "-Wall -Wextra -pedantic -msse -msse2 -mfpmath=sse -g")
+set(GNUC_FLAGS "-Wall -Wextra -pedantic -msse -msse2 -mfpmath=sse -g -O3")
 add_definitions(-DGLM_FORCE_RADIANS)
 
 set(GAME_NAME ${PROJECT_NAME})

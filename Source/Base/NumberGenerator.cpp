@@ -30,7 +30,11 @@ namespace NumberGenerator
     PerlinNoise2D::~PerlinNoise2D() {}
     float PerlinNoise2D::get(float x, float y) const
     {
+        // More interesting, 3D noise flat cut
         return glm::perlin(glm::vec3(x + seed, y + seed, seed/float(RAND_MAX)));
+
+        // Faster, but boring 2D noise
+//        return glm::perlin(glm::vec2(x + seed, y + seed));
     }
     float PerlinNoise2D::operator() (float x, float y) const
     {

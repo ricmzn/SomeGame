@@ -1,5 +1,4 @@
 #include "TerrainManager.h"
-typedef TerrainManager::Tile Tile;
 
 TerrainManager::TerrainManager(const Camera* camera)
     : maxLod(1),
@@ -12,13 +11,13 @@ TerrainManager::TerrainManager(const Camera* camera)
       camera(camera),
       workerThread(&TerrainManager::workerFunction, &workerData)
 {
-    workerData.stopFlag = 0;
+    workerData.stopFlag = false;
     seed = rand();
 }
 
 TerrainManager::~TerrainManager()
 {
-    workerData.stopFlag = 1;
+    workerData.stopFlag = true;
     workerThread.join();
     for (Tile& tile : tiles)
     {
@@ -26,23 +25,28 @@ TerrainManager::~TerrainManager()
     }
 }
 
-void TerrainManager::workerFunction(AsyncData *data)
+void TerrainManager::workerFunction(AsyncData* data)
 {
     while (!data->stopFlag)
     {
-        // Do something with generation and stuff
+        data->mutex.lock();
+        while (data->tiles.size())
+        {
+            data->tiles.pop_back();
+        }
+        data->mutex.unlock();
     }
 }
 
-float TerrainManager::distance(const Vec3& pos, const Tile* tile) const
+float TerrainManager::distanceTile(const Vec3& pos, const Tile& tile) const
 {
-    float dist_x = pos.x - (tile->x + tileWidth/2);
+    float dist_x = pos.x - (tile.x * tileWidth);
     float dist_y = pos.y;
-    float dist_z = pos.x - (tile->y + tileHeight/2);
+    float dist_z = pos.z - (tile.y * tileHeight);
     return sqrt(pow(dist_x, 2) + pow(dist_y, 2) + pow(dist_z, 2));
 }
 
-const Tile* TerrainManager::find(int x, int y) const
+const Tile* TerrainManager::findTile(int x, int y) const
 {
     for (const Tile& tile : tiles)
     {
@@ -52,16 +56,17 @@ const Tile* TerrainManager::find(int x, int y) const
     return nullptr;
 }
 
-const Tile* TerrainManager::createTile(int x, int y)
+const Tile* TerrainManager::createTile(int x, int y, int lod)
 {
     Tile newTile;
     newTile.x = x;
     newTile.y = y;
     newTile.generated = false;
-    newTile.data = new TestTerrain(tileWidth, tileHeight, maxLod);
+    newTile.data = new TestTerrain(tileWidth, tileHeight, lod);
     newTile.data->generate(frequency, amplitude, seed, exponent, octaves, tileWidth*x, tileHeight*y);
-    tiles.push_front(newTile);
-    return &tiles.front();
+    tiles.push_back(newTile);
+    newTile.generated = true;
+    return &tiles.back();
 }
 
 void TerrainManager::deleteTile(int x, int y)
@@ -84,17 +89,17 @@ void TerrainManager::spawn(SpawnFlags flags)
 void TerrainManager::think(float delta)
 {
     static float timeSinceLast = 60.f;
-    static const int maxRange = 4;
+    static const int maxRange = 2;
 
-    if (timeSinceLast > 2.f)
+    if (timeSinceLast > 0.25f)
     {
-        for (int i = -maxRange/2; i < maxRange/2; i++)
+        for (int i = -maxRange; i < maxRange; i++)
         {
-            for (int j = -maxRange/2; j < maxRange/2; j++)
+            for (int j = -maxRange; j < maxRange; j++)
             {
-                if (!this->find(i, j))
+                if (!findTile(i, j))
                 {
-                    this->createTile(i, j);
+                    createTile(i, j, maxLod);
                 }
             }
         }

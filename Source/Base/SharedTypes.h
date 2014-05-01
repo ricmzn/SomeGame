@@ -14,6 +14,9 @@ template <typename T> using Array = std::vector<T>;
 #include <list>
 template <typename T> using List = std::forward_list<T>;
 
+#include <queue>
+template <typename T> using Queue = std::queue<T>;
+
 // GLM types
 #include <glm/vec2.hpp>
 typedef glm::vec2 Vec2;
@@ -38,6 +41,9 @@ typedef glm::quat Quaternion;
 // Misc
 #include <thread>
 typedef std::thread Thread;
+
+#include <mutex>
+typedef std::mutex Mutex;
 
 #include <SDL2/SDL_scancode.h>
 struct InputArray

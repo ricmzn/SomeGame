@@ -128,7 +128,7 @@ int main(int argc, char** argv) try
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         ticker.str("");
-        ticker << "deltaTime: " << deltaTime << "s    ";
+        ticker << "deltaTime: " << deltaTime << "s";
         text.setString(ticker.str().c_str());
         player.update(deltaTime);
         terrain.update(deltaTime);
