@@ -121,7 +121,13 @@ VertexBufferObject::~VertexBufferObject()
     glDeleteBuffers(1, &handle);
 }
 
-// void VertexBufferObject::upload(T* data, size_t len);
+void VertexBufferObject::uploadTypeSize(void* data, size_t size, size_t len)
+{
+    glBindBuffer(bufferTarget, handle);
+    glBufferData(bufferTarget, size * len, data, bufferUsage);
+    glBindBuffer(bufferTarget, GL_NONE);
+    bufferSize = len;
+}
 
 GLuint VertexBufferObject::target() const
 {

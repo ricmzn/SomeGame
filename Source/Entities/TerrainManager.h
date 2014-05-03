@@ -1,7 +1,7 @@
 #ifndef TERRAINMANAGER_H
 #define TERRAINMANAGER_H
 #include <Entities/PlayerController.h>
-#include <Render/TestTerrain.h>
+#include <Terrain/TestTerrain.h>
 #include <Terrain/Tile.h>
 using Terrain::Tile;
 

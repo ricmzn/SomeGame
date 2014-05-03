@@ -1,9 +1,9 @@
 #include <iostream>
 #include <sstream>
 #include <SDL2/SDL.h>
+#include <GUI/BitmapText.h>
 #include <Base/Exceptions.h>
 #include <Base/Messagebox.h>
-#include <Render/BitmapText.h>
 #include <Entities/TerrainManager.h>
 #include <Entities/PlayerController.h>
 #include <ctime>

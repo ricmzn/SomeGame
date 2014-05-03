@@ -52,9 +52,15 @@ class VertexBufferObject : public GLBaseObject
         VertexBufferObject(GLenum target = GL_ARRAY_BUFFER, GLenum usage = GL_STATIC_DRAW);
         virtual ~VertexBufferObject();
         template <typename T> void upload(T* data, size_t len);
+        void uploadTypeSize(void* data, size_t size, size_t len);
         GLuint target() const;
         GLuint size() const;
 };
+template <typename T>
+void VertexBufferObject::upload(T* data, size_t len)
+{
+    this->uploadTypeSize(data, sizeof(T), len);
+}
 
 class VertexArrayObject : public GLBaseObject
 {
@@ -88,7 +94,5 @@ class Texture2DRect : public Texture2D
         virtual ~Texture2DRect();
         void upload(void* pixels, GLenum format, GLenum type, GLsizei width, GLsizei height);
 };
-
-#include "GL.inl"
 
 #endif // GL_H
