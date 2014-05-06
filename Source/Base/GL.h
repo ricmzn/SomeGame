@@ -9,7 +9,6 @@
     #include <GL/glext.h>
   #endif
 #endif
-#include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <string>
 
@@ -51,16 +50,18 @@ class VertexBufferObject : public GLBaseObject
     public:
         VertexBufferObject(GLenum target = GL_ARRAY_BUFFER, GLenum usage = GL_STATIC_DRAW);
         virtual ~VertexBufferObject();
-        template <typename T> void upload(T* data, size_t len);
         void uploadTypeSize(void* data, size_t size, size_t len);
         GLuint target() const;
         GLuint size() const;
+
+        /**
+         * @brief Same as uploadTypeSize, but with compile-time size deduction
+         */
+        template <typename T> void upload(T* data, size_t len)
+        {
+            this->uploadTypeSize(data, sizeof(T), len);
+        }
 };
-template <typename T>
-void VertexBufferObject::upload(T* data, size_t len)
-{
-    this->uploadTypeSize(data, sizeof(T), len);
-}
 
 class VertexArrayObject : public GLBaseObject
 {
