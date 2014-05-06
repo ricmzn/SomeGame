@@ -5,6 +5,8 @@
 class TransformEntity : public Entity
 {
     public:
+        virtual ~TransformEntity() = 0;
+
         Vec3        pos;
         Quaternion  rot;
 
