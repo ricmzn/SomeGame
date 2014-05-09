@@ -1,9 +1,5 @@
 #include "TransformEntity.h"
 
-TransformEntity::~TransformEntity()
-{
-}
-
 void TransformEntity::translate(Vec3 translation)
 {
     pos += translation;
