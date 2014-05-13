@@ -16,7 +16,7 @@ class PlayerController : public TransformEntity
     private:
         Camera* camera;
         FlightMode mode;
-        InputArray* keys;
+        InputArray* input;
         Vec3 velocity;
         Vec3 angvel;
         float drag;

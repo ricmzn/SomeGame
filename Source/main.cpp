@@ -4,11 +4,13 @@
 #include <GUI/BitmapText.h>
 #include <Base/Exceptions.h>
 #include <Base/Messagebox.h>
+#include <Base/Entity/MeshEntity.h>
 #include <Entities/TerrainManager.h>
 #include <Entities/PlayerController.h>
+#include <Entities/StaticModel.h>
 #include <ctime>
 
-InputArray keys;
+InputArray input;
 int WINDOW_WIDTH = 1024, WINDOW_HEIGHT = 600;
 float deltaTime = 0.f;
 
@@ -43,67 +45,72 @@ int main(int argc, char** argv) try
            glGetString(GL_RENDERER),
            glGetString(GL_VENDOR));
 
-    BitmapText text = loadBitmapTextSDL(NULL, "curses_640x300.bmp");
+    BitmapText text = loadBitmapTextSDL(NULL, "Fonts/curses_640x300.bmp");
     std::stringstream ticker;
 
     Camera* camera = new Camera(60.f, WINDOW_WIDTH/float(WINDOW_HEIGHT));
-    camera->setClip(1.0f, 32768.f);
-    PlayerController player(&keys);
+    Camera* skyCam = new Camera(60.f, WINDOW_WIDTH/float(WINDOW_HEIGHT));
+    camera->setClip(1.0f, 10000.f);
+    skyCam->setClip(1000.f, 1000000.f);
+    PlayerController player(&input);
     player.addChild(camera);
-
-    TerrainManager terrain(camera);
-    terrain.setParams(5, 256, 256, 0.25, 2.0, 0.95, 8);
+    player.addChild(skyCam);
 
     SDL_ShowWindow(window);
     SDL_SetRelativeMouseMode(SDL_TRUE);
     bool runGame = true, atmo = false;
 
-    // Show a loading screen before generation
-    if (true)
+    // Loading screen
     {
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        text.setString("Generating terrain...");
-        text.draw(0.2, 0.5);
+        text.setString("Loading...");
+        text.draw(0.45, 0.5);
         SDL_GL_SwapWindow(window);
     }
 
-    // Sky color
-    glClearColor(0x8B / 255.f,
-                 0xD4 / 255.f,
-                 0xFF / 255.f,
-                 0xFF / 255.f);
+    Texture2D skyTexture;
+    StaticModel skybox("Meshes/starcube.mdl", Vec3(0, 0, 0));
+    {
+        File file("Textures/stars.bmp");
+        SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromConstMem(file.data(), file.size()), 0);
+        skyTexture.upload(surf->pixels, GL_BGR, GL_UNSIGNED_BYTE, surf->w, surf->h);
+        skybox.texture = (GLuint)skyTexture;
+        skybox.scale = 32;
+        SDL_FreeSurface(surf);
+    }
 
+    // Main loop
     while (runGame)
     {
-        keys.mouse.xrel = 0;
-        keys.mouse.yrel = 0;
+        input.mouse.xrel = 0;
+        input.mouse.yrel = 0;
         uint32_t start = SDL_GetTicks();
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_KEYDOWN)
             {
-                keys.pressed[event.key.keysym.scancode] = 1;
+                input.keyPressed[event.key.keysym.scancode] = 1;
             }
             else if (event.type == SDL_KEYUP)
             {
-                keys.pressed[event.key.keysym.scancode] = 0;
+                input.keyPressed[event.key.keysym.scancode] = 0;
             }
             if (event.type == SDL_MOUSEBUTTONDOWN)
             {
-                if (event.button.button == SDL_BUTTON_LEFT) keys.mouse.left = true;
-                if (event.button.button == SDL_BUTTON_RIGHT) keys.mouse.right = true;
+                if (event.button.button == SDL_BUTTON_LEFT) input.mouse.left = true;
+                if (event.button.button == SDL_BUTTON_RIGHT) input.mouse.right = true;
             }
             else if (event.type == SDL_MOUSEBUTTONUP)
             {
-                if (event.button.button == SDL_BUTTON_LEFT) keys.mouse.left = false;
-                if (event.button.button == SDL_BUTTON_RIGHT) keys.mouse.right = false;
+                if (event.button.button == SDL_BUTTON_LEFT) input.mouse.left = false;
+                if (event.button.button == SDL_BUTTON_RIGHT) input.mouse.right = false;
             }
             if (event.type == SDL_MOUSEMOTION)
             {
-                keys.mouse.xrel = event.motion.xrel;
-                keys.mouse.yrel = event.motion.yrel;
+                input.mouse.xrel = event.motion.xrel;
+                input.mouse.yrel = event.motion.yrel;
             }
 
             if (event.type == SDL_QUIT or event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
@@ -128,11 +135,17 @@ int main(int argc, char** argv) try
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         ticker.str("");
-        ticker << "deltaTime: " << deltaTime << "s";
+        if (deltaTime > 1/50.f)
+        {
+            ticker << "deltaTime: " << deltaTime << "s - " << floor(1/deltaTime) << "fps";
+        }
+        else
+        {
+            ticker << "";
+        }
         text.setString(ticker.str().c_str());
         player.update(deltaTime);
-        terrain.update(deltaTime);
-        terrain.draw();
+        skybox.draw(skyCam);
         text.draw(0, 0);
         SDL_GL_SwapWindow(window);
         deltaTime = (SDL_GetTicks() - start)/1000.f;

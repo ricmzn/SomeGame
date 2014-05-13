@@ -4,7 +4,7 @@
 Camera::Camera(float vfov, float aspect)
     : aspectRatio(aspect),
       fieldOfView(glm::radians(vfov)),
-      nearz(0.01f), farz(1000.f)
+      nearz(0.1f), farz(1000.f)
 {}
 
 void Camera::think(float deltaTime)
@@ -13,13 +13,13 @@ void Camera::think(float deltaTime)
     auto pEnt = dynamic_cast<const TransformEntity*>(this->getParent());
     if (pEnt)
     {
-        pos = pEnt->pos;
-        rot = pEnt->rot;
+        transform.pos = pEnt->transform.pos;
+        transform.rot = pEnt->transform.rot;
     }
 
     Mat4 view;
-    view = glm::mat4_cast(rot);
-    view = glm::translate(view, -pos);
+    view = glm::mat4_cast(transform.rot);
+    view = glm::translate(view, -transform.pos);
     Mat4 projection = glm::perspective(fieldOfView, aspectRatio, nearz, farz);
     viewProjectionMatrix = projection * view;
 }

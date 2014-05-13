@@ -2,10 +2,10 @@
 
 PlayerController::PlayerController(InputArray* keyArrayPtr)
     : mode(FlightMode::SPACE),
-      keys(keyArrayPtr),
+      input(keyArrayPtr),
       drag(0.9925)
 {
-    pos = {0, 16, 0};
+    transform.pos = {0, 16, 0};
 }
 
 PlayerController::~PlayerController()
@@ -21,69 +21,74 @@ void PlayerController::think(float deltaTime)
     static const float sensitivity = 0.25;
     if (mode == FlightMode::SPACE)
     {
-        if (keys->pressed[SDL_SCANCODE_W])
+        if (input->keyPressed[SDL_SCANCODE_W])
         {
-            velocity += forward();
+            velocity += transform.forward();
         }
-        else if (keys->pressed[SDL_SCANCODE_S])
+        else if (input->keyPressed[SDL_SCANCODE_S])
         {
-            velocity -= forward();
+            velocity -= transform.forward();
         }
-        if (keys->pressed[SDL_SCANCODE_D])
+        if (input->keyPressed[SDL_SCANCODE_D])
         {
-            velocity += right();
+            velocity += transform.right();
         }
-        else if (keys->pressed[SDL_SCANCODE_A])
+        else if (input->keyPressed[SDL_SCANCODE_A])
         {
-            velocity -= right();
+            velocity -= transform.right();
         }
-        if (keys->pressed[SDL_SCANCODE_Q])
+        if (input->keyPressed[SDL_SCANCODE_Q])
         {
-            velocity += up();
+            velocity += transform.up();
         }
-        else if (keys->pressed[SDL_SCANCODE_Z])
+        else if (input->keyPressed[SDL_SCANCODE_Z])
         {
-            velocity -= up();
+            velocity -= transform.up();
         }
 
-        this->rotate(this->up(), keys->mouse.xrel * deltaTime * sensitivity);
-        this->rotate(this->right(), keys->mouse.yrel * deltaTime * sensitivity);
-        if (this->right().y > 1 * deltaTime)
+        transform.rotate(transform.up(), input->mouse.xrel * deltaTime * sensitivity);
+        transform.rotate(transform.right(), input->mouse.yrel * deltaTime * sensitivity);
+        if (transform.right().y > 1 * deltaTime)
         {
-            this->rotate(this->forward(), -deltaTime);
+            transform.rotate(transform.forward(), -deltaTime);
         }
-        else if (this->right().y < -1 * deltaTime)
+        else if (transform.right().y < -1 * deltaTime)
         {
-            this->rotate(this->forward(), deltaTime);
+            transform.rotate(transform.forward(), deltaTime);
         }
     }
     else if (mode == FlightMode::ATMO)
     {
-        if (keys->pressed[SDL_SCANCODE_W])
+        if (input->keyPressed[SDL_SCANCODE_W])
         {
-            velocity += forward();
+            velocity += transform.forward();
         }
-        else if (keys->pressed[SDL_SCANCODE_S])
+        else if (input->keyPressed[SDL_SCANCODE_S])
         {
-            velocity -= forward();
+            velocity -= transform.forward();
         }
-        if (keys->pressed[SDL_SCANCODE_D])
+        if (input->keyPressed[SDL_SCANCODE_D])
         {
             angvel.y = angvel.y + 0.00025f;
         }
-        else if (keys->pressed[SDL_SCANCODE_A])
+        else if (input->keyPressed[SDL_SCANCODE_A])
         {
             angvel.y = angvel.y - 0.00025f;
         }
 
-        angvel.x = angvel.x + keys->mouse.yrel * sensitivity/1000.f;
-        angvel.z = angvel.z - keys->mouse.xrel * sensitivity/1000.f;
+        angvel.x = angvel.x + input->mouse.yrel * sensitivity/1000.f;
+        angvel.z = angvel.z - input->mouse.xrel * sensitivity/1000.f;
     }
 
-    this->translate(velocity * 0.5f * deltaTime);
-    this->rotate(right(),   angvel.x);
-    this->rotate(up(),      angvel.y);
-    this->rotate(forward(), angvel.z);
+    if (input->keyPressed[SDL_SCANCODE_SPACE])
+    {
+        transform.pos += transform.forward() * deltaTime * 1500.f;
+    }
+
+    transform.translate(velocity * 0.5f * deltaTime);
+    transform.rotate(transform.right(),   angvel.x);
+    transform.rotate(transform.up(),      angvel.y);
+    transform.rotate(transform.forward(), angvel.z);
     velocity *= drag;
     angvel *= drag;
 }

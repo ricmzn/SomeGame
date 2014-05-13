@@ -48,7 +48,7 @@ typedef std::mutex Mutex;
 #include <SDL2/SDL_scancode.h>
 struct InputArray
 {
-    int pressed[SDL_NUM_SCANCODES];
+    int keyPressed[SDL_NUM_SCANCODES];
     struct
     {
         int left;

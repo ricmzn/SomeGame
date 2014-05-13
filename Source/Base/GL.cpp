@@ -125,7 +125,6 @@ void VertexBufferObject::uploadTypeSize(void* data, size_t size, size_t len)
 {
     glBindBuffer(bufferTarget, handle);
     glBufferData(bufferTarget, size * len, data, bufferUsage);
-    glBindBuffer(bufferTarget, GL_NONE);
     bufferSize = len;
 }
 
@@ -166,8 +165,6 @@ void VertexArrayObject::addAttrib(const VertexBufferObject& vbo,
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexArray);
     glVertexAttribPointer(index, size, type, GL_FALSE, stride, offset);
-    glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
-    glBindVertexArray(GL_NONE);
 }
 
 void VertexArrayObject::removeAttrib(GLuint index)
@@ -198,7 +195,6 @@ void Texture2D::upload(void* pixels, GLenum format, GLenum type, GLsizei width, 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, GL_NONE);
 }
 
 GLsizei Texture2D::width() const
@@ -230,5 +226,4 @@ void Texture2DRect::upload(void* pixels, GLenum format, GLenum type, GLsizei wid
     glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, width, height, 0, format, type, pixels);
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_RECTANGLE, GL_NONE);
 }

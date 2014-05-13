@@ -9,10 +9,10 @@ class Entity
         typedef int SpawnFlags;
 
     private:
-        Entity* parent;
-        EntList children;
         Tick thinkRate;
         Tick nextThink;
+        Entity* parent;
+        EntList children;
 
     protected:
         void removeChild(Entity* child);
@@ -21,7 +21,7 @@ class Entity
         Entity();
         virtual ~Entity();
         virtual void spawn(SpawnFlags flags)    = 0;
-        virtual void think(float deltaTime)    = 0;
+        virtual void think(float deltaTime)     = 0;
 
         const Entity* getParent() const;
         const EntList& getChildren() const;

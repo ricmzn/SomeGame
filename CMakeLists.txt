@@ -12,7 +12,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Bin)
 
 option(BUILD_GAME "Build ${GAME_NAME}" ON)
 option(BUILD_TOOLS "Build ${TOOLS_NAME}" OFF)
+option(USE_ASSIMP "Enable Assimp" OFF)
 file(GLOB_RECURSE SOURCE_LIST "Source/*.cpp" "Source/*.c" "Source/*.inl" "Source/*.h")
+
+if(USE_ASSIMP)
+    add_definitions(-DUSE_ASSIMP)
+endif()
 
 if(BUILD_GAME)
     include_directories("Source")
@@ -21,6 +26,10 @@ if(BUILD_GAME)
         set(LIBS mingw32 SDL2main SDL2 glew32 opengl32 physfs)
     else()
         set(LIBS SDL2 GLEW GL physfs)
+    endif()
+
+    if(USE_ASSIMP)
+        set(LIBS ${LIBS} assimp)
     endif()
 
     add_executable(${GAME_NAME} ${SOURCE_LIST} ${MISC_LIST})

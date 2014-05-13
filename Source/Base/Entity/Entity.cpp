@@ -12,7 +12,9 @@ void Entity::removeChild(Entity* child)
 }
 
 Entity::Entity()
-    : parent(nullptr)
+    : thinkRate(0),
+      nextThink(0),
+      parent(nullptr)
 {}
 
 Entity::Entity::~Entity()
