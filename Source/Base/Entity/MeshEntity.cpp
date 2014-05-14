@@ -1,6 +1,7 @@
 #include "MeshEntity.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <Base/Filesystem/File.h>
+#include <Base/Exceptions.h>
 
 // Temporary, hard-coded shader caching
 static ShaderProgram* unlitShader = nullptr;
@@ -24,7 +25,7 @@ MeshEntity::MeshEntity()
         unlitShader->link();
         if (unlitShader->getLog())
         {
-            throw InitializationException(unlitShader->getLog());
+            throw GenericError(unlitShader->getLog());
         }
         projMatrixLocation = glGetUniformLocation(unlitShader->getHandle(), "projectionMatrix");
     }

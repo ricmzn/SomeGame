@@ -1,6 +1,8 @@
 #include "BinaryMesh.h"
 #include <Base/NumberGenerator.h>
+#include <Base/Exceptions.h>
 #include <cstring>
+
 #define MESH_MAGIC "mdl"
 #define MESH_VERSION 1
 
@@ -77,12 +79,12 @@ void BinaryMesh::read(BinaryMesh* mesh, const Byte* src, size_t size)
         mesh->header.version > MESH_VERSION)
     {
         initialize(mesh);
-        throw InitializationException("Invalid mesh header");
+        throw GenericError("Invalid mesh header");
     }
     else if (mesh->checksum != NumberGenerator::byteSum(src, size - sizeof(uint32_t)))
     {
         initialize(mesh);
-        throw InitializationException("Invalid mesh checksum");
+        throw GenericError("Invalid mesh checksum");
     }
 
     allocData(mesh);

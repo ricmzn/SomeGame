@@ -1,13 +1,15 @@
 #include "File.h"
+#include <Base/Exceptions.h>
 #include <iostream>
 #include <vector>
+using namespace Exceptions;
 
 File::File(const std::string& filename)
 {
     // Might want to check if the filesystem is initialized
     if(!Filesystem::isInit())
     {
-        throw InitializationException("Filesystem is not initialized!");
+        throw GenericError("Filesystem is not initialized!");
     }
 
     fileHandle = nullptr;
@@ -63,7 +65,7 @@ void File::setFile(const std::string& file)
         if(!openFile(file))
         {
             // File probably does not exist
-            throw MissingFileException(file.c_str());
+            throw MissingFile(file.c_str());
         }
         if(fileData != nullptr)
         {

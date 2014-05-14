@@ -1,56 +1,67 @@
 #include "Exceptions.h"
+#include <windows.h>
+#include <dbghelp.h>
 #include <cstdlib>
 #include <cstdio>
 
-/*---------------*/
-/* BaseException */
-/*---------------*/
-BaseException::BaseException(const char *msg,
-                             const char *start,
-                             const char *end)
+namespace Exceptions
 {
-    // Concatenate an error message to inform the user of the error
-    const char* fmt = "%s%s%s";
-    const int len = snprintf(NULL, 0, fmt, start, msg, end) + 1;
-    buffer = new char[len];
-    snprintf(buffer, len, fmt, start, msg, end);
-}
+    /*---------------*/
+    /* BaseException */
+    /*---------------*/
+    BaseException::BaseException(const char *msg,
+                                 const char *start,
+                                 const char *end)
+    {
+        // Concatenate an error message to inform the user of the error
+        const char* fmt = "%s%s%s";
+        const int len = snprintf(NULL, 0, fmt, start, msg, end) + 1;
+        buffer = new char[len];
+        snprintf(buffer, len, fmt, start, msg, end);
 
-BaseException::~BaseException()
-{
-    free(buffer);
-}
+        // And generate an empty stack trace
+        btrace = new char[256];
+        memset(btrace, '\0', 256);
+        strncpy(btrace, "No trace is available.", 255);
+    }
 
-const char* BaseException::message() const
-{
-    return buffer;
-}
+    BaseException::~BaseException()
+    {
+        delete[] btrace;
+        delete[] buffer;
+    }
 
-const char* BaseException::trace() const
-{
-    return "No trace is available.";
-}
+    const char* BaseException::message() const
+    {
+        return buffer;
+    }
 
-/*-------------------------*/
-/* InitializationException */
-/*-------------------------*/
-InitializationException::InitializationException(const char* what)
-    : BaseException(what)
-{
-}
+    const char* BaseException::trace() const
+    {
+        return btrace;
+    }
 
-/*----------------------*/
-/* MissingFileException */
-/*----------------------*/
-MissingFileException::MissingFileException(const char* filename)
-    : BaseException(filename, "File does not exist in search path: \'", "\'!")
-{
-}
+    /*--------------*/
+    /* GenericError */
+    /*--------------*/
+    GenericError::GenericError(const char* what)
+        : BaseException(what)
+    {
+    }
 
-/*---------------------------*/
-/* InvalidParameterException */
-/*---------------------------*/
-InvalidParameterException::InvalidParameterException(const char *param, const char* func)
-    : BaseException("\nInvalid parameter: ", func, param)
-{
+    /*-------------*/
+    /* MissingFile */
+    /*-------------*/
+    MissingFile::MissingFile(const char* filename)
+        : BaseException(filename, "File does not exist in search path: \'", "\'!")
+    {
+    }
+
+    /*------------------*/
+    /* InvalidParameter */
+    /*------------------*/
+    InvalidParameter::InvalidParameter(const char *param, const char* func)
+        : BaseException("\nInvalid parameter: ", func, param)
+    {
+    }
 }

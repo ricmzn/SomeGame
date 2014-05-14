@@ -2,6 +2,7 @@
 #include <Base/Filesystem/File.h>
 #include <Base/NumberGenerator.h>
 #include <Base/SharedTypes.h>
+#include <Base/Exceptions.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 void TestTerrain::subdivide(int levels)
@@ -109,7 +110,7 @@ TestTerrain::TestTerrain(int width, int height, int lod)
     if (shader.getLog())
     {
         //fprintf(stderr, "%s", shader.getLog());
-        throw InitializationException(shader.getLog());
+        throw GenericError(shader.getLog());
     }
 
     Quad start;

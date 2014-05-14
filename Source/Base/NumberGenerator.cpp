@@ -5,9 +5,9 @@
 
 namespace NumberGenerator
 {
-    /*------------------------*/
-    /* byteSum(void*, size_t) */
-    /*------------------------*/
+    /*------------------------------------*/
+    /* uint32_t byteSum( void* , size_t ) */
+    /*------------------------------------*/
     uint32_t byteSum(const void* data, size_t size)
     {
         size_t sum = 0;

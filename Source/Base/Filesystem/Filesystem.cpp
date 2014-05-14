@@ -1,4 +1,5 @@
 #include "Filesystem.h"
+#include <Base/Exceptions.h>
 #include <sstream>
 
 namespace Filesystem
@@ -13,7 +14,7 @@ namespace Filesystem
 
         if (!PHYSFS_init(argv[0]))
         {
-            throw InitializationException("Could not initialize virtual filesystem!");
+            throw GenericError("Could not initialize virtual filesystem!");
         }
     }
 
@@ -22,7 +23,7 @@ namespace Filesystem
         // Check if PHYSFS was initialized already
         if (!PHYSFS_isInit())
         {
-            throw InitializationException("Could not set paths! (Was the filesystem initialized?)");
+            throw GenericError("Could not set paths! (Was the filesystem initialized?)");
         }
 
         // Build the root path
@@ -32,7 +33,7 @@ namespace Filesystem
         // Check for existance of MountList.txt
         if (!PHYSFS_exists("MountList.txt"))
         {
-            throw InitializationException("Failed to open MountList.txt!");
+            throw GenericError("Failed to open MountList.txt!");
         }
 
         // From now on, it's safe to use the filesystem classes
@@ -64,8 +65,7 @@ namespace Filesystem
                 {
                     std::stringstream error;
                     error << "Tried to mount invalid path/archive: \'" << line << "\'";
-                    // Side-note: on most platforms, the line below copies the string twice!
-                    throw InitializationException(error.str().c_str());
+                    throw GenericError(error.str().c_str());
                 }
             }
         }
