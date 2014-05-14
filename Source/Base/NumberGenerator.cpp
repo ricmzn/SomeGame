@@ -36,8 +36,4 @@ namespace NumberGenerator
         // Faster, but boring 2D noise
 //        return glm::perlin(glm::vec2(x + seed, y + seed));
     }
-    float PerlinNoise2D::operator() (float x, float y) const
-    {
-        return this->get(x, y);
-    }
 }

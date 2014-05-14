@@ -3,8 +3,7 @@
  * @brief .
  *
  * Read the documentation on \ref Filesystem before usage.
- * @note The entire file is kept in memory until it's destroyed or cleared.
- * @todo Stream large files
+ * @note The file's contents are held in memory until its handler is destroyed or File::clear() is called
  *
  * @author Ricardo Maes
  */

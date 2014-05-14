@@ -41,7 +41,6 @@ myFile2.clear();
 
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
-#include <Base/Exceptions.h>
 #include <string>
 #include "File.h"
 
@@ -52,12 +51,12 @@ namespace Filesystem
      * @brief Convenience wrapper for PHYSFS_Init()
      * @param argc Argument count from main()
      * @param argv Arguments from main()
-     * @throws InitializationException if PHYSFS fails to initialize for some reason
+     * @throws InitializationException if PHYSFS fails to initialize
      */
     void initialize(int argc, char** argv);
     /**
      * @ingroup Filesystem
-     * @brief Sets the root of the virtual filesystem. MountList.txt must exist in the path.
+     * @brief Sets the root of the virtual filesystem. MountList.txt must exist in the path
      *
      * MountList.txt is required both for safety (so it cannot mount a non-game folder if the executable
      * is moved) and is also used to specify .zip files which can be mounted alongside the given path.
