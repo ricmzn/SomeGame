@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 #include <GUI/BitmapText.h>
 #include <Base/Exceptions.h>
-#include <Base/Messagebox.h>
+#include <Base/System/Messagebox.h>
 #include <Base/Entity/MeshEntity.h>
 #include <Entities/TerrainManager.h>
 #include <Entities/PlayerController.h>
@@ -17,7 +17,6 @@ float deltaTime = 0.f;
 int main(int argc, char** argv) try
 {
     srand(time(NULL));
-    Filesystem::initialize(argc, argv);
     Filesystem::setRootPath("../Data");
 
     SDL_Init(SDL_INIT_VIDEO);
@@ -40,12 +39,8 @@ int main(int argc, char** argv) try
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    printf("OpenGL version: %s\nDisplay device: %s\nVendor: %s\n\n",
-           glGetString(GL_VERSION),
-           glGetString(GL_RENDERER),
-           glGetString(GL_VENDOR));
-
-    BitmapText text = loadBitmapTextSDL(NULL, "Fonts/curses_640x300.bmp");
+    BitmapText text;
+    loadBitmapTextSDL(NULL, "Fonts/curses_640x300.bmp", &text);
     std::stringstream ticker;
 
     Camera* camera = new Camera(60.f, WINDOW_WIDTH/float(WINDOW_HEIGHT));

@@ -3,7 +3,7 @@ SomeGame
 
 ###Dependencies:
 
-Compiler with C++11 support - GCC 4.6.0 or Visual Studio 2013. MSVC may fail compile at times.  
+Compiler with C++11 support - Tested with GCC 4.8, Clang 3.4 and Visual Studio 2013.  
 OpenGL 4.0 - NVIDIA 400 series, AMD 5000 series or Intel HD4000. Anything newer works fine.  
 GLEW 1.8 or newer - http://glew.sourceforge.net/  
 Latest SDL 2.0 - http://libsdl.org/  

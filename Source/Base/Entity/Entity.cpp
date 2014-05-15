@@ -17,7 +17,7 @@ Entity::Entity()
       parent(nullptr)
 {}
 
-Entity::Entity::~Entity()
+Entity::~Entity()
 {
     if (parent)
     {

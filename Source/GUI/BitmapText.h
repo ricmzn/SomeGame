@@ -31,6 +31,6 @@ class BitmapText
         void draw(float x, float y) const;
 };
 
-BitmapText loadBitmapTextSDL(const char*, const File& tex);
+void loadBitmapTextSDL(const char*, const File& tex, BitmapText* bt);
 
 #endif // BITMAPTEXT_H

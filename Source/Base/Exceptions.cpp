@@ -1,7 +1,6 @@
 #include "Exceptions.h"
-#include <windows.h>
-#include <dbghelp.h>
 #include <cstdlib>
+#include <cstring>
 #include <cstdio>
 
 namespace Exceptions
@@ -14,10 +13,9 @@ namespace Exceptions
                                  const char *end)
     {
         // Concatenate an error message to inform the user of the error
-        const char* fmt = "%s%s%s";
-        const int len = snprintf(NULL, 0, fmt, start, msg, end) + 1;
+        const int len = strlen(msg) + strlen(start) + strlen(end) + 1;
         buffer = new char[len];
-        snprintf(buffer, len, fmt, start, msg, end);
+        sprintf(buffer, "%s%s%s", start, msg, end);
 
         // And generate an empty stack trace
         btrace = new char[256];

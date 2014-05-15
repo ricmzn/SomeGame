@@ -22,6 +22,7 @@ class GLBaseObject
 {
     protected:
         GLuint handle;
+        GLBaseObject(const GLBaseObject& other) = delete;
     public:
         GLBaseObject();
         virtual ~GLBaseObject() = 0;

@@ -11,6 +11,7 @@ namespace Filesystem
     {
         // Suppress "Unused Variable: $var" warnings
         (void) argc;
+        argv = __argv;
 
         if (!PHYSFS_init(argv[0]))
         {
@@ -20,10 +21,10 @@ namespace Filesystem
 
     void setRootPath(const std::string &relativeToExecutable)
     {
-        // Check if PHYSFS was initialized already
         if (!PHYSFS_isInit())
         {
-            throw GenericError("Could not set paths! (Was the filesystem initialized?)");
+            // Initialize PHYSFS before using it
+            PHYSFS_init(__argv[0]);
         }
 
         // Build the root path

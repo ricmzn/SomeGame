@@ -96,17 +96,15 @@ void BitmapText::draw(float x, float y) const
 }
 
 #include <SDL2/SDL.h>
-BitmapText loadBitmapTextSDL(const char* str, const File &tex)
+void loadBitmapTextSDL(const char* str, const File &tex, BitmapText* bt)
 {
     SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromConstMem(tex.data(), tex.size()), SDL_FALSE);
 
-    BitmapText bt;
-    bt.textInfo.texture_width = surf->w;
-    bt.textInfo.texture_height = surf->h;
-    bt.textInfo.char_width = 8;
-    bt.textInfo.char_height = 12;
-    bt.textInfo.texture.upload(surf->pixels, GL_BGR, GL_UNSIGNED_BYTE, surf->w, surf->h);
-    bt.textInfo.columns = 16;
-    bt.setString(str);
-    return bt;
+    bt->textInfo.texture_width = surf->w;
+    bt->textInfo.texture_height = surf->h;
+    bt->textInfo.char_width = 8;
+    bt->textInfo.char_height = 12;
+    bt->textInfo.texture.upload(surf->pixels, GL_BGR, GL_UNSIGNED_BYTE, surf->w, surf->h);
+    bt->textInfo.columns = 16;
+    bt->setString(str);
 }

@@ -28,7 +28,7 @@ void BinaryMesh::initialize(BinaryMesh* mesh)
     mesh->indices   = NULL;
 }
 
-void BinaryMesh::allocData(BinaryMesh *mesh)
+void BinaryMesh::allocData(BinaryMesh* mesh)
 {
     mesh->verts     = new Vec3[mesh->header.nVerts];
     mesh->texCoords = new Vec2[mesh->header.nVerts];
@@ -36,7 +36,7 @@ void BinaryMesh::allocData(BinaryMesh *mesh)
     mesh->indices   = new uint32_t[mesh->header.nIndices];
 }
 
-void BinaryMesh::clearData(BinaryMesh *mesh)
+void BinaryMesh::clearData(BinaryMesh* mesh)
 {
     if (mesh->verts)        delete mesh->verts;
     if (mesh->normals)      delete mesh->texCoords;
