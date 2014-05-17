@@ -3,10 +3,6 @@
 #include <Base/Filesystem/File.h>
 #include <Base/Exceptions.h>
 
-// Temporary, hard-coded shader caching
-static ShaderProgram* unlitShader = nullptr;
-static GLuint projMatrixLocation = 0;
-
 MeshEntity::MeshEntity()
     : vertexBuffer(GL_ARRAY_BUFFER),
       normalBuffer(GL_ARRAY_BUFFER),
@@ -15,19 +11,14 @@ MeshEntity::MeshEntity()
       texture(0),
       scale(1.f)
 {
-    if (!unlitShader)
+    File vshFile("Shaders/UnlitGeneric.vert");
+    File fshFile("Shaders/UnlitGeneric.frag");
+    unlitShader.addShader(GL_VERTEX_SHADER, vshFile.toString().c_str(), vshFile.size());
+    unlitShader.addShader(GL_FRAGMENT_SHADER, fshFile.toString().c_str(), fshFile.size());
+    unlitShader.link();
+    if (unlitShader.getLog())
     {
-        File vshFile("Shaders/UnlitGeneric.vert");
-        File fshFile("Shaders/UnlitGeneric.frag");
-        unlitShader = new ShaderProgram();
-        unlitShader->addShader(GL_VERTEX_SHADER, vshFile.toString().c_str(), vshFile.size());
-        unlitShader->addShader(GL_FRAGMENT_SHADER, fshFile.toString().c_str(), fshFile.size());
-        unlitShader->link();
-        if (unlitShader->getLog())
-        {
-            throw GenericError(unlitShader->getLog());
-        }
-        projMatrixLocation = glGetUniformLocation(unlitShader->getHandle(), "projectionMatrix");
+        throw GenericError(unlitShader.getLog());
     }
 }
 
@@ -53,8 +44,9 @@ void MeshEntity::draw(const Camera* camera)
 
     glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(vertexArray);
-    glUseProgram(unlitShader->getHandle());
+    glUseProgram(unlitShader);
 
+    GLuint projMatrixLocation = glGetUniformLocation(unlitShader, "projectionMatrix");
     glUniformMatrix4fv(projMatrixLocation, 1, GL_FALSE, &projectionMatrix[0][0]);
     glDrawElements(GL_TRIANGLES, elementBuffer.size(), GL_UNSIGNED_INT, (void*)0);
 

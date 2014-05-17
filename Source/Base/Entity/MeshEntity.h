@@ -13,6 +13,7 @@ class MeshEntity : public TransformEntity
         VertexBufferObject normalBuffer;
         VertexBufferObject texCoordBuffer;
         VertexBufferObject elementBuffer;
+        ShaderProgram unlitShader;
     public:
         GLuint texture;
         float scale;

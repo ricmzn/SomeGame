@@ -25,9 +25,14 @@ Window::Window(const char* title, int width, int height)
     glInitializeContext();
 
     glViewport(0, 0, this->width, this->height);
-    glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+}
+
+Window::~Window()
+{
+    SDL_GL_DeleteContext(glContext);
+    SDL_DestroyWindow(windowHandle);
 }
 
 int Window::getWidth() const

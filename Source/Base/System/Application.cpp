@@ -23,15 +23,15 @@ struct GameObjects
     GameObjects()
         : skybox("Meshes/starcube.mdl", Vec3(0, 0, 0))
     {
-        File file;
         loadBitmapTextSDL(NULL, "Fonts/curses_640x300.bmp", &text);
-        file.setFile("Textures/stars.bmp");
-        SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromConstMem(file.data(), file.size()), 0);
+
+        File skyTex("Textures/stars.bmp");
+        SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromConstMem(skyTex.data(), skyTex.size()), 0);
         skyTexture.upload(surf->pixels, GL_BGR, GL_UNSIGNED_BYTE, surf->w, surf->h);
         skybox.texture = (GLuint)skyTexture;
         skybox.scale = 32;
         SDL_FreeSurface(surf);
-        file.clear();
+        skyTex.clear();
 
         float aspect = (float) mainApp->window().getWidth()
                      / (float) mainApp->window().getHeight();

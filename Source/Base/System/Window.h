@@ -13,6 +13,8 @@ class Window
         int width, height;
     public:
         Window(const char* title, int width, int height);
+        Window(const Window& other) = delete;
+        ~Window();
         int getWidth() const;
         int getHeight() const;
         void makeVisible();
