@@ -45,17 +45,5 @@ typedef std::thread Thread;
 #include <mutex>
 typedef std::mutex Mutex;
 
-#include <SDL2/SDL_scancode.h>
-struct InputArray
-{
-    int keyPressed[SDL_NUM_SCANCODES];
-    struct
-    {
-        int left;
-        int right;
-        int xrel;
-        int yrel;
-    } mouse;
-};
 
 #endif // SHAREDTYPES_H

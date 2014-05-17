@@ -48,19 +48,12 @@ namespace Filesystem
 {
     /**
      * @ingroup Filesystem
-     * @brief Convenience wrapper for PHYSFS_Init()
-     * @param argc Argument count from main()
-     * @param argv Arguments from main()
-     * @throws InitializationException if PHYSFS fails to initialize
-     */
-    void initialize(int argc, char** argv);
-    /**
-     * @ingroup Filesystem
      * @brief Sets the root of the virtual filesystem. MountList.txt must exist in the path
      *
      * MountList.txt is required both for safety (so it cannot mount a non-game folder if the executable
-     * is moved) and is also used to specify .zip files which can be mounted alongside the given path.
-     * The file may be empty if desired.
+     * is moved) and also to specify .zip files which should be mounted.
+     *
+     * If unused, MountList.txt can be left empty
      *
      * @param relativeToExecutable the root path (for the application) relative to the executable
      * @throws InitializationException if Filesystem::initialize() was not called first
@@ -70,7 +63,7 @@ namespace Filesystem
     void setRootPath(const std::string& relativeToExecutable);
     /**
      * @ingroup Filesystem
-     * @return true if initialize() and setRootPath() were called and succeeded, false otherwise.
+     * @return true if setRootPath() was called and ran successfully
      */
     bool isInit();
 }

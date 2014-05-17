@@ -6,19 +6,6 @@ namespace Filesystem
 {
     static bool fsIsInitialized = false;
 
-    // This should probably be deprecated and done in setRootPath
-    void initialize(int argc, char **argv)
-    {
-        // Suppress "Unused Variable: $var" warnings
-        (void) argc;
-        argv = __argv;
-
-        if (!PHYSFS_init(argv[0]))
-        {
-            throw GenericError("Could not initialize virtual filesystem!");
-        }
-    }
-
     void setRootPath(const std::string &relativeToExecutable)
     {
         if (!PHYSFS_isInit())

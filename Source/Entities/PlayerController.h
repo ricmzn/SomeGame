@@ -16,13 +16,11 @@ class PlayerController : public TransformEntity
     private:
         Camera* camera;
         FlightMode mode;
-        InputArray* input;
         Vec3 velocity;
         Vec3 angvel;
         float drag;
     public:
-        PlayerController(InputArray* keyArrayPtr);
-        virtual ~PlayerController();
+        PlayerController();
         virtual void spawn(SpawnFlags flags);
         virtual void think(float deltaTime);
         void setFlightMode(FlightMode newMode);
