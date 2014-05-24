@@ -2,6 +2,7 @@
 #define APPLICATION_H
 #include <Base/System/Window.h>
 #include <Base/System/InputArray.h>
+#include <GUI/Console.h>
 
 struct GameObjects;
 
@@ -11,11 +12,12 @@ class Application
         Window appWindow;
         InputArray appInput;
         GameObjects* gameObjects;
+        Console mainConsole;
         bool isRunning;
 
-        void appInit();
-        void appUpdate();
         void pollInput();
+        void initialize();
+        void loopBody();
 
     public:
         Application(int argc, char** argv);
@@ -25,7 +27,9 @@ class Application
         void quit();
         const Window& window() const;
         const InputArray& input() const;
+        Console& console();
 
+        float deltaTime;
 };
 
 extern Application* mainApp;

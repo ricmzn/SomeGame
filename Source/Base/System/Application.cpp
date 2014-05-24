@@ -26,7 +26,7 @@ struct GameObjects
         loadBitmapTextSDL(NULL, "Fonts/curses_640x300.bmp", &text);
 
         File skyTex("Textures/stars.bmp");
-        SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromConstMem(skyTex.data(), skyTex.size()), 0);
+        SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromConstMem(skyTex.data(), skyTex.size()), 1);
         skyTexture.upload(surf->pixels, GL_BGR, GL_UNSIGNED_BYTE, surf->w, surf->h);
         skybox.texture = (GLuint)skyTexture;
         skybox.scale = 32;
@@ -48,33 +48,6 @@ struct GameObjects
 /*----------*/
 /* Private: */
 /*----------*/
-
-void Application::appInit()
-{
-    Filesystem::setRootPath("../Data");
-    memset(&appInput, 0, sizeof(InputArray));
-}
-
-float deltaTime = 0;
-
-void Application::appUpdate()
-{
-    std::stringstream ticker;
-    uint32_t start = SDL_GetTicks();
-
-    appWindow.clear();
-    if (deltaTime > 1/50.f)
-    {
-        ticker << "deltaTime: " << deltaTime << "s - " << floor(1/deltaTime);
-    }
-    gameObjects->text.setString(ticker.str().c_str());
-    gameObjects->player.update(deltaTime);
-    gameObjects->skybox.draw(gameObjects->skyCam);
-    gameObjects->text.draw(0, 0);
-    appWindow.display();
-
-    deltaTime = (SDL_GetTicks() - start)/1000.f;
-}
 
 void Application::pollInput()
 {
@@ -119,19 +92,37 @@ void Application::pollInput()
     }
 }
 
+void Application::initialize()
+{
+    Filesystem::setRootPath("../Data");
+    memset(&appInput, 0, sizeof(InputArray));
+}
+
+void Application::loopBody()
+{
+    appWindow.clear();
+    gameObjects->text.setString("nil");
+    gameObjects->player.update(deltaTime);
+    gameObjects->skybox.draw(gameObjects->skyCam);
+    gameObjects->text.draw(0, 0);
+    appWindow.display();
+//    this->quit();
+}
+
 /*---------*/
 /* Public: */
 /*---------*/
 
 Application::Application(int argc, char** argv)
-    : appWindow("SomeGame (SDL)", 1024, 600),
-      isRunning(false)
+    : appWindow("SomeGame (SDL)", 1280, 720),
+      isRunning(false),
+      deltaTime(0.f)
 {
-    if (mainApp) throw Exceptions::GenericError("Class Application is a singleton, "
-                                                "creating more than one is not allowed!");
-    srand(time(NULL));
-    mainApp = this;
+    if (mainApp) throw GenericError("Cannot create more than one Application!");
     gameObjects = nullptr;
+    mainApp = this;
+
+    srand(time(NULL));
 }
 
 Application::~Application()
@@ -151,14 +142,16 @@ int Application::run()
     }
     else
     {
-        appInit();
+        initialize();
         isRunning = true;
         gameObjects = new GameObjects;
         appWindow.makeVisible();
         while(isRunning)
         {
+            uint32_t start = SDL_GetTicks();
             pollInput();
-            appUpdate();
+            loopBody();
+            deltaTime = (SDL_GetTicks() - start) / 1000.f;
         }
         delete gameObjects;
         gameObjects = nullptr;
@@ -179,4 +172,9 @@ const Window& Application::window() const
 const InputArray& Application::input() const
 {
     return appInput;
+}
+
+Console& Application::console()
+{
+    return mainConsole;
 }

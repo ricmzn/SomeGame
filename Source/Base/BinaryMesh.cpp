@@ -38,10 +38,10 @@ void BinaryMesh::allocData(BinaryMesh* mesh)
 
 void BinaryMesh::clearData(BinaryMesh* mesh)
 {
-    if (mesh->verts)        delete mesh->verts;
-    if (mesh->normals)      delete mesh->texCoords;
-    if (mesh->texCoords)    delete mesh->normals;
-    if (mesh->indices)      delete mesh->indices;
+    if (mesh->verts)        delete[] mesh->verts;
+    if (mesh->normals)      delete[] mesh->texCoords;
+    if (mesh->texCoords)    delete[] mesh->normals;
+    if (mesh->indices)      delete[] mesh->indices;
     mesh->verts     = NULL;
     mesh->normals   = NULL;
     mesh->texCoords = NULL;

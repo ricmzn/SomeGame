@@ -2,12 +2,15 @@
 
 void Entity::removeChild(Entity* child)
 {
+    int index = 0;
     for (auto ent : children)
     {
         if (ent == child)
         {
-            children.remove(ent);
+            children.erase(children.begin() + index);
+            break;
         }
+        index++;
     }
 }
 
@@ -22,6 +25,10 @@ Entity::~Entity()
     if (parent)
     {
         parent->removeChild(this);
+    }
+    for (auto ent : children)
+    {
+        delete ent;
     }
 }
 
@@ -47,7 +54,7 @@ void Entity::update(float delta)
 void Entity::addChild(Entity* child)
 {
     child->parent = this;
-    children.push_front(child);
+    children.push_back(child);
 }
 
 void Entity::setThinkRate(Tick ticks)

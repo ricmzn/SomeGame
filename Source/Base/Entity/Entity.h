@@ -5,7 +5,7 @@
 class Entity
 {
     public:
-        typedef List<Entity*> EntList;
+        typedef Array<Entity*> EntList;
         typedef int SpawnFlags;
 
     private:

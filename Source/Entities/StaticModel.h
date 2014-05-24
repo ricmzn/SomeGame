@@ -1,6 +1,6 @@
 #ifndef STATICMODEL_H
 #define STATICMODEL_H
-#include <BAse/Entity/MeshEntity.h>
+#include <Base/Entity/MeshEntity.h>
 
 class StaticModel : public MeshEntity
 {

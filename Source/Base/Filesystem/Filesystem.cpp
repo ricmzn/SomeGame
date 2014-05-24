@@ -1,6 +1,7 @@
 #include "Filesystem.h"
 #include <Base/Exceptions.h>
 #include <sstream>
+extern const char* __binPath;
 
 namespace Filesystem
 {
@@ -11,7 +12,7 @@ namespace Filesystem
         if (!PHYSFS_isInit())
         {
             // Initialize PHYSFS before using it
-            PHYSFS_init(__argv[0]);
+            PHYSFS_init(__binPath);
         }
 
         // Build the root path
