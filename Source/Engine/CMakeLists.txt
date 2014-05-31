@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 2.8.11)
+project(Engine)
+file(GLOB_RECURSE SOURCE_LIST "./*.cpp" "./*.c" "./*.inl" "./*.h")
+include_directories("../")
+add_library(${PROJECT_NAME} SHARED ${SOURCE_LIST})
+target_link_libraries(${PROJECT_NAME} ${LIBS})
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
