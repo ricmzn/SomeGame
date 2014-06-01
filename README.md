@@ -1,17 +1,18 @@
 SomeGame
 ========
 
-###Dependencies:
+## Dependencies:
 
-Compiler with C++11 support - Tested with GCC 4.8, Clang 3.4 and Visual Studio 2013.  
-OpenGL 4.0 - NVIDIA 400 series, AMD 5000 series or Intel HD4000. Anything newer works fine.  
+Compiler with C++11 support - Tested with GCC 4.9.0, Clang 3.4.1 and ~~Visual Studio 2013.~~  
+OpenGL 3.3 or 4.0 - May or may not work on your card depending on the hardware, operating system and drivers.  
 GLEW 1.8 or newer - http://glew.sourceforge.net/  
-Latest SDL 2.0 - http://libsdl.org/  
+SDL 2.0.3 - http://libsdl.org/  
 PhysFS 2.0.3 - http://icculus.org/physfs/  
+GLM 0.9.5 - http://glm.g-truc.net/  
+
+### Dependencies for tools:
 Open Asset Import Library 3.0 - http://assimp.sourceforge.net/  
-GLM, 0.9.5 - http://glm.g-truc.net/  
 
-###DeveloperTools additional dependencies:
+## Notes:
 
-Qt 5.2.0 or newer - http://qt-project.org/  
-Probably a stomach for band-aid code
+* Visual Studio builds broken due to lack of `__declspec(dll{ex,im}port)` in the headers for the Engine.dll shared library.
