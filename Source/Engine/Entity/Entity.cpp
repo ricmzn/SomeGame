@@ -42,19 +42,19 @@ const Entity::EntList& Entity::getChildren() const
     return children;
 }
 
-void Entity::update(float delta)
-{
-    for (auto ent : children)
-    {
-        ent->update(delta);
-    }
-    this->think(delta);
-}
-
 void Entity::addChild(Entity* child)
 {
     child->parent = this;
     children.push_back(child);
+}
+
+void Entity::updateChildren()
+{
+    for (auto ent : children)
+    {
+        ent->updateChildren();
+    }
+    this->think();
 }
 
 void Entity::setThinkRate(Tick ticks)

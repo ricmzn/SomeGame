@@ -35,7 +35,7 @@ void MeshEntity::setMesh(const BinaryMesh* mesh)
     vertexArray.addAttrib(texCoordBuffer, 2, 2, GL_FLOAT);
 }
 
-void MeshEntity::draw(const Camera* camera)
+void MeshEntity::draw(const Render::Camera* camera)
 {
     modelMatrix = glm::mat4(1.f);
     modelMatrix = glm::scale(modelMatrix, Vec3(scale, scale, scale));

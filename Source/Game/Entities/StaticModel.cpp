@@ -11,12 +11,8 @@ StaticModel::StaticModel(const char* filename, Vec3 pos)
     BinaryMesh::clearData(&mesh);
 }
 
-void StaticModel::spawn(SpawnFlags flags)
-{
-    (void)flags;
-}
+void StaticModel::spawn()
+{}
 
-void StaticModel::think(float deltaTime)
-{
-    (void)deltaTime;
-}
+void StaticModel::think()
+{}

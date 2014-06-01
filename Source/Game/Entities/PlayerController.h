@@ -1,7 +1,7 @@
 #ifndef PLAYERCONTROLLER_H
 #define PLAYERCONTROLLER_H
 #include <Engine/Entity/TransformEntity.h>
-#include <Engine/Entity/Camera.h>
+#include <Engine/Render/Camera.h>
 
 enum class FlightMode
 {
@@ -21,8 +21,8 @@ class PlayerController : public TransformEntity
         float drag;
     public:
         PlayerController();
-        virtual void spawn(SpawnFlags flags);
-        virtual void think(float deltaTime);
+        virtual void spawn();
+        virtual void think();
         void setFlightMode(FlightMode newMode);
 };
 

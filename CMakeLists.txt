@@ -9,7 +9,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Bin)
 # Set up compile-time macros
 add_definitions(-DGLM_FORCE_RADIANS -DGLEW_STATIC)
+# Add some GUI-configurable options
+option(BUILD_TOOLS "Enable building of command-line tools. Requires Assimp." OFF)
 
+# Compiler-specific workarounds
 if(MSVC)
     message(FATAL_ERROR "MSVC builds are currently broken")
     add_definitions(-Dand=&& -Dor=|| -Dnot=!)
@@ -27,11 +30,18 @@ else()
     set(LIBS SDL2 GLEW GL physfs)
 endif()
 
+# Engine shared library
 add_subdirectory("Source/Engine")
-add_subdirectory("Source/Tools")
+
+# Various command-line tools
+if(BUILD_TOOLS)
+    add_subdirectory("Source/Tools")
+endif()
+
+# Main executable
 add_subdirectory("Source/Game")
 
-# Add non-code files to the IDE project tree, in case any is used
+# Add non-code files to the IDE project tree, in case one is used
 # Since CMake ignores these, it has no effect on the build
 file(GLOB_RECURSE MISC_LIST "Data/*")
 add_custom_target(target SOURCES ${MISC_LIST})

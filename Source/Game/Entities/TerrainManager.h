@@ -37,9 +37,9 @@ class TerrainManager : public Entity
 
     public:
         TerrainManager(const Camera* camera);
-        ~TerrainManager();
-        void spawn(SpawnFlags flags);
-        void think(float deltaTime);
+        virtual ~TerrainManager();
+        virtual void spawn();
+        virtual void think();
         void setParams(int maxlod, int width, int height,
                        float frequency, float amplitude,
                        float exponent, int octaves);

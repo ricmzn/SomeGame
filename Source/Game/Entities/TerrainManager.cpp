@@ -1,4 +1,5 @@
 #include "TerrainManager.h"
+#include <Engine/System/Application.h>
 
 TerrainManager::TerrainManager(const Camera* camera)
     : maxLod(1),
@@ -81,12 +82,10 @@ void TerrainManager::deleteTile(int x, int y)
     }
 }
 
-void TerrainManager::spawn(SpawnFlags flags)
-{
-    (void)flags;
-}
+void TerrainManager::spawn()
+{}
 
-void TerrainManager::think(float delta)
+void TerrainManager::think()
 {
     static float timeSinceLast = 60.f;
     static const int maxRange = 2;
@@ -108,7 +107,7 @@ void TerrainManager::think(float delta)
     }
     else
     {
-        timeSinceLast += delta;
+        timeSinceLast += mainApp->deltaTime;
     }
 }
 

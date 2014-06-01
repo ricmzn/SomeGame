@@ -1,6 +1,6 @@
 #include "Window.h"
 #include <SDL2/SDL.h>
-#include <Engine/OpenGL/GL.h>
+#include <Engine/Render/API.h>
 
 Window::Window(const char* title, int width, int height)
     : title(title),
@@ -22,7 +22,7 @@ Window::Window(const char* title, int width, int height)
     windowHandle = SDL_CreateWindow(title, 0, 0, 0, 0, SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
     glContext = SDL_GL_CreateContext(windowHandle);
     SDL_GL_SetSwapInterval(1);
-    glInitializeContext();
+    initializeContext();
 
     glViewport(0, 0, this->width, this->height);
     glEnable(GL_DEPTH_TEST);

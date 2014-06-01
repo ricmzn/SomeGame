@@ -1,6 +1,5 @@
 #ifndef SPACEOBJECT_H
 #define SPACEOBJECT_H
-#include <Game/Universe/UniverseRegion.h>
 #include <Engine/Entity/Entity.h>
 
 enum class SpaceObjectType
@@ -31,12 +30,13 @@ struct SpaceObjectProperties
 class SpaceObject : Entity
 {
     private:
-        UniverseRegion* region;
         SpaceObjectProperties props;
         Vec3 relativePosition;
     public:
         SpaceObject();
-        ~SpaceObject();
+        virtual ~SpaceObject();
+        virtual void spawn();
+        virtual void think();
         Vec3 gravityVector(const Vec3& relativePos) const;
         Vec3 parentRelativePosition() const;
         const SpaceObjectProperties& getProperties() const;

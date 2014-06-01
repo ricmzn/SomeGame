@@ -8,15 +8,14 @@ PlayerController::PlayerController()
     transform.pos = {0, 16, 0};
 }
 
-void PlayerController::spawn(SpawnFlags flags)
-{
-    (void)flags;
-}
+void PlayerController::spawn()
+{}
 
-void PlayerController::think(float deltaTime)
+void PlayerController::think()
 {
-    static const float sensitivity = 0.25;
-    static const InputArray& input = mainApp->input();
+    const float sensitivity = 0.25;
+    const float deltaTime = mainApp->deltaTime;
+    const InputArray& input = mainApp->input();
 
     // Toggle spaceship/plane controls
     if (input.keyPressed[SDL_SCANCODE_F])

@@ -1,7 +1,8 @@
 #ifndef TESTTERRAIN_H
 #define TESTTERRAIN_H
-#include <Engine/OpenGL/GL.h>
-#include <Engine/Entity/Camera.h>
+#include <Engine/Render/ShaderProgram.h>
+#include <Engine/Render/VertexArray.h>
+#include <Engine/Render/Camera.h>
 
 class TestTerrain
 {
@@ -15,10 +16,10 @@ class TestTerrain
         };
 
         Array<Quad> quads;
-        ShaderProgram shader;
-        VertexArrayObject vao;
-        VertexBufferObject vbo;
-        VertexBufferObject ibo;
+        Render::ShaderProgram shader;
+        Render::VertexArray vao;
+        Render::VertexBuffer vbo;
+        Render::VertexBuffer ibo;
         int pitch;
 
         void subdivide(int levels);

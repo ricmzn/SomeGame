@@ -2,7 +2,9 @@
 #define BITMAPTEXT_H
 #include <Engine/Filesystem/File.h>
 #include <Engine/Base/SharedTypes.h>
-#include <Engine/OpenGL/GL.h>
+#include <Engine/Render/ShaderProgram.h>
+#include <Engine/Render/Texture2DRect.h>
+#include <Engine/Render/VertexArray.h>
 
 struct BMPTextInfo
 {
@@ -11,16 +13,16 @@ struct BMPTextInfo
     short char_width;
     short char_height;
     short columns;
-    Texture2DRect texture;
+    Render::Texture2DRect texture;
 };
 
 class BitmapText
 {
     private:
-        ShaderProgram shaderProgram;
-        VertexArrayObject vertexArray;
-        VertexBufferObject vertexBuffer;
-        VertexBufferObject texCoordBuffer;
+        Render::ShaderProgram shaderProgram;
+        Render::VertexArray vertexArray;
+        Render::VertexBuffer vertexBuffer;
+        Render::VertexBuffer texCoordBuffer;
         const char* text;
         void buildQuads();
     public:

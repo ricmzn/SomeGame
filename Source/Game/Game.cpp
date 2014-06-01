@@ -1,5 +1,6 @@
 #include "Game.h"
 #include <Engine/Filesystem/File.h>
+#include <Game/Universe/UniverseManager.h>
 #include <SDL2/SDL.h>
 #include <cstring>
 
@@ -86,7 +87,7 @@ void Game::loopBody()
 {
     appWindow.clear();
     gameObjects->text.setString("nil");
-    gameObjects->player.update(deltaTime);
+    gameObjects->player.updateChildren();
     gameObjects->skybox.draw(gameObjects->skyCam);
     gameObjects->text.draw(0, 0);
     appWindow.display();

@@ -10,7 +10,7 @@ struct GameObjects
     BitmapText text;
     PlayerController player;
     StaticModel skybox;
-    Texture2D skyTexture;
+    Render::Texture2D skyTexture;
     Camera* camera;
     Camera* skyCam;
     GameObjects();

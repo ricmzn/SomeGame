@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
+using namespace Render;
 
 Camera::Camera(float vfov, float aspect)
     : aspectRatio(aspect),
@@ -7,9 +8,11 @@ Camera::Camera(float vfov, float aspect)
       nearz(0.1f), farz(1000.f)
 {}
 
-void Camera::think(float deltaTime)
+void Camera::spawn()
+{}
+
+void Camera::think()
 {
-    (void)deltaTime;
     auto pEnt = dynamic_cast<const TransformEntity*>(this->getParent());
     if (pEnt)
     {
@@ -30,7 +33,7 @@ void Camera::setClip(float near, float far)
     farz = far;
 }
 
-const glm::mat4& Camera::getMatrix() const
+const Mat4& Camera::getMatrix() const
 {
     return viewProjectionMatrix;
 }

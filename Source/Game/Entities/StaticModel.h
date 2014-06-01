@@ -6,8 +6,8 @@ class StaticModel : public MeshEntity
 {
     public:
         StaticModel(const char* filename, Vec3 pos);
-        virtual void spawn(SpawnFlags flags);
-        virtual void think(float deltaTime);
+        virtual void spawn();
+        virtual void think();
 };
 
 #endif // STATICMODEL_H
