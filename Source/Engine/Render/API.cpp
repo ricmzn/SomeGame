@@ -1,14 +1,19 @@
 #include "API.h"
 #include <Engine/Base/Exceptions.h>
-extern int printf(const char *__format);
+#include <cstdio>
+
+// Declare glLoadGen functions
+extern "C" {
+    int ogl_LoadFunctions();
+    int ogl_GetMinorVersion();
+    int ogl_GetMajorVersion();
+    int ogl_IsVersionGEQ(int majorVersion, int minorVersion);
+}
 
 void initializeContext()
 {
-    // Workaround for 3.2+ core contexts
-    glewExperimental = GL_TRUE;
-
-    // Try initializing GLEW
-    if (glewInit() == GLEW_OK);
+    // Try to initialize GL function pointers
+    if (ogl_LoadFunctions() == 0);
 
     // If it doesn't work, blame the user
     else throw GenericError("Failed to initialize OpenGL context\n"

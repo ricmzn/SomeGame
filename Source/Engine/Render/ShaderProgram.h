@@ -1,6 +1,7 @@
 #ifndef SHADERPROGRAM_H
 #define SHADERPROGRAM_H
 #include <Engine/Render/ContextObject.h>
+#include <string>
 
 namespace Render
 {

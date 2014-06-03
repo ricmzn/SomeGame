@@ -25,9 +25,9 @@ endif()
 
 # Libraries to link to (which are named differently in Windows)
 if(WIN32)
-    set(LIBS SDL2main SDL2 glew32 opengl32 physfs)
+    set(LIBS SDL2main SDL2 opengl32 physfs)
 else()
-    set(LIBS SDL2 GLEW GL physfs)
+    set(LIBS SDL2 GL physfs)
 endif()
 
 # Engine shared library
