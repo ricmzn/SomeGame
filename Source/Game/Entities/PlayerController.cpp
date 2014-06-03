@@ -3,10 +3,8 @@
 
 PlayerController::PlayerController()
     : mode(FlightMode::SPACE),
-      drag(0.9925)
-{
-    transform.pos = {0, 16, 0};
-}
+      drag(0.99875)
+{}
 
 void PlayerController::spawn()
 {}
@@ -15,7 +13,7 @@ void PlayerController::think()
 {
     const float sensitivity = 0.25;
     const float deltaTime = mainApp->deltaTime;
-    const InputArray& input = mainApp->input();
+    const InputArray& input = mainApp->input;
 
     // Toggle spaceship/plane controls
     if (input.keyPressed[SDL_SCANCODE_F])

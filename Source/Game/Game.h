@@ -3,6 +3,7 @@
 #include <Engine/System/Application.h>
 #include <Game/Entities/PlayerController.h>
 #include <Game/Entities/StaticModel.h>
+#include <Game/Universe/UniverseManager.h>
 #include <Engine/GUI/BitmapText.h>
 
 struct GameObjects
@@ -13,6 +14,7 @@ struct GameObjects
     Render::Texture2D skyTexture;
     Camera* camera;
     Camera* skyCam;
+    Universe::UniverseManager universe;
     GameObjects();
 };
 

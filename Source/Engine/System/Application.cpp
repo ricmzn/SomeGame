@@ -7,7 +7,7 @@ Application* mainApp = nullptr;
 const char* mainPath = nullptr;
 
 Application::Application(int argc, char** argv)
-    : appWindow("SomeGame (SDL)", 1280, 720),
+    : window("SomeGame (SDL)", 1280, 720),
       isRunning(false),
       deltaTime(0.f)
 {
@@ -34,7 +34,7 @@ int Application::run()
     {
         this->initialize();
         isRunning = true;
-        appWindow.makeVisible();
+        window.makeVisible();
         while(isRunning)
         {
             uint32_t start = SDL_GetTicks();
@@ -50,19 +50,4 @@ int Application::run()
 void Application::quit()
 {
     isRunning = false;
-}
-
-const Window& Application::window() const
-{
-    return appWindow;
-}
-
-const InputArray& Application::input() const
-{
-    return appInput;
-}
-
-Console& Application::console()
-{
-    return appConsole;
 }

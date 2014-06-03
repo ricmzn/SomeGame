@@ -23,7 +23,6 @@ void VertexBuffer::uploadOffset(void* data, size_t size, size_t len, GLintptr of
 {
     glBindBuffer(bufferTarget, handle);
     glBufferSubData(bufferTarget, offset, size * len, data);
-    bufferSize = len;
 }
 
 GLuint VertexBuffer::target() const

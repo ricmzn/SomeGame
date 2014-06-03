@@ -6,10 +6,10 @@
 
 class Application
 {
-    protected:
-        Window appWindow;
-        InputArray appInput;
-        Console appConsole;
+    public:
+        Window window;
+        InputArray input;
+        Console console;
 
     private:
         bool isRunning;
@@ -24,9 +24,6 @@ class Application
         ~Application();
         int run();
         void quit();
-        const Window& window() const;
-        const InputArray& input() const;
-        Console& console();
 
         float deltaTime;
 };

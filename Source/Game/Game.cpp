@@ -1,11 +1,11 @@
 #include "Game.h"
 #include <Engine/Filesystem/File.h>
-#include <Game/Universe/UniverseManager.h>
 #include <SDL2/SDL.h>
 #include <cstring>
 
 GameObjects::GameObjects()
-    : skybox("Meshes/starcube.mdl", Vec3(0, 0, 0))
+    : skybox("Meshes/starcube.mdl", Vec3(0, 0, 0)),
+      universe(player)
 {
     loadBitmapTextSDL(NULL, "Fonts/curses_640x300.bmp", &text);
 
@@ -17,8 +17,8 @@ GameObjects::GameObjects()
     SDL_FreeSurface(surf);
     skyTex.clear();
 
-    float aspect = (float) mainApp->window().getWidth()
-                 / (float) mainApp->window().getHeight();
+    float aspect = (float) mainApp->window.getWidth()
+                 / (float) mainApp->window.getHeight();
 
     camera = new Camera(60.f, aspect);
     skyCam = new Camera(60.f, aspect);
@@ -26,12 +26,13 @@ GameObjects::GameObjects()
     skyCam->setClip(1000.f, 1000000.f);
     player.addChild(camera);
     player.addChild(skyCam);
+    universe.spawn();
 }
 
 void Game::pollInput()
 {
-    appInput.mouse.xrel = 0;
-    appInput.mouse.yrel = 0;
+    input.mouse.xrel = 0;
+    input.mouse.yrel = 0;
 
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -45,28 +46,28 @@ void Game::pollInput()
 
         if (event.type == SDL_KEYDOWN)
         {
-            appInput.keyPressed[event.key.keysym.scancode] = 1;
+            input.keyPressed[event.key.keysym.scancode] = 1;
         }
         else if (event.type == SDL_KEYUP)
         {
-            appInput.keyPressed[event.key.keysym.scancode] = 0;
+            input.keyPressed[event.key.keysym.scancode] = 0;
         }
         if (event.type == SDL_MOUSEBUTTONDOWN)
         {
-            if (event.button.button == SDL_BUTTON_LEFT) appInput.mouse.left = true;
-            if (event.button.button == SDL_BUTTON_RIGHT) appInput.mouse.right = true;
+            if (event.button.button == SDL_BUTTON_LEFT) input.mouse.left = true;
+            if (event.button.button == SDL_BUTTON_RIGHT) input.mouse.right = true;
         }
         else if (event.type == SDL_MOUSEBUTTONUP)
         {
-            if (event.button.button == SDL_BUTTON_LEFT) appInput.mouse.left = false;
-            if (event.button.button == SDL_BUTTON_RIGHT) appInput.mouse.right = false;
+            if (event.button.button == SDL_BUTTON_LEFT) input.mouse.left = false;
+            if (event.button.button == SDL_BUTTON_RIGHT) input.mouse.right = false;
         }
         if (event.type == SDL_MOUSEMOTION)
         {
-            appInput.mouse.xrel = event.motion.xrel;
-            appInput.mouse.yrel = event.motion.yrel;
-            appInput.mouse.x = event.motion.x;
-            appInput.mouse.y = event.motion.y;
+            input.mouse.xrel = event.motion.xrel;
+            input.mouse.yrel = event.motion.yrel;
+            input.mouse.x = event.motion.x;
+            input.mouse.y = event.motion.y;
         }
     }
 }
@@ -74,7 +75,7 @@ void Game::pollInput()
 void Game::initialize()
 {
     Filesystem::setRootPath("../Data");
-    memset(&appInput, 0, sizeof(InputArray));
+    memset(&input, 0, sizeof(InputArray));
     gameObjects = new GameObjects();
 }
 
@@ -85,14 +86,17 @@ void Game::finalize()
 
 void Game::loopBody()
 {
-    appWindow.clear();
+    window.clear();
     gameObjects->text.setString("nil");
     gameObjects->player.updateChildren();
-    gameObjects->skybox.draw(gameObjects->skyCam);
+    gameObjects->universe.updateChildren();
+    gameObjects->universe.draw(gameObjects->camera);
+    gameObjects->universe.draw(gameObjects->skyCam);
+//    gameObjects->skybox.draw(gameObjects->skyCam);
     gameObjects->text.draw(0, 0);
-    appWindow.display();
+    window.display();
 }
 
-Game::Game(int argc, char **argv)
+Game::Game(int argc, char** argv)
     : Application(argc, argv)
 {}
