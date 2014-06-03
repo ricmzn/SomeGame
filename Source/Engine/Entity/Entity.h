@@ -6,7 +6,6 @@ class Entity
 {
     public:
         typedef Array<Entity*> EntList;
-        typedef int SpawnFlags;
 
     private:
         Tick thinkRate;
