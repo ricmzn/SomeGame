@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include "Functions.h"
 
+extern "C" {
+
 #if defined(__APPLE__)
 #include <mach-o/dyld.h>
 
@@ -1410,3 +1412,4 @@ int ogl_IsVersionGEQ(int majorVersion, int minorVersion)
 	return 0;
 }
 
+}
