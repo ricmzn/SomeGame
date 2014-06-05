@@ -15,6 +15,13 @@ void PlayerController::think()
     const float deltaTime = mainApp->deltaTime;
     const InputArray& input = mainApp->input;
 
+    // Go fast if shift is held
+    float speedMultiplier = 1.0;
+    if (input.keyPressed[SDL_SCANCODE_LSHIFT])
+    {
+        speedMultiplier = 25.0;
+    }
+
     // Toggle spaceship/plane controls
     if (input.keyPressed[SDL_SCANCODE_F])
     {
@@ -25,27 +32,27 @@ void PlayerController::think()
     {
         if (input.keyPressed[SDL_SCANCODE_W])
         {
-            velocity += transform.forward();
+            velocity += transform.forward() * speedMultiplier;
         }
         else if (input.keyPressed[SDL_SCANCODE_S])
         {
-            velocity -= transform.forward();
+            velocity -= transform.forward() * speedMultiplier;
         }
         if (input.keyPressed[SDL_SCANCODE_D])
         {
-            velocity += transform.right();
+            velocity += transform.right() * speedMultiplier;
         }
         else if (input.keyPressed[SDL_SCANCODE_A])
         {
-            velocity -= transform.right();
+            velocity -= transform.right() * speedMultiplier;
         }
         if (input.keyPressed[SDL_SCANCODE_Q])
         {
-            velocity += transform.up();
+            velocity += transform.up() * speedMultiplier;
         }
         else if (input.keyPressed[SDL_SCANCODE_Z])
         {
-            velocity -= transform.up();
+            velocity -= transform.up() * speedMultiplier;
         }
 
         transform.rotate(transform.up(), input.mouse.xrel * deltaTime * sensitivity);

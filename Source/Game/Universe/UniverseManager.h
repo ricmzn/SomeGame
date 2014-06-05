@@ -18,6 +18,7 @@ namespace Universe
         Render::VertexArray vao;
         Render::ShaderProgram shader;
         GLint matrixLocation;
+        GLuint heatTexture;
     public:
         UniverseManager(const PlayerController& player);
         virtual ~UniverseManager();
