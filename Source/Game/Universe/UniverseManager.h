@@ -18,6 +18,8 @@ namespace Universe
         Render::VertexArray vao;
         Render::ShaderProgram shader;
         GLint matrixLocation;
+        GLint heatLocation;
+        GLint maskLocation;
         GLuint heatTexture;
         GLuint maskTexture;
     public:

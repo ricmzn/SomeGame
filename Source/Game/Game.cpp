@@ -67,6 +67,7 @@ void Game::initialize()
 {
     Filesystem::setRootPath("../Data");
     memset(&input, 0, sizeof(InputArray));
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     gameObjects = new GameObjects();
 }
 
