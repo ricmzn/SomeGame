@@ -19,6 +19,7 @@ namespace Universe
         Render::ShaderProgram shader;
         GLint matrixLocation;
         GLuint heatTexture;
+        GLuint maskTexture;
     public:
         UniverseManager(const PlayerController& player);
         virtual ~UniverseManager();
