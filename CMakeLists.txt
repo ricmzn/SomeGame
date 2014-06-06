@@ -8,7 +8,7 @@ set(MSVC_FLAGS "/W4 /EHsc /arch:SSE2 /O2 /Zi")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Bin)
 # Set up compile-time macros
-add_definitions(-DGLM_FORCE_RADIANS -DGLEW_STATIC)
+add_definitions(-DGLM_FORCE_RADIANS)
 # Add some GUI-configurable options
 option(BUILD_TOOLS "Enable building of command-line tools. Requires Assimp." OFF)
 
