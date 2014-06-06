@@ -5,16 +5,15 @@
 #include <Game/Entities/StaticModel.h>
 #include <Game/Universe/UniverseManager.h>
 #include <Engine/GUI/BitmapText.h>
+using Universe::UniverseManager;
 
 struct GameObjects
 {
     BitmapText text;
     PlayerController player;
-    StaticModel skybox;
-    Render::Texture2D skyTexture;
     Camera* camera;
     Camera* skyCam;
-    Universe::UniverseManager universe;
+    UniverseManager universe;
     GameObjects();
 };
 

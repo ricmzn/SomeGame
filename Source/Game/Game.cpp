@@ -4,18 +4,9 @@
 #include <cstring>
 
 GameObjects::GameObjects()
-    : skybox("Meshes/starcube.mdl", Vec3(0, 0, 0)),
-      universe(player)
+    : universe(player)
 {
     loadBitmapTextSDL(NULL, "Fonts/curses_640x300.bmp", &text);
-
-    File skyTex("Textures/stars.bmp");
-    SDL_Surface* surf = SDL_LoadBMP_RW(SDL_RWFromConstMem(skyTex.data(), skyTex.size()), 1);
-    skyTexture.upload(surf->pixels, GL_BGR, GL_UNSIGNED_BYTE, surf->w, surf->h);
-    skybox.texture = (GLuint)skyTexture;
-    skybox.scale = 32;
-    SDL_FreeSurface(surf);
-    skyTex.clear();
 
     float aspect = (float) mainApp->window.getWidth()
                  / (float) mainApp->window.getHeight();
@@ -90,9 +81,8 @@ void Game::loopBody()
     gameObjects->text.setString("nil");
     gameObjects->player.updateChildren();
     gameObjects->universe.updateChildren();
-    gameObjects->universe.draw(gameObjects->camera);
     gameObjects->universe.draw(gameObjects->skyCam);
-//    gameObjects->skybox.draw(gameObjects->skyCam);
+    gameObjects->universe.draw(gameObjects->camera);
     gameObjects->text.draw(0, 0);
     window.display();
 }
