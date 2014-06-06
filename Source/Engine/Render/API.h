@@ -10,7 +10,7 @@
     #include <GL/glext.h>
 #else
     // Otherwise, just include the correct header
-    #include <Engine/Render/OpenGL/Functions.h>
+    #include <Engine/Render/OpenGL/Functions.hpp>
 #endif
 
 /**
