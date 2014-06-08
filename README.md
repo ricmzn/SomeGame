@@ -12,7 +12,3 @@ GLM 0.9.5 - http://glm.g-truc.net/
 
 ### Dependencies for tools:
 Open Asset Import Library 3.0 - http://assimp.sourceforge.net/  
-
-## Notes:
-
-* Visual Studio builds broken due to lack of `__declspec(dll{ex,im}port)` in the headers for the Engine.dll shared library.

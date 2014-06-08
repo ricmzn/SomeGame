@@ -14,7 +14,6 @@ option(BUILD_TOOLS "Enable building of command-line tools. Requires Assimp." OFF
 
 # Compiler-specific workarounds
 if(MSVC)
-    message(FATAL_ERROR "MSVC builds are currently broken")
     add_definitions(-Dand=&& -Dor=|| -Dnot=!)
     set(CMAKE_C_FLAGS "${MSVC_FLAGS}")
     set(CMAKE_CXX_FLAGS "${MSVC_FLAGS}")
