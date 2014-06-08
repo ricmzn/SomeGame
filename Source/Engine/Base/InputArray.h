@@ -5,7 +5,16 @@
 
 struct InputArray
 {
-    int keyPressed[SDL_NUM_SCANCODES];
+    // TODO stop being a hipster and use proper functions instead of operator[]
+    struct {
+        int keys[SDL_NUM_SCANCODES];
+        int operator[] (const int& code) const {return keys[code] == 1;}
+//        int operator[] (const int& code)       {return keys[code] == 1;}
+    }
+    keyPressed,
+    keyDown,
+    keyUp;
+
     struct {
         int left;
         int right;

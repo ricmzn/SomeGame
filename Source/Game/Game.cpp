@@ -22,12 +22,23 @@ GameObjects::GameObjects()
 
 void Game::pollInput()
 {
+    // TODO correct keyPressed handling
     input.mouse.xrel = 0;
     input.mouse.yrel = 0;
+
+    for (int& key : input.keyDown.keys)
+    {
+        if (key == 1)
+        {
+            key = -1;
+        }
+    }
 
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
+        const int& key = event.key.keysym.scancode;
+
         if (event.type == SDL_QUIT or
            (event.type == SDL_KEYDOWN and event.key.keysym.scancode == SDL_SCANCODE_ESCAPE))
         {
@@ -37,11 +48,21 @@ void Game::pollInput()
 
         if (event.type == SDL_KEYDOWN)
         {
-            input.keyPressed[event.key.keysym.scancode] = 1;
+            input.keyPressed.keys[key] = 1;
+
+            if (input.keyDown.keys[key] == 0)
+            {
+                input.keyDown.keys[key] = 1;
+            }
         }
         else if (event.type == SDL_KEYUP)
         {
-            input.keyPressed[event.key.keysym.scancode] = 0;
+            input.keyPressed.keys[key] = 0;
+
+            if (input.keyDown.keys[key] < 0)
+            {
+                input.keyDown.keys[key] = 0;
+            }
         }
         if (event.type == SDL_MOUSEBUTTONDOWN)
         {
@@ -85,6 +106,7 @@ void Game::loopBody()
     gameObjects->universe.draw(gameObjects->skyCam);
     gameObjects->universe.draw(gameObjects->camera);
     gameObjects->text.draw(0, 0);
+    if (input.keyDown[SDL_SCANCODE_R]) window.clear();
     window.display();
 }
 

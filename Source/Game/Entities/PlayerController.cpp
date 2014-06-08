@@ -23,7 +23,7 @@ void PlayerController::think()
     }
 
     // Toggle spaceship/plane controls
-    if (input.keyPressed[SDL_SCANCODE_F])
+    if (input.keyDown[SDL_SCANCODE_F])
     {
         mode = (mode == FlightMode::ATMO) ? FlightMode::SPACE : FlightMode::ATMO;
     }
