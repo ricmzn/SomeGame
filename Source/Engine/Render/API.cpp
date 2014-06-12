@@ -1,7 +1,21 @@
 #include "API.h"
 #include <Engine/Base/Exceptions.h>
 #include <Engine/System/Messagebox.h>
-using namespace Render;
+#include <iostream>
+
+// OpenGL debug message callback
+static void errorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+                          const GLchar* message, const void* userparam)
+{
+    // Suppress all of the "Unused parameter: foo" warnings
+    (void) source;
+    (void) type;
+    (void) id;
+    (void) severity;
+    (void) length;
+    (void) userparam;
+    std::cerr << message << std::endl;
+}
 
 // Declare glLoadGen functions
 extern "C" {
@@ -16,6 +30,7 @@ SDL_GLContext Render::initializeContext(SDL_Window* window, int verMajor, int ve
     // Standard settings
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
@@ -24,14 +39,24 @@ SDL_GLContext Render::initializeContext(SDL_Window* window, int verMajor, int ve
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, verMinor);
 
     SDL_GLContext context = SDL_GL_CreateContext(window);
-
-    int failedExtensions = ogl_LoadFunctions();
+    ogl_LoadFunctions();
 
     // Throw away the context if it's not valid
-    if (failedExtensions > 0 || !glGetString || !glGetString(GL_RENDERER))
+    if (!glGetString || !glGetString(GL_RENDERER))
     {
         SDL_GL_DeleteContext(context);
-        context = nullptr;
+        return nullptr;
     }
+
+    // Set up debug messages if the context supports it
+    if (glDebugMessageCallback)
+    {
+        glDebugMessageCallback(errorCallback, nullptr);
+    }
+    else
+    {
+        std::cerr << "OpenGL warning: debug output not enabled" << std::endl;
+    }
+
     return context;
 }
