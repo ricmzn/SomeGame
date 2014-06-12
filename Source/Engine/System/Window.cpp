@@ -1,6 +1,8 @@
 #include "Window.h"
 #include <SDL2/SDL.h>
 #include <Engine/Render/API.h>
+#include <Engine/Base/Exceptions.h>
+using namespace System;
 
 Window::Window(const char* title, int width, int height)
     : title(title),
@@ -8,22 +10,32 @@ Window::Window(const char* title, int width, int height)
       height(height)
 {
     SDL_Init(SDL_INIT_VIDEO);
-
-    // TODO automatic switch between 3.3 and 4.0
-//    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-//    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    // TODO adjustable MSAA settings
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-
     windowHandle = SDL_CreateWindow(title, 0, 0, 0, 0, SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
-    glContext = SDL_GL_CreateContext(windowHandle);
-    SDL_GL_SetSwapInterval(1);
-    initializeContext();
 
+    // First try
+    {
+        glContext = Render::initializeContext(windowHandle, 4, 4);
+    }
+    // Second try...
+    if (!glContext)
+    {
+        glContext = Render::initializeContext(windowHandle, 3, 3);
+    }
+    // Give up
+    if (!glContext)
+    {
+        throw GenericError("Failed to initialize an OpenGL context\n"
+                           "Try updating your video driver to its latest version");
+    }
+
+    // Output some information about the renderer
+    printf("OpenGL version: %s\nDisplay device: %s\nVendor: %s\n\n",
+           glGetString(GL_VERSION),
+           glGetString(GL_RENDERER),
+           glGetString(GL_VENDOR));
+
+    // And set up some useful things
+    SDL_GL_SetSwapInterval(1);
     glViewport(0, 0, this->width, this->height);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);

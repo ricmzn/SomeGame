@@ -3,25 +3,29 @@
 #include <SDL2/SDL_timer.h>
 #include <cstdlib>
 #include <ctime>
-Application* mainApp = nullptr;
-const char* mainPath = nullptr;
+namespace System
+{
+    Application* ActiveApplication = nullptr;
+    const char*  ApplicationPath = nullptr;
+}
+using namespace System;
 
 Application::Application(int argc, char** argv)
     : window("SomeGame (SDL)", 1280, 720),
       isRunning(false),
       deltaTime(0.f)
 {
-    if (mainApp) throw GenericError("Cannot create more than one Application!");
+    if (ActiveApplication) throw GenericError("Cannot create more than one Application!");
 
-    mainApp = this;
-    mainPath = argv[0];
+    ActiveApplication = this;
+    ApplicationPath = argv[0];
 
     srand(time(NULL));
 }
 
 Application::~Application()
 {
-    mainApp = nullptr;
+    ActiveApplication = nullptr;
 }
 
 int Application::run()

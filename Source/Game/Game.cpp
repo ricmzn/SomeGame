@@ -8,8 +8,8 @@ GameObjects::GameObjects()
 {
     loadBitmapTextSDL(NULL, "Fonts/curses_640x300.bmp", &text);
 
-    float aspect = (float) mainApp->window.getWidth()
-                 / (float) mainApp->window.getHeight();
+    float aspect = (float) System::ActiveApplication->window.getWidth()
+                 / (float) System::ActiveApplication->window.getHeight();
 
     camera = new Camera(60.f, aspect);
     skyCam = new Camera(60.f, aspect);
@@ -87,7 +87,7 @@ void Game::pollInput()
 void Game::initialize()
 {
     Filesystem::setRootPath("../Data");
-    memset(&input, 0, sizeof(InputArray));
+    memset(&input, 0, sizeof(System::Input));
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     gameObjects = new GameObjects();
 }

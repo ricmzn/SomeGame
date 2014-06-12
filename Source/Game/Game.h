@@ -17,7 +17,7 @@ struct GameObjects
     GameObjects();
 };
 
-class Game : public Application
+class Game : public System::Application
 {
     protected:
         GameObjects* gameObjects;

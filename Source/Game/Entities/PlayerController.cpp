@@ -12,8 +12,8 @@ void PlayerController::spawn()
 void PlayerController::think()
 {
     const float sensitivity = 0.25;
-    const float deltaTime = mainApp->deltaTime;
-    const InputArray& input = mainApp->input;
+    const float deltaTime = System::ActiveApplication->deltaTime;
+    const System::Input& input = System::ActiveApplication->input;
 
     // Go fast if shift is held
     float speedMultiplier = 1.0;

@@ -107,7 +107,7 @@ void TerrainManager::think()
     }
     else
     {
-        timeSinceLast += mainApp->deltaTime;
+        timeSinceLast += System::ActiveApplication->deltaTime;
     }
 }
 

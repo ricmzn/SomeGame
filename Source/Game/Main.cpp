@@ -12,7 +12,7 @@ int main(int argc, char** argv) try
 }
 catch (const BaseException& ex)
 {
-    Messagebox::Error("Fatal Error", ex.message());
+    System::Messagebox::Error("Fatal Error", ex.message());
     std::cerr << ex.trace() << std::endl;
     return 1;
 }

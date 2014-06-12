@@ -3,8 +3,10 @@
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL_events.h>
 
-class Window
+namespace System
 {
+    class Window
+    {
     private:
         SDL_GLContext glContext;
         SDL_Window* windowHandle;
@@ -21,6 +23,7 @@ class Window
         void clear();
         void display();
         const SDL_Event& getEvents();
-};
+    };
+}
 
 #endif // WINDOW_H

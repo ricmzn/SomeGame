@@ -1,14 +1,16 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 #include <Engine/System/Window.h>
-#include <Engine/Base/InputArray.h>
+#include <Engine/System/Input.h>
 #include <Engine/GUI/Console.h>
 
-class Application
+namespace System
 {
+    class Application
+    {
     public:
         Window window;
-        InputArray input;
+        Input input;
         Console console;
 
     private:
@@ -26,9 +28,10 @@ class Application
         void quit();
 
         float deltaTime;
-};
+    };
 
-extern Application* mainApp;
-extern const char* mainPath;
+    extern Application* ActiveApplication;
+    extern const char*  ApplicationPath;
+}
 
 #endif // APPLICATION_H

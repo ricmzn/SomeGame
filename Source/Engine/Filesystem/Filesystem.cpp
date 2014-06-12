@@ -12,7 +12,7 @@ namespace Filesystem
         if (!PHYSFS_isInit())
         {
             // Initialize PHYSFS before using it
-            PHYSFS_init(mainPath);
+            PHYSFS_init(System::ApplicationPath);
         }
 
         // Build the root path

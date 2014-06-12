@@ -1,5 +1,6 @@
 #include "Messagebox.h"
-using namespace Messagebox;
+using namespace System::Messagebox;
+using namespace System;
 
 #if defined(__WIN32__)
 #define WIN32_MEAN_AND_LEAN
