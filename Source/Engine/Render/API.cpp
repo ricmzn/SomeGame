@@ -1,7 +1,7 @@
 #include "API.h"
 #include <Engine/Base/Exceptions.h>
 #include <Engine/System/Messagebox.h>
-#include <cstdio>
+using namespace Render;
 
 // Declare glLoadGen functions
 extern "C" {
@@ -11,28 +11,27 @@ extern "C" {
     int ogl_IsVersionGEQ(int majorVersion, int minorVersion);
 }
 
-void initializeContext()
+SDL_GLContext Render::initializeContext(SDL_Window* window, int verMajor, int verMinor)
 {
-    // Try to initialize GL function pointers
-    int initFailed = ogl_LoadFunctions();
+    // Standard settings
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+    // Requested OpenGL version
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, verMajor);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, verMinor);
 
-    // Check the validity of the glGetString function pointer (which should always be valid)
-    if (!glGetString)
+    SDL_GLContext context = SDL_GL_CreateContext(window);
+
+    int failedExtensions = ogl_LoadFunctions();
+
+    // Throw away the context if it's not valid
+    if (failedExtensions > 0 || !glGetString || !glGetString(GL_RENDERER))
     {
-        throw GenericError("glGetString was loaded as a NULL pointer\n"
-                           "In other words, shit's broken");
+        SDL_GL_DeleteContext(context);
+        context = nullptr;
     }
-
-    // Output some information about the renderer
-    printf("OpenGL version: %s\nDisplay device: %s\nVendor: %s\n\n",
-           glGetString(GL_VERSION),
-           glGetString(GL_RENDERER),
-           glGetString(GL_VENDOR));
-
-    // If initialization didn't go as planned (eg. some extensions failed), inform the user
-    if (initFailed)
-    {
-        throw GenericError("Failed to initialize OpenGL context\n"
-                            "Try updating your video driver to its latest version");
-    }
+    return context;
 }
