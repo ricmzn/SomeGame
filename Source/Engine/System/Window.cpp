@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <Engine/Render/API.h>
 #include <Engine/Base/Exceptions.h>
+#include <cstdio>
 using namespace System;
 
 Window::Window(const char* title, int width, int height)

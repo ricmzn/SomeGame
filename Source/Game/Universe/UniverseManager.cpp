@@ -29,32 +29,25 @@ UniverseManager::UniverseManager(const PlayerController& player)
     }
     glUniform1i(heatLocation, 0);
     glUniform1i(maskLocation, 1);
-    glUseProgram(GL_NONE);
 
-    SDL_Surface* surf_orig;
-    SDL_Surface* surf_gl;
+    SDL_Surface* originalSurface;
+    SDL_Surface* rgbSurface;
+
     // Load the 1D heatmap texture
-    surf_orig = SDL_LoadBMP_RW(SDL_RWFromConstMem(heatFile.data(), heatFile.size()), 1);
-    surf_gl = SDL_ConvertSurfaceFormat(surf_orig, SDL_PIXELFORMAT_RGB24, 0);
-    glGenTextures(1, &heatTexture);
-    glBindTexture(GL_TEXTURE_1D, heatTexture);
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, surf_gl->w, 0, GL_RGB, GL_UNSIGNED_BYTE, surf_gl->pixels);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    SDL_FreeSurface(surf_orig);
-    SDL_FreeSurface(surf_gl);
+    originalSurface = SDL_LoadBMP_RW(SDL_RWFromConstMem(heatFile.data(), heatFile.size()), 1);
+    rgbSurface = SDL_ConvertSurfaceFormat(originalSurface, SDL_PIXELFORMAT_RGB24, 0);
+    SDL_FreeSurface(originalSurface);
+    heatTexture.upload(rgbSurface->pixels, GL_RGB, GL_UNSIGNED_BYTE, rgbSurface->w, 0, GL_RGB);
+    SDL_FreeSurface(rgbSurface);
+
     // Load the 2D mask texture
-    surf_orig = SDL_LoadBMP_RW(SDL_RWFromConstMem(maskFile.data(), maskFile.size()), 1);
-    surf_gl = SDL_ConvertSurfaceFormat(surf_orig, SDL_PIXELFORMAT_RGB24, 0);
-    glGenTextures(1, &maskTexture);
-    glBindTexture(GL_TEXTURE_2D, maskTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, surf_gl->w, surf_gl->h, 0, GL_RGB, GL_UNSIGNED_BYTE, surf_gl->pixels);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    SDL_FreeSurface(surf_orig);
-    SDL_FreeSurface(surf_gl);
+    originalSurface = SDL_LoadBMP_RW(SDL_RWFromConstMem(maskFile.data(), maskFile.size()), 1);
+    rgbSurface = SDL_ConvertSurfaceFormat(originalSurface, SDL_PIXELFORMAT_RGB24, 0);
+    SDL_FreeSurface(originalSurface);
+    maskTexture.upload(rgbSurface->pixels, GL_RGB, GL_UNSIGNED_BYTE, rgbSurface->w, rgbSurface->h, 0, GL_R8);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // Enable clamp to edge
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // to avoid artifacts
+    SDL_FreeSurface(rgbSurface);
 }
 
 UniverseManager::~UniverseManager()

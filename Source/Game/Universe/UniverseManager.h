@@ -4,6 +4,8 @@
 #include <Engine/Entity/DrawableEntity.h>
 #include <Engine/Render/VertexArray.h>
 #include <Engine/Render/ShaderProgram.h>
+#include <Engine/Render/Texture1D.h>
+#include <Engine/Render/Texture2D.h>
 #include <Game/Entities/PlayerController.h>
 #include <Game/Entities/SpaceObject.h>
 
@@ -17,11 +19,11 @@ namespace Universe
         Render::VertexBuffer vbo;
         Render::VertexArray vao;
         Render::ShaderProgram shader;
+        Render::Texture1D heatTexture;
+        Render::Texture2D maskTexture;
         GLint matrixLocation;
         GLint heatLocation;
         GLint maskLocation;
-        GLuint heatTexture;
-        GLuint maskTexture;
     public:
         UniverseManager(const PlayerController& player);
         virtual ~UniverseManager();

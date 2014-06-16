@@ -15,7 +15,7 @@ Application::Application(int argc, char** argv)
       isRunning(false),
       deltaTime(0.f)
 {
-    if (ActiveApplication) throw GenericError("Cannot create more than one Application!");
+    if (ActiveApplication) throw GenericError("Cannot create more than one Application");
 
     ActiveApplication = this;
     ApplicationPath = argv[0];
@@ -36,8 +36,8 @@ int Application::run()
     }
     else
     {
-        this->initialize();
         isRunning = true;
+        this->initialize();
         window.makeVisible();
         while(isRunning)
         {

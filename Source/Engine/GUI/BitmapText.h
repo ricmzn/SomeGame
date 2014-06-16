@@ -3,7 +3,7 @@
 #include <Engine/Filesystem/File.h>
 #include <Engine/Base/SharedTypes.h>
 #include <Engine/Render/ShaderProgram.h>
-#include <Engine/Render/Texture2DRect.h>
+#include <Engine/Render/TextureRect.h>
 #include <Engine/Render/VertexArray.h>
 
 struct BMPTextInfo
@@ -13,7 +13,7 @@ struct BMPTextInfo
     short char_width;
     short char_height;
     short columns;
-    Render::Texture2DRect texture;
+    Render::TextureRect texture;
 };
 
 class BitmapText

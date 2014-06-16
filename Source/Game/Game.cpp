@@ -1,4 +1,5 @@
 #include "Game.h"
+#include <Engine/Base/BinaryTexture.h>
 #include <Engine/Filesystem/File.h>
 #include <SDL2/SDL.h>
 #include <cstring>
@@ -106,7 +107,6 @@ void Game::loopBody()
     gameObjects->universe.draw(gameObjects->skyCam);
     gameObjects->universe.draw(gameObjects->camera);
     gameObjects->text.draw(0, 0);
-    if (input.keyDown[SDL_SCANCODE_R]) window.clear();
     window.display();
 }
 
