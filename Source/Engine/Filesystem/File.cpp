@@ -6,18 +6,13 @@ using namespace Exceptions;
 
 File::File(const std::string& filename)
 {
-    // Might want to check if the filesystem is initialized
-    if(!Filesystem::isInit())
-    {
-        throw GenericError("Filesystem is not initialized!");
-    }
-
     fileHandle = nullptr;
     fileData = nullptr;
     setFile(filename);
 }
 
 File::File(const char* filename) : File(std::string(filename)) {}
+File::File(const File& other) : File(other.filename()) {}
 File::File() : File("") {}
 
 File::~File()
@@ -55,6 +50,12 @@ unsigned File::size(const std::string& file)
 
 void File::setFile(const std::string& file)
 {
+    // Might want to check if the filesystem is initialized
+    if(!Filesystem::isInit())
+    {
+        throw GenericError("Filesystem is not initialized!");
+    }
+
     if(file == "")
     {
         clear();
@@ -98,6 +99,11 @@ const unsigned char* File::data() const
     return fileData;
 }
 
+const PHYSFS_File* File::getHandle() const
+{
+    return fileHandle;
+}
+
 void File::clear()
 {
     if(fileHandle != nullptr)
@@ -127,9 +133,14 @@ File::operator bool() const
     return(fileHandle != nullptr);
 }
 
-const PHYSFS_File* File::getHandle() const
+File File::operator=(const File& other)
 {
-    return fileHandle;
+    if (other.fileData != fileData or other.fileHandle != fileHandle)
+    {
+        this->clear();
+        return File(other);
+    }
+    else return *this;
 }
 
 bool File::openFile(const std::string& filename, bool writeMode)

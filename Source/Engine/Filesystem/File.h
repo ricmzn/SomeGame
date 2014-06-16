@@ -26,6 +26,10 @@ class File
          */
         File(const char* filename);
         /**
+         * @brief Copy constructor
+         */
+        File(const File& other);
+        /**
          * @brief Default constructor. Does not load any files, any calls to its member functions will return empty
          */
         File();
@@ -73,6 +77,10 @@ class File
          * @brief Returns true if a file is open, false otherwise
          */
         explicit operator bool() const;
+        /**
+         * @brief Copies the contents of a File into another instance
+         */
+        File operator=(const File& other);
 
     protected:
         PHYSFS_File* fileHandle;

@@ -8,7 +8,10 @@ namespace Render
     {
     protected:
         GLuint handle;
+
+        // This stuff is non-copyable, handle with care
         ContextObject(const ContextObject& other) = delete;
+        ContextObject& operator=(const ContextObject& other) = delete;
 
     public:
         ContextObject();
