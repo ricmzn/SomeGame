@@ -4,16 +4,32 @@
 #include <cstring>
 
 #define TEXTURE_MAGIC "tex"
-#define TEXTURE_VERSION 1
+#define TEXTURE_VERSION 2
 
 static unsigned getChecksum(const BinaryTexture* texture)
 {
     return NumberGenerator::byteSum(&texture->header, sizeof(texture->header));
 }
 
-static size_t mipmapSize(const BinaryTexture* texture, unsigned int level)
+static size_t textureSizeBytes(const BinaryTexture* texture)
 {
-    return (size_t)(texture->header.width * texture->header.height) / pow(2, level);
+    if (texture->header.flags & BinaryTexture::Flags::TEXTURE_3D)
+    {
+        return texture->header.width * texture->header.height * texture->header.height;
+    }
+    else if (texture->header.flags & BinaryTexture::Flags::TEXTURE_2D ||
+             texture->header.flags & BinaryTexture::Flags::TEXTURE_RECT)
+    {
+        return texture->header.width * texture->header.height;
+    }
+    else if (texture->header.flags & BinaryTexture::Flags::TEXTURE_1D)
+    {
+        return texture->header.width;
+    }
+    else
+    {
+        throw GenericError("Invalid texture flags");
+    }
 }
 
 void BinaryTexture::initialize(BinaryTexture* texture)
@@ -28,12 +44,28 @@ void BinaryTexture::initialize(BinaryTexture* texture)
 
 void BinaryTexture::allocData(BinaryTexture* texture)
 {
-    if (texture->pixels) clearData(texture);
+    clearData(texture);
 
-    texture->pixels = new uint32_t*[texture->header.levels];
-    for (unsigned int level = 0; level < texture->header.levels; level++)
+    size_t textureSize = textureSizeBytes(texture);
+    if (texture->header.flags & BinaryTexture::Flags::TEXTURE_RGBA)
     {
-        texture->pixels[level] = new uint32_t[mipmapSize(texture, level)];
+        texture->pixels = (void*) new BinaryTexture::RGBA[textureSize];
+    }
+    else if (texture->header.flags & BinaryTexture::Flags::TEXTURE_RGB)
+    {
+        texture->pixels = (void*) new BinaryTexture::RGB[textureSize];
+    }
+    else if (texture->header.flags & BinaryTexture::Flags::TEXTURE_RG)
+    {
+        texture->pixels = (void*) new BinaryTexture::RG[textureSize];
+    }
+    else if (texture->header.flags & BinaryTexture::Flags::TEXTURE_R)
+    {
+        texture->pixels = (void*) new BinaryTexture::R[textureSize];
+    }
+    else
+    {
+        throw GenericError("Invalid texture flags");
     }
 }
 
@@ -41,11 +73,22 @@ void BinaryTexture::clearData(BinaryTexture* texture)
 {
     if (texture->pixels)
     {
-        for (unsigned int level = 0; level < texture->header.levels; level++)
+        if (texture->header.flags & BinaryTexture::Flags::TEXTURE_RGBA)
         {
-            delete[] texture->pixels[level];
+            delete[] (BinaryTexture::RGBA*)texture->pixels;
         }
-        delete[] texture->pixels;
+        else if (texture->header.flags & BinaryTexture::Flags::TEXTURE_RGB)
+        {
+            delete[] (BinaryTexture::RGB*)texture->pixels;
+        }
+        else if (texture->header.flags & BinaryTexture::Flags::TEXTURE_RG)
+        {
+            delete[] (BinaryTexture::RG*)texture->pixels;
+        }
+        else if (texture->header.flags & BinaryTexture::Flags::TEXTURE_R)
+        {
+            delete[] (BinaryTexture::R*)texture->pixels;
+        }
         texture->pixels = NULL;
     }
 }
@@ -89,15 +132,5 @@ void BinaryTexture::read(BinaryTexture* texture, const Byte* src, size_t size)
     }
 
     allocData(texture);
-    const void* offset = &texture->pixels[0];
-    for (unsigned int level = 0; level < texture->header.levels; level++)
-    {
-        memcpy(texture->pixels[level], offset, mipmapSize(texture, level));
-    }
-
-    if (texture->header.levels > 1)
-    {
-        fprintf(stderr, "Loading mipmapped textures not yet fully supported, "
-                        "overlaying mipmaps instead!\n");
-    }
+    memcpy(texture->pixels, src + sizeof(texture->header), textureSizeBytes(texture));
 }
