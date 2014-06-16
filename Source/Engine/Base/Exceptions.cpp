@@ -5,6 +5,48 @@
 #include <string>
 using namespace Exceptions;
 
+#if defined(__WIN32)
+/*----------------------------*/
+/* createStackTrace (Windows) */
+/*----------------------------*/
+#define NotAvailableStr "No trace is available."
+static void createStackTrace(char*& buffer)
+{
+    buffer = new char[sizeof NotAvailableStr];
+    strcpy(buffer, NotAvailableStr);
+}
+
+#elif defined(__GLIBC__)
+/*------------------------------*/
+/* createStackTrace (Linux/BSD) */
+/*------------------------------*/
+#include <execinfo.h>
+#include <cxxabi.h>
+static void createStackTrace(char*& buffer)
+{
+    void* symbols[25];
+    size_t bufferSize = 1;
+    size_t backtraceSkip = 2;
+    size_t backtraceSize = backtrace(symbols, 25);
+    char** backtraceStrings = backtrace_symbols(symbols, backtraceSize);
+
+    for(size_t i = backtraceSkip; i < backtraceSize; i++)
+    {
+        bufferSize += strlen(backtraceStrings[i]) + sizeof('\n');
+    }
+
+    buffer = new char[bufferSize] {0};
+    for(size_t i = backtraceSkip; i < backtraceSize; i++)
+    {
+        strcat(buffer, backtraceStrings[i]);
+        strcat(buffer, "\n");
+    }
+
+    buffer[bufferSize - 1] = 0;
+}
+
+#endif
+
 /*---------------*/
 /* BaseException */
 /*---------------*/
@@ -17,10 +59,8 @@ BaseException::BaseException(const char *msg,
     buffer = new char[len];
     sprintf(buffer, "%s%s%s", start, msg, end);
 
-    // And generate an empty stack trace
-    btrace = new char[256];
-    memset(btrace, '\0', 256);
-    strncpy(btrace, "No trace is available.", 255);
+    // And generate a stack trace
+    createStackTrace(btrace);
 }
 
 BaseException::~BaseException()
