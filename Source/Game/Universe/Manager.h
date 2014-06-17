@@ -11,7 +11,7 @@
 
 namespace Universe
 {
-    class UniverseManager : public DrawableEntity
+    class Manager : public DrawableEntity
     {
     private:
         Array<SpaceObject*> stars;
@@ -25,8 +25,8 @@ namespace Universe
         GLint heatLocation;
         GLint maskLocation;
     public:
-        UniverseManager(const PlayerController& player);
-        virtual ~UniverseManager();
+        Manager(const PlayerController& player);
+        virtual ~Manager();
         virtual void spawn();
         virtual void think();
         virtual void draw(const Camera* camera);

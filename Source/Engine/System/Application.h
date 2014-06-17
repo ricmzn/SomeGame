@@ -9,24 +9,24 @@ namespace System
     class Application
     {
     public:
+        Application(int argc, char** argv);
+        Application(const Application& other) = delete;
+        ~Application();
+
         Window window;
         Input input;
         Console console;
 
     private:
         bool isRunning;
-        virtual void pollInput()    = 0;
         virtual void initialize()   = 0;
         virtual void finalize()     = 0;
-        virtual void loopBody()     = 0;
+        virtual void loop()         = 0;
+        void pollInput();
 
     public:
-        Application(int argc, char** argv);
-        Application(const Application& other) = delete;
-        ~Application();
         int run();
         void quit();
-
         float deltaTime;
     };
 

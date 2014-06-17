@@ -3,17 +3,16 @@
 #include <Engine/System/Application.h>
 #include <Game/Entities/PlayerController.h>
 #include <Game/Entities/StaticModel.h>
-#include <Game/Universe/UniverseManager.h>
+#include <Game/Universe/Manager.h>
 #include <Engine/GUI/BitmapText.h>
-using Universe::UniverseManager;
 
 struct GameObjects
 {
     BitmapText text;
     PlayerController player;
+    Universe::Manager universe;
     Camera* camera;
     Camera* skyCam;
-    UniverseManager universe;
     GameObjects();
 };
 
@@ -21,10 +20,9 @@ class Game : public System::Application
 {
     protected:
         GameObjects* gameObjects;
-        virtual void pollInput();
         virtual void initialize();
         virtual void finalize();
-        virtual void loopBody();
+        virtual void loop();
 
     public:
         Game(int argc, char** argv);

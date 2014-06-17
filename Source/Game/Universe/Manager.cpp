@@ -1,11 +1,11 @@
-#include "UniverseManager.h"
+#include "Manager.h"
 #include <Engine/System/Application.h>
 #include <Engine/Base/Exceptions.h>
 #include <Engine/Filesystem/File.h>
 #include <SDL2/SDL.h>
 using namespace Universe;
 
-UniverseManager::UniverseManager(const PlayerController& player)
+Manager::Manager(const PlayerController& player)
     : reference(player.transform.pos)
 {
     File vshFile("Shaders/PointStar.vert");
@@ -50,7 +50,7 @@ UniverseManager::UniverseManager(const PlayerController& player)
     SDL_FreeSurface(rgbSurface);
 }
 
-UniverseManager::~UniverseManager()
+Manager::~Manager()
 {
     for (auto star : stars)
     {
@@ -58,7 +58,7 @@ UniverseManager::~UniverseManager()
     }
 }
 
-void UniverseManager::spawn()
+void Manager::spawn()
 {
     // Temporary heap memory cost:
     // 32768 * 4 * sizeof(Vec4) = 2MiB
@@ -79,10 +79,10 @@ void UniverseManager::spawn()
     delete[] stars;
 }
 
-void UniverseManager::think()
+void Manager::think()
 {}
 
-void UniverseManager::draw(const Camera* camera)
+void Manager::draw(const Camera* camera)
 {
     glUseProgram(shader);
     glBindVertexArray(vao);
@@ -95,7 +95,7 @@ void UniverseManager::draw(const Camera* camera)
     glActiveTexture(GL_TEXTURE0);
 }
 
-const Array<SpaceObject*>& UniverseManager::getStars() const
+const Array<SpaceObject*>& Manager::getStars() const
 {
     return stars;
 }
