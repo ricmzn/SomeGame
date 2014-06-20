@@ -1,5 +1,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
+#include <Engine/Entity/RootEntity.h>
 #include <Engine/System/Window.h>
 #include <Engine/System/Input.h>
 #include <Engine/GUI/Console.h>
@@ -16,6 +17,7 @@ namespace System
         Window window;
         Input input;
         Console console;
+        RootEntity* rootEntity;
 
     private:
         bool isRunning;

@@ -12,15 +12,18 @@ namespace Render
         float aspectRatio;
         float fieldOfView;
         float nearz, farz;
+        bool perspective;
 
     public:
-        Camera(float vfov, float aspect);
+        Camera(float vfov, float aspect, float near, float far);
         virtual void spawn();
         virtual void think();
 
         void setAspect(float aspect);
         void setClip(float near, float far);
-        void setPerspective(float newVerticalFov);
+        void setPerspective(float vfov);
+        void setOrtographic(float width);
+        float getPerspectiveFov() const;
         const Mat4& getMatrix() const;
     };
 }

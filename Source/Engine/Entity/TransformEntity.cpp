@@ -24,3 +24,7 @@ Vec3 TransformComponent::up() const
 {
     return VEC3_UP * rot;
 }
+
+TransformEntity::TransformEntity(const String &name)
+    : Entity(name)
+{}

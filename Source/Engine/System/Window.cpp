@@ -8,7 +8,8 @@ using namespace System;
 Window::Window(const char* title, int width, int height)
     : title(title),
       width(width),
-      height(height)
+      height(height),
+      aspectRatio(float(width)/float(height))
 {
     SDL_Init(SDL_INIT_VIDEO);
     windowHandle = SDL_CreateWindow(title, 0, 0, 0, 0, SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
@@ -56,6 +57,11 @@ int Window::getWidth() const
 int Window::getHeight() const
 {
     return height;
+}
+
+float Window::getAspectRatio() const
+{
+    return aspectRatio;
 }
 
 void Window::makeVisible()

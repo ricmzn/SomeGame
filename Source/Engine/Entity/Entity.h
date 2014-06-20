@@ -2,6 +2,12 @@
 #define ENTITY_H
 #include <Engine/Base/SharedTypes.h>
 
+// This workaround makes me sad :(
+namespace Render {
+    class Camera;
+} using Render::Camera;
+class RootEntity;
+
 class Entity
 {
     public:
@@ -11,24 +17,28 @@ class Entity
         Tick thinkRate;
         Tick nextThink;
         Entity* parent;
+        RootEntity* root;
         EntList children;
+        String classname;
 
     protected:
         void removeChild(Entity* child);
 
     public:
-        Entity();
+        Entity(const String& name = "");
         virtual ~Entity();
         virtual void spawn() = 0;
         virtual void think() = 0;
+        virtual void updateChildren(const Camera* camera);
 
+        void addChild(Entity* child);
+        void setThinkRate(Tick ticks);
         const Entity* getParent() const;
         const EntList& getChildren() const;
-        void addChild(Entity* child);
-        void updateChildren();
-        void setThinkRate(Tick ticks);
         Tick getThinkRate() const;
         Tick getNextThink() const;
+        RootEntity* getRoot() const;
+        const String& getName() const;
 };
 
 #endif // ENTITY_H

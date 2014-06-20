@@ -1,3 +1,4 @@
+#include <Engine/Filesystem/Filesystem.h>
 #include <Engine/System/Messagebox.h>
 #include <Engine/Base/Exceptions.h>
 #include <Game/Game.h>
@@ -5,9 +6,11 @@
 
 int main(int argc, char** argv) try
 {
+    // Set the root path
+    Filesystem::setRootPath("../Data");
     // Initialize the application
     Game game(argc, argv);
-    // And run it
+    // And run the game
     return game.run();
 }
 catch (const BaseException& ex)

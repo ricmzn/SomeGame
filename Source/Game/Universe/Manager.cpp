@@ -5,8 +5,8 @@
 #include <SDL2/SDL.h>
 using namespace Universe;
 
-Manager::Manager(const PlayerController& player)
-    : reference(player.transform.pos)
+Manager::Manager(const PlayerController* player)
+    : reference(player->transform)
 {
     File vshFile("Shaders/PointStar.vert");
     File fshFile("Shaders/PointStar.frag");
@@ -21,9 +21,10 @@ Manager::Manager(const PlayerController& player)
     }
     glUseProgram(shader);
     matrixLocation = glGetUniformLocation(shader, "matrix");
+    fovLocation = glGetUniformLocation(shader, "fov");
     heatLocation = glGetUniformLocation(shader, "heatTexture");
     maskLocation = glGetUniformLocation(shader, "maskTexture");
-    if (matrixLocation < 0 || heatLocation < 0 || maskLocation < 0)
+    if (matrixLocation < 0 || fovLocation < 0 || heatLocation < 0 || maskLocation < 0)
     {
         throw GenericError("GLSL uniform location binding failed for UniverseManager");
     }
@@ -51,12 +52,7 @@ Manager::Manager(const PlayerController& player)
 }
 
 Manager::~Manager()
-{
-    for (auto star : stars)
-    {
-        delete star;
-    }
-}
+{}
 
 void Manager::spawn()
 {
@@ -73,6 +69,17 @@ void Manager::spawn()
         pos.z = (float(rand())/RAND_MAX) * maxRange - maxRange/2;
         pos.w =  float(rand())/RAND_MAX;
         stars[i] = pos;
+
+        Vec3 shortPos(pos.x, pos.y, pos.z);
+        SpaceObjectProperties props = {
+            0,
+            0,
+            0,
+            0,
+            0,
+            SpaceObjectType::STAR
+        };
+        starArray.emplace_back(shortPos, props);
     }
     vbo.upload(stars, maxStars);
     vao.addAttrib(vbo, 0, 4, GL_FLOAT);
@@ -90,12 +97,13 @@ void Manager::draw(const Camera* camera)
     glBindTexture(GL_TEXTURE_1D, heatTexture);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, maskTexture);
+    glUniform1f(fovLocation, camera->getPerspectiveFov());
     glUniformMatrix4fv(matrixLocation, 1, GL_FALSE, &camera->getMatrix()[0][0]);
     glDrawArrays(GL_POINTS, 0, vbo.size());
     glActiveTexture(GL_TEXTURE0);
 }
 
-const Array<SpaceObject*>& Manager::getStars() const
+const Array<SpaceObject>& Manager::getStars() const
 {
-    return stars;
+    return starArray;
 }

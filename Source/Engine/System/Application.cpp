@@ -10,6 +10,10 @@ namespace System
 }
 using namespace System;
 
+/*-------------*/
+/* Application */
+/*-------------*/
+
 Application::Application(int argc, char** argv)
     : window("SomeGame (SDL)", 1280, 720),
       isRunning(false),
@@ -20,11 +24,13 @@ Application::Application(int argc, char** argv)
     ActiveApplication = this;
     ApplicationPath = argv[0];
 
+    rootEntity = new RootEntity();
     srand(time(NULL));
 }
 
 Application::~Application()
 {
+    delete rootEntity;
     ActiveApplication = nullptr;
 }
 

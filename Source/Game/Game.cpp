@@ -3,46 +3,29 @@
 #include <Engine/Filesystem/File.h>
 #include <SDL2/SDL.h>
 #include <cstring>
-
-GameObjects::GameObjects()
-    : universe(player)
-{
-    loadBitmapTextSDL(NULL, "Fonts/curses_640x300.bmp", &text);
-
-    float aspect = (float) System::ActiveApplication->window.getWidth()
-                 / (float) System::ActiveApplication->window.getHeight();
-
-    camera = new Camera(60.f, aspect);
-    skyCam = new Camera(60.f, aspect);
-    camera->setClip(1.0f, 10000.f);
-    skyCam->setClip(1000.f, 1000000.f);
-    player.addChild(camera);
-    player.addChild(skyCam);
-    universe.spawn();
-}
+extern Camera* mainCamera;
 
 void Game::initialize()
 {
-    Filesystem::setRootPath("../Data");
-    memset(&input, 0, sizeof(System::Input));
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    gameObjects = new GameObjects();
+
+    PlayerController* player = new PlayerController();
+    Universe::Manager* universe = new Universe::Manager(player);
+    camera = new Render::Camera(60.f, window.getAspectRatio(), 1, 100000);
+    rootEntity->addChild(player);
+    rootEntity->addChild(universe);
+    player->addChild(camera);
 }
 
 void Game::finalize()
 {
-    delete gameObjects;
+    puts("Quitting...");
 }
 
 void Game::loop()
 {
     window.clear();
-    gameObjects->text.setString("nil");
-    gameObjects->player.updateChildren();
-    gameObjects->universe.updateChildren();
-    gameObjects->universe.draw(gameObjects->skyCam);
-    gameObjects->universe.draw(gameObjects->camera);
-    gameObjects->text.draw(0, 0);
+    rootEntity->updateChildren(camera);
     window.display();
 }
 

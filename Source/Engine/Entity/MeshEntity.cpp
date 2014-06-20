@@ -3,8 +3,9 @@
 #include <Engine/Filesystem/File.h>
 #include <Engine/Base/Exceptions.h>
 
-MeshEntity::MeshEntity()
-    : vertexBuffer(GL_ARRAY_BUFFER),
+MeshEntity::MeshEntity(const String& name)
+    : DrawableEntity(name),
+      vertexBuffer(GL_ARRAY_BUFFER),
       normalBuffer(GL_ARRAY_BUFFER),
       texCoordBuffer(GL_ARRAY_BUFFER),
       elementBuffer(GL_ELEMENT_ARRAY_BUFFER),

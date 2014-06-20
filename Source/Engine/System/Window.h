@@ -13,12 +13,14 @@ namespace System
         SDL_Event windowEvents;
         const char* title;
         int width, height;
+        float aspectRatio;
     public:
         Window(const char* title, int width, int height);
         Window(const Window& other) = delete;
         ~Window();
         int getWidth() const;
         int getHeight() const;
+        float getAspectRatio() const;
         void makeVisible();
         void clear();
         void display();

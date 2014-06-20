@@ -1,21 +1,25 @@
 #ifndef SHAREDTYPES_H
 #define SHAREDTYPES_H
-#include <forward_list>
 #include <cstdint>
+#include <string>
 
 // Primitive types
 typedef unsigned char Byte;
 typedef unsigned long Tick;
+typedef std::string String;
 
 // Container types
 #include <vector>
 template <typename T> using Array = std::vector<T>;
 
 #include <list>
-template <typename T> using List = std::forward_list<T>;
+template <typename T> using List = std::list<T>;
 
 #include <queue>
 template <typename T> using Queue = std::queue<T>;
+
+#include <map>
+template <typename KeyType, typename T> using HashTable = std::map<KeyType, T>;
 
 // GLM types
 #include <glm/vec2.hpp>

@@ -19,6 +19,7 @@ class TransformEntity : public Entity
 {
     public:
         TransformComponent transform;
+        TransformEntity(const String& name = "");
 };
 
 #endif // TRANSFORMENTITY_H

@@ -2,18 +2,49 @@
 #include <Engine/System/Application.h>
 
 PlayerController::PlayerController()
-    : mode(FlightMode::SPACE),
+    : TransformEntity("player"),
+      mode(FlightMode::SPACE),
       drag(0.99875)
 {}
 
 void PlayerController::spawn()
-{}
+{
+    std::cout << "New player created" << std::endl;
+}
 
 void PlayerController::think()
 {
     const float sensitivity = 0.25;
     const float deltaTime = System::ActiveApplication->deltaTime;
     const System::Input& input = System::ActiveApplication->input;
+    static float fov = 60;
+
+    static Camera* pCamera = nullptr; if (!pCamera)
+    {
+        pCamera = dynamic_cast<Camera*>(this->getRoot()->find("camera"));
+    }
+
+    if (input.keyDown[SDL_SCANCODE_0])
+    {
+        if (pCamera)
+        {
+            pCamera->setPerspective(fov = 60);
+        }
+    }
+    if (input.keyPressed[SDL_SCANCODE_EQUALS])
+    {
+        if (pCamera)
+        {
+            pCamera->setPerspective(fov -= 25 * deltaTime);
+        }
+    }
+    else if (input.keyPressed[SDL_SCANCODE_MINUS])
+    {
+        if (pCamera)
+        {
+            pCamera->setPerspective(fov += 25 * deltaTime);
+        }
+    }
 
     // Go fast if shift is held
     float speedMultiplier = 1.0;

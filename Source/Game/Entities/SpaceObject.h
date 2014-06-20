@@ -6,15 +6,11 @@ enum class SpaceObjectType
 {
     INVISIBLE,
     NEBULA,
-    RED_GIANT,
-    YELLOW_STAR,
-    BLUE_STAR,
-    WHITE_DWARF,
-    BROWN_DWARF,
-    GAS_GIANT,
+    STAR,
     PLANET,
     MOON,
-    ASTEROID
+    ASTEROID,
+    DEBRIS
 };
 
 struct SpaceObjectProperties
@@ -30,13 +26,13 @@ struct SpaceObjectProperties
 class SpaceObject : public Entity
 {
     private:
-        SpaceObjectProperties props;
         Vec3 relativePosition;
+        SpaceObjectProperties props;
     public:
-        SpaceObject(const Vec3& pos);
-        virtual ~SpaceObject() {}
-        virtual void spawn() {}
-        virtual void think() {}
+        SpaceObject(const Vec3& pos, const SpaceObjectProperties& props);
+        virtual ~SpaceObject();
+        virtual void spawn();
+        virtual void think();
         Vec3 gravityVector(const Vec3& relativePos) const;
         Vec3 parentRelativePosition() const;
         const SpaceObjectProperties& getProperties() const;

@@ -8,29 +8,29 @@
 #include <Engine/Render/Texture2D.h>
 #include <Game/Entities/PlayerController.h>
 #include <Game/Entities/SpaceObject.h>
-
 namespace Universe
 {
     class Manager : public DrawableEntity
     {
     private:
-        Array<SpaceObject*> stars;
-        const Vec3& reference;
+        Array<SpaceObject> starArray;
+        const TransformComponent& reference;
         Render::VertexBuffer vbo;
         Render::VertexArray vao;
         Render::ShaderProgram shader;
         Render::Texture1D heatTexture;
         Render::Texture2D maskTexture;
         GLint matrixLocation;
+        GLint fovLocation;
         GLint heatLocation;
         GLint maskLocation;
     public:
-        Manager(const PlayerController& player);
+        Manager(const PlayerController* player);
         virtual ~Manager();
         virtual void spawn();
         virtual void think();
         virtual void draw(const Camera* camera);
-        const Array<SpaceObject*>& getStars() const;
+        const Array<SpaceObject>& getStars() const;
     };
 }
 

@@ -8,9 +8,8 @@ namespace System
     class Input
     {
     public:
-        // TODO stop being a hipster and use proper functions instead of operator[]
         struct {
-            int keys[SDL_NUM_SCANCODES];
+            int keys[SDL_NUM_SCANCODES] = {0};
             int operator[] (const int& code) const {return keys[code] == 1;}
         }
         keyPressed,
@@ -18,12 +17,12 @@ namespace System
         keyUp;
 
         struct {
-            int left;
-            int right;
-            int xrel;
-            int yrel;
-            int x;
-            int y;
+            int left    = 0;
+            int right   = 0;
+            int xrel    = 0;
+            int yrel    = 0;
+            int x       = 0;
+            int y       = 0;
         } mouse;
     };
 }

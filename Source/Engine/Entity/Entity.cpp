@@ -1,4 +1,5 @@
 #include "Entity.h"
+#include <Engine/Entity/RootEntity.h>
 
 void Entity::removeChild(Entity* child)
 {
@@ -14,14 +15,20 @@ void Entity::removeChild(Entity* child)
     }
 }
 
-Entity::Entity()
+Entity::Entity(const String& name)
     : thinkRate(0),
       nextThink(0),
-      parent(nullptr)
+      parent(nullptr),
+      root(nullptr),
+      classname(name)
 {}
 
 Entity::~Entity()
 {
+    if (root and !classname.empty())
+    {
+        root->removeFromTable(this);
+    }
     if (parent)
     {
         parent->removeChild(this);
@@ -42,19 +49,40 @@ const Entity::EntList& Entity::getChildren() const
     return children;
 }
 
-void Entity::addChild(Entity* child)
-{
-    child->parent = this;
-    children.push_back(child);
-}
-
-void Entity::updateChildren()
+void Entity::updateChildren(const Camera* camera)
 {
     for (auto ent : children)
     {
-        ent->updateChildren();
+        ent->updateChildren(camera);
     }
     this->think();
+}
+
+void Entity::addChild(Entity* child)
+{
+    const char* name = this->getName().c_str();
+    const char* ch = child->getName().c_str();
+    if(child->parent == nullptr)
+    {
+        child->spawn();
+    }
+    child->parent = this;
+
+    auto pRoot = dynamic_cast<RootEntity*>(this);
+    if (pRoot)
+    {
+        child->root = pRoot;
+    }
+    else
+    {
+        child->root = this->root;
+    }
+    if (!child->getName().empty())
+    {
+        child->root->insertOnTable(child);
+    }
+
+    children.push_back(child);
 }
 
 void Entity::setThinkRate(Tick ticks)
@@ -70,4 +98,14 @@ Tick Entity::getThinkRate() const
 Tick Entity::getNextThink() const
 {
     return nextThink;
+}
+
+RootEntity* Entity::getRoot() const
+{
+    return root;
+}
+
+const String& Entity::getName() const
+{
+    return classname;
 }
