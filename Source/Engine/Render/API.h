@@ -1,11 +1,13 @@
 #ifndef API_H
 #define API_H
+#include <Engine/System/Macros.h>
 #include <SDL2/SDL_video.h>
 
 #if defined(__GNUC__) && !defined(__COUNTER__)
     // Work around Qt Creator's function macro auto-completion
     // __GNUC__ is defined during parsing, but __COUNTER__ is not
     // This is some kind of dark magic, but it works
+    // TODO: Better comment to explain reasoning
     #define GL_GLEXT_PROTOTYPES
     #include <GL/gl.h>
     #include <GL/glext.h>
@@ -14,13 +16,12 @@
     #include <Engine/Render/OpenGL/Functions.hpp>
 #endif
 
-namespace Render
-{
+namespace Render {
     /**
      * @brief Tries to initialize an OpenGL context with the requested version
      * @return a valid context on success, NULL otherwise
      */
-    SDL_GLContext initializeContext(SDL_Window* window, int verMajor, int verMinor);
+    api_public SDL_GLContext initializeContext(SDL_Window* window, int verMajor, int verMinor);
 }
 
 #endif // API_H

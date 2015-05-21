@@ -2,13 +2,12 @@
 #define GENERICASSIMP_H
 #include <Tools/Import/BaseMeshImporter.h>
 
-namespace Import
+namespace Import {
+class GenericAssimp : public BaseMeshImporter
 {
-    class GenericAssimp : public BaseMeshImporter
-    {
-        public:
-            void read(const char* ospath);
-    };
+    public:
+        void read(const char* ospath);
+};
 }
 
 #endif // GENERICASSIMP_H

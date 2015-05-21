@@ -1,4 +1,5 @@
 #include "Texture1D.h"
+#include <Engine/Render/API.h>
 using namespace Render;
 
 Texture1D::Texture1D()

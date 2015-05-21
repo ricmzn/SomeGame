@@ -1,20 +1,23 @@
 #ifndef WINDOWINPUT_H
 #define WINDOWINPUT_H
+#include <Engine/System/Macros.h>
 #include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_events.h>
 
-namespace System
+namespace System {
+class api_public Input
 {
-    class Input
-    {
     public:
-        struct {
-            int keys[SDL_NUM_SCANCODES] = {0};
-            int operator[] (const int& code) const {return keys[code] == 1;}
-        }
-        keyPressed,
-        keyDown,
-        keyUp;
+        class api_public KeyArray {
+            public:
+                int keys[SDL_NUM_SCANCODES];
+                int operator[](const int& code) const;
+                KeyArray();
+        };
+
+        KeyArray keyPressed;
+        KeyArray keyDown;
+        KeyArray keyUp;
 
         struct {
             int left    = 0;
@@ -24,7 +27,7 @@ namespace System
             int x       = 0;
             int y       = 0;
         } mouse;
-    };
+};
 }
 
 #endif // WINDOWINPUT_H

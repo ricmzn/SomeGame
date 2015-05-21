@@ -1,4 +1,5 @@
 #include "TextureRect.h"
+#include <Engine/Render/API.h>
 using namespace Render;
 
 TextureRect::TextureRect()

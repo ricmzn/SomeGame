@@ -1,178 +1,134 @@
 #include "File.h"
 #include <Engine/Base/Exceptions.h>
-#include <iostream>
-#include <vector>
-using namespace Exceptions;
+#include <physfs.h>
+#include <cstring>
 
-File::File(const std::string& filename)
+File::File(StringRef path)
 {
-    fileHandle = nullptr;
+    fileLength = 0;
     fileData = nullptr;
-    setFile(filename);
+    setFile(path);
 }
 
-File::File(const char* filename) : File(std::string(filename)) {}
-File::File(const File& other) : File(other.filename()) {}
-File::File() : File("") {}
+File::File(const char* filename)
+    : File(String(filename)) {}
+
+File::File(const File& other)
+    : File(other.filename()) {}
+
+File::File()
+    : File("") {}
 
 File::~File()
 {
-    if(fileHandle != nullptr)
-    {
-        PHYSFS_close(fileHandle);
-    }
-    if(fileData != nullptr)
-    {
+    if(fileData) {
         delete[] fileData;
     }
 }
 
-unsigned File::size() const
+size_t File::size() const
 {
-    if(fileHandle != nullptr)
-    {
-        return fileLength;
-    }
-    else
-    {
-        return 0;
+    return fileLength;
+}
+
+size_t File::size(StringRef path)
+{
+    if (File::exists(path)) {
+        size_t size;
+        PHYSFS_File* handle = PHYSFS_openRead(path.c_str());
+        size = PHYSFS_fileLength(handle);
+        PHYSFS_close(handle);
+        return size;
+    } else {
+        throw MissingFile(path.c_str());
     }
 }
 
-unsigned File::size(const std::string& file)
+bool File::exists(StringRef path)
 {
-    unsigned tempSize;
-    PHYSFS_File *temp = PHYSFS_openRead(file.c_str());
-    tempSize = PHYSFS_fileLength(temp);
-    PHYSFS_close(temp);
-    return tempSize;
+    return PHYSFS_exists(path.c_str()) != 0;
 }
 
-void File::setFile(const std::string& file)
+void File::setFile(StringRef path, bool autoOpen)
 {
-    // Might want to check if the filesystem is initialized
-    if(!Filesystem::isInit())
-    {
+    if(path.empty()) {
+        this->clear();
+        return;
+    }
+
+    if(File::exists(path)) {
+        filePath = path;
+        if (autoOpen) {
+            this->open();
+        }
+    } else {
+        throw MissingFile(path.c_str());
+    }
+}
+
+void File::open(size_t readStart, size_t readCount)
+{
+    if(!Filesystem::isInit()) {
         throw GenericError("Filesystem is not initialized!");
     }
 
-    if(file == "")
-    {
-        clear();
-    }
-    else
-    {
-        clear();
-        if(!openFile(file))
-        {
-            // File probably does not exist
-            throw MissingFile(file.c_str());
+    this->clear();
+    if(exists(filePath)) {
+        PHYSFS_File* file = PHYSFS_openRead(filePath.c_str());
+        fileLength = PHYSFS_fileLength(file);
+        if (readCount == 0) {
+            readCount = fileLength;
         }
-        if(fileData != nullptr)
-        {
-            delete[] fileData;
-        }
-        fileData = new unsigned char[fileLength];
-        readData(fileData, 0, fileLength);
+        fileData = new Byte[fileLength];
+        this->read(file, fileData, readStart, readCount);
+        PHYSFS_close(file);
+    } else {
+        throw MissingFile(filePath.c_str());
     }
 }
 
-std::string File::filename() const
+String File::filename() const
 {
     return filePath;
 }
 
-std::string File::toString() const
+String File::toString() const
 {
-    if(fileData != nullptr)
-    {
-        return std::string((const char*)fileData, fileLength);
+    if(fileData) {
+        return String((const char*)fileData, fileLength);
     }
-    else
-    {
-        return std::string("");
+    else {
+        return String("");
     }
 }
 
-const unsigned char* File::data() const
+const Byte* File::data() const
 {
     return fileData;
 }
 
-const PHYSFS_File* File::getHandle() const
-{
-    return fileHandle;
-}
-
 void File::clear()
 {
-    if(fileHandle != nullptr)
-    {
-        PHYSFS_close(fileHandle);
-        fileHandle = nullptr;
-    }
-    filePath.clear();
-    if(fileData != nullptr)
-    {
+    if(fileData) {
         delete[] fileData;
         fileData = nullptr;
     }
-}
-
-void File::close()
-{
-    if(fileHandle != nullptr)
-    {
-        PHYSFS_close(fileHandle);
-        fileHandle = nullptr;
-    }
+    fileLength = 0;
 }
 
 File::operator bool() const
 {
-    return(fileHandle != nullptr);
+    return fileLength > 0;
 }
 
-File File::operator=(const File& other)
+void File::read(const void* file, void* dest, size_t start, size_t size)
 {
-    if (other.fileData != fileData or other.fileHandle != fileHandle)
-    {
-        this->clear();
-        return File(other);
+    PHYSFS_File* filePtr = (PHYSFS_File*)file;
+    if(filePtr) {
+        PHYSFS_seek(filePtr, start);
+        PHYSFS_read(filePtr, dest, size, 1);
+        PHYSFS_seek(filePtr, 0);
     }
-    else return *this;
-}
-
-bool File::openFile(const std::string& filename, bool writeMode)
-{
-    if(!PHYSFS_exists(filename.c_str()))
-    {
-        clear();
-        return false;
-    }
-    if(writeMode)
-    {
-        fileHandle = PHYSFS_openWrite(filename.c_str());
-    }
-    else
-    {
-        fileHandle = PHYSFS_openRead(filename.c_str());
-    }
-    fileLength = PHYSFS_fileLength(fileHandle);
-    filePath = filename;
-    return true;
-}
-
-void File::readData(void* dest, size_t start, size_t sz)
-{
-    if(fileHandle == nullptr)
-    {
-        std::cerr << "Fatal error: file wasn't opened before trying to read from it!\n";
-        return;
-    }
-    PHYSFS_seek(fileHandle, start);
-    PHYSFS_read(fileHandle, dest, sz, 1);
-    PHYSFS_seek(fileHandle, 0);
 }
 
 std::ostream& operator<<(std::ostream& left, const File& right)

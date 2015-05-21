@@ -9,7 +9,6 @@ uniform sampler2D albedoTexture;
 
 void main()
 {
-//    diffuseColor = vec4((vTexCoord.st + 1)/2, 0, 1);
     diffuseColor = texture(albedoTexture, vTexCoord);
     normalColor = vec4(0.5, 0.5, 1, 1);
 }

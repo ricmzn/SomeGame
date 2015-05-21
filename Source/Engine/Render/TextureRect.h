@@ -2,16 +2,14 @@
 #define TEXTURERECT_H
 #include <Engine/Render/ContextObject.h>
 
-namespace Render
+namespace Render {
+class api_public TextureRect : public ContextObject
 {
-    class TextureRect : public ContextObject
-    {
     public:
         TextureRect();
         virtual ~TextureRect();
         void upload(void* pixels, GLenum format, GLenum type, GLsizei width, GLsizei height, GLenum internal = GL_RGBA);
-    };
+};
 }
-
 
 #endif // TEXTURERECT_H

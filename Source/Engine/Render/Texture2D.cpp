@@ -1,4 +1,5 @@
 #include "Texture2D.h"
+#include <Engine/Render/API.h>
 using namespace Render;
 
 Texture2D::Texture2D()

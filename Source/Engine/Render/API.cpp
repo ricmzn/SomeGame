@@ -11,10 +11,13 @@ static void errorCallback(GLenum source, GLenum type, GLuint id, GLenum severity
     (void) source;
     (void) type;
     (void) id;
-    (void) severity;
     (void) length;
     (void) userparam;
-    std::cerr << message << std::endl;
+
+    if(severity == GL_DEBUG_SEVERITY_HIGH) {
+        std::cerr << "HIGH PRIORITY:" << std::endl;
+    }
+    std::cout << message << std::endl;
 }
 
 // Declare glLoadGen functions
@@ -41,21 +44,23 @@ SDL_GLContext Render::initializeContext(SDL_Window* window, int verMajor, int ve
     SDL_GLContext context = SDL_GL_CreateContext(window);
     ogl_LoadFunctions();
 
-    // Throw away the context if it's not valid
-    if (!glGetString || !glGetString(GL_RENDERER))
-    {
+    // Throw away the context if it's not valid by testing if glGetString was properly loaded
+    if(!glGetString || !glGetString(GL_RENDERER)) {
         SDL_GL_DeleteContext(context);
         return nullptr;
     }
 
     // Set up debug messages if the context supports it
-    if (glDebugMessageCallback)
-    {
+    if(glDebugMessageCallback) {
         glDebugMessageCallback(errorCallback, nullptr);
     }
-    else
-    {
+    else {
         std::cerr << "OpenGL warning: debug output not enabled" << std::endl;
+    }
+
+    // Warn the user if querying timers isn't supported
+    if(!glQueryCounter) {
+        std::cerr << "OpenGL warning: unable to query timers" << std::endl;
     }
 
     return context;

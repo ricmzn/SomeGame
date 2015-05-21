@@ -1,0 +1,27 @@
+<Renderer>
+    <!--
+    Resolution
+    -->
+    <Width>1024</Width>
+    <Height>600</Height>
+    <!--
+    Suported modes:
+     0 - Windowed
+     1 - Fullscreen
+     2 - Borderless Window
+     3 - Fullscreen (Desktop)
+    -->
+    <Mode>0</Mode>
+    <!--
+    Supported vsync options:
+     0 - Disabled
+     1 - Double-Buffered
+     2 - Triple-Buffered
+     3 - Adaptive
+    -->
+    <VSync>1</VSync>
+    <UserFriendlyMessage str='Hello World!'/>
+</Renderer>
+<Input>
+    <Mouse sensitivity='0.25'/>
+</Input>

@@ -1,40 +1,41 @@
 #ifndef EXCEPTIONS_H
 #define EXCEPTIONS_H
+#include <Engine/Base/Types/Shared.h>
 
-namespace Exceptions
+namespace Base
 {
-    class BaseException
-    {
+class api_public BaseException
+{
     protected:
         char* buffer;
-        char* btrace;
     public:
         BaseException(const char* msg, const char* start = "", const char* end = "");
         virtual ~BaseException() = 0;
         const char* message() const;
-        const char* trace() const;
-    };
+};
 
-    class GenericError : public BaseException
-    {
+class api_public GenericError : public BaseException
+{
     public:
         GenericError(const char* what);
-    };
+};
 
-    class MissingFile : public BaseException
-    {
+class api_public MissingFile : public BaseException
+{
     public:
         MissingFile(const char* filename);
-    };
+};
 
-    class InvalidParameter : public BaseException
-    {
+class api_public InvalidParameter : public BaseException
+{
     public:
         InvalidParameter(const char* param, const char* func);
-    };
+};
 }
 
-// Pollute the global namespace like a champ
-using namespace Exceptions;
+using Base::BaseException;
+using Base::GenericError;
+using Base::MissingFile;
+using Base::InvalidParameter;
 
 #endif // EXCEPTIONS_H

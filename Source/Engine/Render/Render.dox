@@ -1,0 +1,4 @@
+/**
+ * @namespace Render
+ * @brief Low-level OpenGL wrappers.
+ */

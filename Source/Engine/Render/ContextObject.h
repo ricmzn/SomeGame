@@ -1,11 +1,11 @@
 #ifndef CONTEXTOBJECT_H
 #define CONTEXTOBJECT_H
-#include <Engine/Render/API.h>
+#include <Engine/Base/Types/Shared.h>
+#include <Engine/Render/OpenGL/Enums.hpp>
 
-namespace Render
+namespace Render {
+class api_public ContextObject
 {
-    class ContextObject
-    {
     protected:
         GLuint handle;
 
@@ -18,7 +18,7 @@ namespace Render
         virtual ~ContextObject() = 0;
         GLuint getHandle() const;
         operator GLuint() const;
-    };
+};
 }
 
 #endif // CONTEXTOBJECT_H

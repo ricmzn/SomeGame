@@ -1,53 +1,75 @@
-#include "Messagebox.h"
-using namespace System::Messagebox;
+#include <Engine/System/Messagebox.h>
 using namespace System;
 
-#if defined(__WIN32__)
+#if defined(_WIN32)
 #define WIN32_MEAN_AND_LEAN
 #include <windows.h>
 
-Option Messagebox::Error(const char* title, const char* message)
+Messagebox::Option Messagebox::Error(const char* title, const char* message)
 {
     MessageBoxA(NULL, message, title, MB_ICONERROR | MB_OK);
     return Option::Ok;
 }
 
-Option Messagebox::Warning(const char* title, const char* message)
+Messagebox::Option Messagebox::Warning(const char* title, const char* message)
 {
     MessageBoxA(NULL, message, title, MB_ICONWARNING | MB_OK);
     return Option::Ok;
 }
 
-Option Messagebox::YesNo(const char* title, const char* message)
+Messagebox::Option Messagebox::YesNo(const char* title, const char* message)
 {
     switch(MessageBoxA(NULL, message, title, MB_ICONQUESTION | MB_YESNO))
     {
-        case IDYES:
-            return Option::Yes;
-            break;
-        case IDNO: default:
-            return Option::No;
-            break;
+        default:
+        case IDYES: return Option::Yes;
+        case IDNO: return Option::No;
     }
 }
-#else // __WIN32__ not defined, try SDL
-#include <SDL2/SDL_messagebox.h>
+#elif 0
+// TODO: OSX support
+#else
+// @TODO: Replace with GTK+ code
+#include <iostream>
+#include <sstream>
+#include <cstdlib>
 
-Option Messagebox::Error(const char* title, const char* message)
+static int showZenityDialog(const char* type, const char* title, const char* text)
 {
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, message, NULL);
+    std::stringstream ss;
+    ss << "zenity "
+       << "--" << type
+       << " --title=\"" << title << "\""
+       << " --text=\"" << text << "\"";
+#ifdef __linux__
+    ss << " 2> /dev/null";
+#endif
+    int status = system(ss.str().c_str());
+    if(status >= 255) {
+        std::cerr << "FATAL: Zenity command line failed: " << ss.str() << std::endl;
+    }
+    return status;
+}
+
+Messagebox::Option Messagebox::Error(const char* title, const char* message)
+{
+    showZenityDialog("error", title, message);
     return Option::Ok;
 }
 
-Option Messagebox::Warning(const char* title, const char* message)
+Messagebox::Option Messagebox::Warning(const char* title, const char* message)
 {
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, title, message, NULL);
+    showZenityDialog("warning", title, message);
     return Option::Ok;
 }
 
-Option Messagebox::YesNo(const char* title, const char* message)
+Messagebox::Option Messagebox::YesNo(const char* title, const char* message)
 {
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", "SDL Yes/No dialog not implemented", NULL);
-    return Option::Ok;
+    int code = showZenityDialog("question", title, message);
+    if(code == 0) {
+        return Option::Yes;
+    } else {
+        return Option::No;
+    }
 }
 #endif

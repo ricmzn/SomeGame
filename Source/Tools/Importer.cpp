@@ -1,5 +1,4 @@
 #include <Tools/Import/GenericAssimp.h>
-#include <Engine/Base/OptionParser.h>
 #include <Engine/Base/Exceptions.h>
 #include <iostream>
 
@@ -18,22 +17,9 @@ const char helpString[] =
 "    .3ds - 3DS Max model\n"
 "    Others (check Assimp docs)\n";
 
-int main(int argc, char** argv) try
+int main() try
 {
-    OptionParser opts(argc, argv);
-    if (opts.getBoolean("--help") || opts.getBoolean("-h"))
-    {
-        std::cout << helpString << std::endl;
-        return 0;
-    }
-    std::cout << opts.getString("-o") << std::endl;
-    std::cout << opts.getInteger("--test") << std::endl;
-
-    for (auto& str : opts.getDefaults())
-    {
-        std::cout << "Non-arg: " << str << std::endl;
-    }
-
+    std::cout << helpString << std::endl;
     return 0;
 }
 catch (BaseException& ex)

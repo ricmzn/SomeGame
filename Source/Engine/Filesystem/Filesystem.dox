@@ -1,0 +1,40 @@
+/**
+ * @namespace Filesystem
+ * @brief Small PhysFS wrapper.
+ *
+ * @section Usage
+ * Initialization:
+@code
+    Filesystem::initialize(argc, argv);
+    Filesystem::setRootPath("../Data"); // Primary folder from where files are opened, can be anything
+@endcode
+ * Opening a file:
+@code
+    File myFile1("file1.txt");
+
+    // Or
+    File myFile2;
+    myFile2.setFile("file2.txt");
+@endcode
+ * Using the data:
+@code
+    std::string myString = myFile1.toString();
+    doSomething(myString);
+
+    // Or
+    doSomething(myFile2.data(), myFile2.size());
+@endcode
+ * Closing a file:
+@code
+// Frees the handle but keeps the data for reading
+myFile1.close();
+
+// Frees the handle and deallocates the data
+myFile2.clear();
+@endcode
+ *
+ * @see File
+ *
+ * @author Ricardo Maes
+ * @version 0.2.2_1
+ */

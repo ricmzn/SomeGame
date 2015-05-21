@@ -3,10 +3,9 @@
 #include <Engine/Render/ContextObject.h>
 #include <string>
 
-namespace Render
+namespace Render {
+class api_public ShaderProgram : public ContextObject
 {
-    class ShaderProgram : public ContextObject
-    {
     protected:
         std::string errorLog;
 
@@ -16,7 +15,7 @@ namespace Render
         void addShader(GLenum type, const GLchar* src, GLint size);
         const char* getLog() const;
         void link();
-    };
+};
 }
 
 #endif // SHADERPROGRAM_H
